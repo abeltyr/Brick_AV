@@ -18,15 +18,23 @@ import { Badge } from '@/modules/ui/badge';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/modules/ui/avatar';
 import { useAuth } from '@/lib/context/auth/user';
+import { CalendarDateRangePicker } from '@/modules/dashboard/components/dateRange';
 
 export default function HomeSection() {
   const { companies, companyIndex, companyLoading } = useAuth();
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      {
-        companyLoading ? "Loading" :
-          companies && companies.length > companyIndex && companies[companyIndex] && companies[companyIndex].name}
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">{
+          companyLoading ? "Loading" :
+            companies && companies.length > companyIndex && companies[companyIndex] && companies[companyIndex].name}
+          {" "} Dashboard</h2>
+        <div className="flex items-center space-x-2">
+          <CalendarDateRangePicker />
+          <Button>Download</Button>
+        </div>
+      </div>
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
 
         <Card x-chunk="dashboard-01-chunk-0">

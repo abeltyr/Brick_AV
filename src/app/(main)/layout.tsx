@@ -22,8 +22,8 @@ export default async function RootLayout({
   if (value)
     return (
       <div className='flex'>
-        <SideBarSection />
-        <main className='flex-1 sm:ml-14'>
+        {/* <SideBarSection /> */}
+        <main className='flex-1 '>
           <MobileNavBar />
           <NavBar />
           {children}

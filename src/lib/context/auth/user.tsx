@@ -20,6 +20,7 @@ const initialValues: {
     companies: Company[] | null,
     companyIndex: number,
     companyLoading: boolean
+    updateCompanyIndex: (index: number) => void,
 } = {
     session: null,
     loading: true,
@@ -30,6 +31,7 @@ const initialValues: {
     companies: null,
     companyIndex: 0,
     companyLoading: true,
+    updateCompanyIndex: (index: number) => { },
 
 };
 
@@ -80,6 +82,13 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     }, [])
 
 
+
+    const updateCompanyIndex = useCallback(
+        async (index: number) => {
+            setCompanyIndex(index)
+        },
+        [],
+    );
 
     const login = useCallback(
         async ({ email, password }: { email: string, password: string }) => {
@@ -197,7 +206,8 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                 loading,
                 companyIndex,
                 companies,
-                companyLoading
+                companyLoading,
+                updateCompanyIndex
             }}
         >
             {children}
