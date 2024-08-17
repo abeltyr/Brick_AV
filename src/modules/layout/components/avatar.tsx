@@ -15,7 +15,7 @@ import {
     DropdownMenuTrigger,
 } from "@/modules/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from '@/modules/ui/avatar';
-import { useAuth } from '@/lib/context/auth';
+import { useAuth } from '@/lib/context/auth/user';
 import Link from 'next/link';
 import { Settings, User } from 'lucide-react';
 

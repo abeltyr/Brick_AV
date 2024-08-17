@@ -1,9 +1,11 @@
+'use client'
+
 import { Button } from '@/modules/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/modules/ui/card';
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/modules/ui/dropdown-menu';
-import { Pagination, PaginationContent, PaginationItem } from '@/modules/ui/pagination';
-import { Separator } from '@/modules/ui/separator';
-import { File, ChevronLeft, ChevronRight, Copy, CreditCard, ListFilter, MoreVertical, Truck, DollarSign, Users, Activity, ArrowUpRight } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/modules/ui/card';
+
+import {
+  CreditCard, DollarSign, Users, Activity, ArrowUpRight
+} from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -12,21 +14,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/modules/ui/table"
-import { Progress } from '@/modules/ui/progress';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/modules/ui/tabs"
 import { Badge } from '@/modules/ui/badge';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/modules/ui/avatar';
+import { useAuth } from '@/lib/context/auth/user';
 
 export default function HomeSection() {
+  const { companies, companyIndex, companyLoading } = useAuth();
+
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      {
+        companyLoading ? "Loading" :
+          companies && companies.length > companyIndex && companies[companyIndex] && companies[companyIndex].name}
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+
         <Card x-chunk="dashboard-01-chunk-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">

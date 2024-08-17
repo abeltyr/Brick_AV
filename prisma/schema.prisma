@@ -12,3 +12,130 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Company {
+  id              String           @id @default(uuid())
+  name            String
+  userName        String           @unique
+  tin             String?
+  vat             String?
+  region          String?
+  woreda          String?
+  houseNumber     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+  deletedAt       DateTime?
+  companyUsers    CompanyUser[]
+  sales           Sales[]
+  purchases       Purchase[]
+  withholdings    Withholding[]
+  employeePayouts EmployeePayout[]
+}
+
+model User {
+  id              String           @id @default(uuid())
+  name            String
+  email           String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+  deletedAt       DateTime?
+  userBanks       UserBank[]
+  companyUsers    CompanyUser[]
+  sales           Sales[]
+  purchases       Purchase[]
+  withholdings    Withholding[]
+  employeePayouts EmployeePayout[]
+}
+
+model UserBank {
+  id          String    @id @default(uuid())
+  bankName    String
+  bankAccount String
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  deletedAt   DateTime?
+}
+
+model CompanyUser {
+  id        String          @id @default(uuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id])
+  companyId String
+  company   Company         @relation(fields: [companyId], references: [id])
+  role      CompanyUserRole
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now()) @updatedAt
+  deletedAt DateTime?
+}
+
+model Sales {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  companyId String
+  company   Company   @relation(fields: [companyId], references: [id])
+  amount    Float
+  taxAmount Float
+  date      DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+}
+
+model Purchase {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  companyId String
+  company   Company   @relation(fields: [companyId], references: [id])
+  vat       String
+  tin       String
+  amount    Float
+  taxAmount Float
+  date      DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+}
+
+model Withholding {
+  id        String    @id @default(uuid())
+  userId    String
+  companyId String
+  vat       String
+  tin       String
+  amount    Float
+  taxAmount Float
+  reason    String
+  date      DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id])
+  company   Company   @relation(fields: [companyId], references: [id])
+}
+
+model EmployeePayout {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id])
+  employeeId String
+  vat        String
+  tin        String
+  amount     Float
+  date       DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
+  deletedAt  DateTime?
+}
+
+enum CompanyUserRole {
+  Owner
+  Accountant
+  Receiptor
+  Employee
+}

@@ -1,9 +1,13 @@
 'use client'
 
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { getUserAction, logoutAction, refreshAccountToken, signInWithPasswordAction } from '@/lib/data/account';
 import { Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/utils/supabase/client';
+import { signInWithPasswordAction } from '@/lib/data/account/signIn';
+import { getUserAction, refreshAccountToken } from '@/lib/data/account/fetch';
+import { logoutAction } from '@/lib/data/account/logout';
+import { Company } from '@prisma/client';
+import { getUserCompanies } from '@/lib/data/company/userCompanies';
 
 
 const initialValues: {
@@ -13,6 +17,9 @@ const initialValues: {
     logout: () => void,
     fetchUser: () => void,
     updateUser: ({ }: {}) => void,
+    companies: Company[] | null,
+    companyIndex: number,
+    companyLoading: boolean
 } = {
     session: null,
     loading: true,
@@ -20,6 +27,10 @@ const initialValues: {
     logout: () => { },
     fetchUser: () => { },
     updateUser: ({ }: {}) => { },
+    companies: null,
+    companyIndex: 0,
+    companyLoading: true,
+
 };
 
 type Props = {
@@ -32,7 +43,10 @@ const useAuth = () => useContext(AuthContext);
 
 const AuthProvider: React.FC<Props> = ({ children }) => {
     const [loading, setLoading] = useState(true);
+    const [companyLoading, setCompanyLoading] = useState(true);
     const [session, setSession] = useState<Session | null>(null)
+    const [companies, setCompanies] = useState<Company[] | null>(null)
+    const [companyIndex, setCompanyIndex] = useState<number>(0)
 
 
     const dataSetter = async () => {
@@ -48,15 +62,17 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
         dataSetter();
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session: any) => {
+        } = supabase.auth.onAuthStateChange(async (_event, session: Session | null) => {
             if (session) {
                 const expiresAt = session.expires_at
                 const currentTime = Math.floor(Date.now() / 1000) // convert to Unix timestamp
-                if (expiresAt - currentTime < 300) {
+                if (expiresAt && expiresAt - currentTime < 300) {
                     refreshAccountSession();
                 }
             }
             setSession(session)
+            if (session)
+                await fetchCompanies({ userId: session.user.id });
         })
 
         return () => subscription.unsubscribe()
@@ -105,13 +121,53 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
             setLoading(true);
             try {
                 let value = await getUserAction();
-                if (value)
+                if (value) {
+                    await fetchCompanies({ userId: value.user.id, });
                     return value.user;
+                }
             } catch (e) {
                 console.error(e)
             }
             setLoading(false);
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [],
+    );
+
+
+    const fetchCompanies = useCallback(
+        async ({ userId, refetch = false }: { userId: string, refetch?: boolean }) => {
+            setCompanyLoading(true);
+            let fetchData = true;
+            try {
+                const data = localStorage.getItem("companiesData")
+
+                if (data && !refetch) {
+                    const extractData = JSON.parse(data);
+                    const minSinceLastPull = (new Date().getTime() - extractData.date) / 60000;
+                    if (minSinceLastPull < 60) {
+                        setCompanies(extractData.companies);
+                        fetchData = false;
+                        console.log("local data");
+                    }
+                }
+
+                if (!companies && fetchData) {
+                    const companiesData = await getUserCompanies({ userId });
+                    localStorage.setItem("companiesData", JSON.stringify({
+                        companies: companiesData,
+                        date: new Date().getTime()
+                    }))
+                    setCompanies(companiesData);
+                    console.log("new Save");
+
+                }
+            } catch (e) {
+                console.error(e)
+            }
+            setCompanyLoading(false);
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [],
     );
 
@@ -138,7 +194,10 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                 login,
                 logout: logout,
                 updateUser: () => { },
-                loading
+                loading,
+                companyIndex,
+                companies,
+                companyLoading
             }}
         >
             {children}

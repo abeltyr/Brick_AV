@@ -19,7 +19,7 @@ import {
     FormLabel,
     FormMessage,
 } from "@/modules/ui/form"
-import { useAuth } from '@/lib/context/auth'
+import { useAuth } from '@/lib/context/auth/user'
 import { useToast } from "@/modules/ui/use-toast"
 
 
