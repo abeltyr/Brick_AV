@@ -26,7 +26,7 @@ import {
 } from "lucide-react"
 
 
-import { Avatar, SearchBlock } from '@/modules/layout/components';
+import { AvatarSection, SearchBlock } from '@/modules/layout/components';
 import { } from '../../components';
 
 
@@ -88,7 +88,7 @@ export const MobileNavBar = () => {
                 </SheetContent>
             </Sheet>
             <SearchBlock />
-            <Avatar />
+            <AvatarSection />
         </div>
     )
 }

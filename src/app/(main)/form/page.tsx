@@ -28,7 +28,7 @@ export default function HomeSection() {
         <div className='flex-1 flex flex-col gap-6'>
           <Card >
             <CardHeader>
-              <CardTitle>Product Details</CardTitle>
+              <CardTitle>Purchase</CardTitle>
               <CardDescription>
                 Lipsum dolor sit amet, consectetur adipiscing elit
               </CardDescription>
@@ -36,13 +36,39 @@ export default function HomeSection() {
             <CardContent>
               <div className="grid gap-6">
                 <div className="grid gap-3">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    className="w-full"
-                    defaultValue="Gamer Gear Pro Controller"
-                  />
+                  <div className='flex gap-x-4'>
+                    <div className='flex-1'>
+                      <Label htmlFor="name">Tin</Label>
+                      <Input
+                        id="tin"
+                        type="text"
+                        className="w-full"
+                        defaultValue=""
+                      />
+                    </div>
+                    <div className='flex-1'>
+                      <Label htmlFor="name">Name</Label>
+                      <Input
+                        id="Company name"
+                        type="text"
+                        className="w-full"
+                        defaultValue=""
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="grid gap-3">
+                  <Label htmlFor="status">Purchase Type</Label>
+                  <Select>
+                    <SelectTrigger id="status" aria-label="Select status">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="published">Active</SelectItem>
+                      <SelectItem value="archived">Archived</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="grid gap-3">
                   <Label htmlFor="description">Description</Label>

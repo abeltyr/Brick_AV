@@ -35,7 +35,7 @@ export default function HomeSection() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$45,231.89</div>
+            <div className="text-2xl font-bold">ETB 45,231.89</div>
             <p className="text-xs text-muted-foreground">
               +20.1% from last month
             </p>
@@ -44,9 +44,9 @@ export default function HomeSection() {
         <Card x-chunk="dashboard-01-chunk-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Subscriptions
+              Purchase
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+2350</div>
@@ -69,13 +69,13 @@ export default function HomeSection() {
         </Card>
         <Card x-chunk="dashboard-01-chunk-3">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Now</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Employee Expense</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+573</div>
+            <div className="text-2xl font-bold">+57300</div>
             <p className="text-xs text-muted-foreground">
-              +201 since last hour
+              +201 since last month
             </p>
           </CardContent>
         </Card>
@@ -118,9 +118,9 @@ export default function HomeSection() {
               <TableBody>
                 <TableRow>
                   <TableCell>
-                    <div className="font-medium">Liam Johnson</div>
+                    <div className="font-medium">Johnson LLC</div>
                     <div className="hidden text-sm text-muted-foreground md:inline">
-                      liam@example.com
+                      0091121212
                     </div>
                   </TableCell>
                   <TableCell className="hidden xl:table-column">
@@ -134,13 +134,13 @@ export default function HomeSection() {
                   <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
                     2023-06-23
                   </TableCell>
-                  <TableCell className="text-right">$250.00</TableCell>
+                  <TableCell className="text-right">ETB 250.00</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>
-                    <div className="font-medium">Olivia Smith</div>
+                    <div className="font-medium">Pola LLC</div>
                     <div className="hidden text-sm text-muted-foreground md:inline">
-                      olivia@example.com
+                      0091121212
                     </div>
                   </TableCell>
                   <TableCell className="hidden xl:table-column">
@@ -154,13 +154,13 @@ export default function HomeSection() {
                   <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
                     2023-06-24
                   </TableCell>
-                  <TableCell className="text-right">$150.00</TableCell>
+                  <TableCell className="text-right">ETB 150.00</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>
-                    <div className="font-medium">Noah Williams</div>
+                    <div className="font-medium">Williams PLC</div>
                     <div className="hidden text-sm text-muted-foreground md:inline">
-                      noah@example.com
+                      00941221212
                     </div>
                   </TableCell>
                   <TableCell className="hidden xl:table-column">
@@ -174,13 +174,13 @@ export default function HomeSection() {
                   <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
                     2023-06-25
                   </TableCell>
-                  <TableCell className="text-right">$350.00</TableCell>
+                  <TableCell className="text-right">ETB 350.00</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>
-                    <div className="font-medium">Emma Brown</div>
+                    <div className="font-medium">Brown PLC</div>
                     <div className="hidden text-sm text-muted-foreground md:inline">
-                      emma@example.com
+                      0092181112
                     </div>
                   </TableCell>
                   <TableCell className="hidden xl:table-column">
@@ -194,13 +194,13 @@ export default function HomeSection() {
                   <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
                     2023-06-26
                   </TableCell>
-                  <TableCell className="text-right">$450.00</TableCell>
+                  <TableCell className="text-right">ETB 450.00</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>
-                    <div className="font-medium">Liam Johnson</div>
+                    <div className="font-medium">Johnson PLC</div>
                     <div className="hidden text-sm text-muted-foreground md:inline">
-                      liam@example.com
+                      00129101112
                     </div>
                   </TableCell>
                   <TableCell className="hidden xl:table-column">
@@ -214,7 +214,7 @@ export default function HomeSection() {
                   <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
                     2023-06-27
                   </TableCell>
-                  <TableCell className="text-right">$550.00</TableCell>
+                  <TableCell className="text-right">ETB 550.00</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -235,10 +235,10 @@ export default function HomeSection() {
                   Olivia Martin
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  olivia.martin@email.com
+                  0092181112
                 </p>
               </div>
-              <div className="ml-auto font-medium">+$1,999.00</div>
+              <div className="ml-auto font-medium">+ETB 1,999.00</div>
             </div>
             <div className="flex items-center gap-4">
               <Avatar className="hidden h-9 w-9 sm:flex">
@@ -250,10 +250,10 @@ export default function HomeSection() {
                   Jackson Lee
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  jackson.lee@email.com
+                  0092181112
                 </p>
               </div>
-              <div className="ml-auto font-medium">+$39.00</div>
+              <div className="ml-auto font-medium">+ETB 39.00</div>
             </div>
             <div className="flex items-center gap-4">
               <Avatar className="hidden h-9 w-9 sm:flex">
@@ -265,10 +265,10 @@ export default function HomeSection() {
                   Isabella Nguyen
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  isabella.nguyen@email.com
+                  0092181112
                 </p>
               </div>
-              <div className="ml-auto font-medium">+$299.00</div>
+              <div className="ml-auto font-medium">+ETB 299.00</div>
             </div>
             <div className="flex items-center gap-4">
               <Avatar className="hidden h-9 w-9 sm:flex">
@@ -280,10 +280,10 @@ export default function HomeSection() {
                   William Kim
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  will@email.com
+                  0092181112
                 </p>
               </div>
-              <div className="ml-auto font-medium">+$99.00</div>
+              <div className="ml-auto font-medium">+ETB 99.00</div>
             </div>
             <div className="flex items-center gap-4">
               <Avatar className="hidden h-9 w-9 sm:flex">
@@ -295,10 +295,10 @@ export default function HomeSection() {
                   Sofia Davis
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  sofia.davis@email.com
+                  0092181112
                 </p>
               </div>
-              <div className="ml-auto font-medium">+$39.00</div>
+              <div className="ml-auto font-medium">+ETB 39.00</div>
             </div>
           </CardContent>
         </Card>

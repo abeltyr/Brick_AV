@@ -22,7 +22,7 @@ import {
 import Link from 'next/link';
 import { Input } from "@/modules/ui/input"
 import { Search } from 'lucide-react';
-import { Avatar, SearchBlock } from '@/modules/layout/components';
+import { AvatarSection, SearchBlock } from '@/modules/layout/components';
 
 
 
@@ -49,7 +49,7 @@ export const NavBar = () => {
                 </BreadcrumbList>
             </Breadcrumb>
             <SearchBlock />
-            <Avatar />
+            <AvatarSection />
         </header>
     )
 }
