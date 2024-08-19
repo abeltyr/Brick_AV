@@ -56,6 +56,9 @@ model UserBank {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now()) @updatedAt
   deletedAt   DateTime?
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model CompanyUser {
@@ -68,24 +71,38 @@ model CompanyUser {
   createdAt DateTime        @default(now())
   updatedAt DateTime        @default(now()) @updatedAt
   deletedAt DateTime?
+
+  @@index([companyId, userId])
+  @@index([companyId])
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Sales {
-  id        String    @id @default(uuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  companyId String
-  company   Company   @relation(fields: [companyId], references: [id])
-  amount    Float
-  taxAmount Float
-  date      DateTime
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  deletedAt DateTime?
+  id          String    @id @default(uuid())
+  creditSales Boolean
+  dataIndex   Int
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id])
+  amount      Float
+  taxAmount   Float
+  date        DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  deletedAt   DateTime?
+
+  @@unique([companyId, dataIndex])
+  @@index([companyId, date])
+  @@index([companyId, userId])
+  @@index([companyId])
+  @@index([createdAt])
 }
 
 model Purchase {
   id        String    @id @default(uuid())
+  dataIndex Int
   userId    String
   user      User      @relation(fields: [userId], references: [id])
   companyId String
@@ -98,10 +115,17 @@ model Purchase {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
+
+  @@unique([companyId, dataIndex])
+  @@index([companyId, date])
+  @@index([companyId, userId])
+  @@index([companyId])
+  @@index([createdAt])
 }
 
 model Withholding {
   id        String    @id @default(uuid())
+  dataIndex Int
   userId    String
   companyId String
   vat       String
@@ -115,10 +139,17 @@ model Withholding {
   deletedAt DateTime?
   user      User      @relation(fields: [userId], references: [id])
   company   Company   @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, dataIndex])
+  @@index([companyId, date])
+  @@index([companyId, userId])
+  @@index([companyId])
+  @@index([createdAt])
 }
 
 model EmployeePayout {
   id         String    @id @default(uuid())
+  dataIndex  Int
   userId     String
   user       User      @relation(fields: [userId], references: [id])
   companyId  String
@@ -131,6 +162,12 @@ model EmployeePayout {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @default(now()) @updatedAt
   deletedAt  DateTime?
+
+  @@unique([companyId, dataIndex])
+  @@index([companyId, date])
+  @@index([companyId, userId])
+  @@index([companyId])
+  @@index([createdAt])
 }
 
 enum CompanyUserRole {

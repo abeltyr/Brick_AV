@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { SideBarSection } from '@/modules/layout/templates/sidebar';
-import { MobileNavBar, NavBar } from '@/modules/layout/templates/nav';
+import { MobileNavBar, NavBar } from '@/modules/layout/components/nav';
 import { getUserAction } from '@/lib/data/account/fetch';
 import AuthenticationPage from '@/modules/account/templates/login/loginTemplate';
 

@@ -76,16 +76,16 @@ export const AvatarSection = () => {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                    <Link href="/profiles">
+                    <Link href="/settings">
                         <DropdownMenuItem className='cursor-pointer text-sm font-medium text-foreground py-2 flex gap-x-2'>
                             <Settings className='w-4 h-4' />
                             Settings
                         </DropdownMenuItem>
                     </Link>
-                    <Link href="/comp">
+                    <Link href="/company">
                         <DropdownMenuItem className='cursor-pointer text-sm font-medium text-foreground py-2 flex gap-x-2'>
                             <User className='w-4 h-4' />
-                            My Account
+                            company
                         </DropdownMenuItem>
                     </Link>
                 </DropdownMenuGroup>
