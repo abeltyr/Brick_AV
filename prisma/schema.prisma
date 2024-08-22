@@ -13,70 +13,201 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Company {
-  id              String           @id @default(uuid())
+model Industries {
+  identifier      String            @id
   name            String
-  userName        String           @unique
+  CompanyIndustry CompanyIndustry[]
+}
+
+model File {
+  id          String    @id @default(cuid())
+  name        String
+  url         String
+  key         String
+  contentType String
+  previewUrl  String
+  previewKey  String
+  width       Float
+  height      Float
+  size        Float
+  Company     Company[]
+}
+
+// Basic Company and user data start
+model User {
+  id             String           @id @default(uuid())
+  name           String
+  preferredName  String
+  email          String           @unique
+  phoneNumber    String?
+  gender         Gender?
+  dateBirth      DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
+  deletedAt      DateTime?
+  Company        Company[]
+  Employee       Employee[]
+  Sales          Sales[]
+  Purchase       Purchase[]
+  Withholding    Withholding[]
+  EmployeePayout EmployeePayout[]
+}
+
+model Company {
+  id              String            @id @default(uuid())
+  name            String
+  legalName       String            @unique
+  email           String?
+  phoneNumber     String?
+  structure       CompanyStructures
+  ownerId         String
+  user            User              @relation(fields: [ownerId], references: [id])
+  logoId          String?
+  logo            File?             @relation(fields: [logoId], references: [id])
   tin             String?
   vat             String?
   region          String?
   woreda          String?
   houseNumber     String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now()) @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now()) @updatedAt
   deletedAt       DateTime?
-  companyUsers    CompanyUser[]
   sales           Sales[]
   purchases       Purchase[]
   withholdings    Withholding[]
   employeePayouts EmployeePayout[]
+  CompanyIndustry CompanyIndustry[]
+  Employee        Employee[]
+  CompanyBank     CompanyBank[]
+
+  @@index([ownerId], type: Hash)
 }
 
-model User {
-  id              String           @id @default(uuid())
-  name            String
-  email           String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now()) @updatedAt
-  deletedAt       DateTime?
-  userBanks       UserBank[]
-  companyUsers    CompanyUser[]
-  sales           Sales[]
-  purchases       Purchase[]
-  withholdings    Withholding[]
-  employeePayouts EmployeePayout[]
+enum CompanyStructures {
+  Plc
+  SoloTrading
+  Partnership
+  Group
+  Charity
+  Trust
+  Other
 }
 
-model UserBank {
-  id          String    @id @default(uuid())
-  bankName    String
-  bankAccount String
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now()) @updatedAt
-  deletedAt   DateTime?
-
-  @@index([userId])
-  @@index([createdAt])
+model CompanyIndustry {
+  id         String     @id @default(uuid())
+  companyId  String
+  company    Company    @relation(fields: [companyId], references: [id])
+  industries String
+  industry   Industries @relation(fields: [industries], references: [identifier])
 }
 
-model CompanyUser {
-  id        String          @id @default(uuid())
-  userId    String
-  user      User            @relation(fields: [userId], references: [id])
-  companyId String
-  company   Company         @relation(fields: [companyId], references: [id])
-  role      CompanyUserRole
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @default(now()) @updatedAt
-  deletedAt DateTime?
+model Employee {
+  id                       String                     @id @default(uuid())
+  userId                   String
+  user                     User                       @relation(fields: [userId], references: [id])
+  companyId                String
+  company                  Company                    @relation(fields: [companyId], references: [id])
+  title                    String?
+  hireDate                 DateTime?
+  homeAddress              String
+  role                     CompanyUserRole
+  manager                  Boolean                    @default(false)
+  active                   Boolean                    @default(true)
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @default(now()) @updatedAt
+  deletedAt                DateTime?
+  EmployeeEmergencyContact EmployeeEmergencyContact[]
+  EmployeeBank             EmployeeBank[]
 
-  @@index([companyId, userId])
+  @@index([companyId], type: Hash)
+}
+
+model EmployeeEmergencyContact {
+  id          String   @id @default(uuid())
+  name        String
+  phoneNumber String
+  order       Int      @default(0)
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@index([employeeId])
+}
+
+model EmployeeBank {
+  id            String   @id @default(uuid())
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  name          String
+  accountNumber String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+
+  @@index([employeeId])
+}
+
+enum CompanyUserRole {
+  Owner
+  Accountant
+  Receiptor
+  Employee
+}
+
+enum Gender {
+  Male
+  Female
+}
+
+// Basic Company and user data end
+
+// Bank transactions
+
+model CompanyBank {
+  id                      String                    @id @default(uuid())
+  companyId               String
+  company                 Company                   @relation(fields: [companyId], references: [id])
+  name                    String
+  accountNumber           String
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @default(now()) @updatedAt
+  CompanyBankTransactions CompanyBankTransactions[]
+
   @@index([companyId])
-  @@index([userId])
-  @@index([createdAt])
 }
+
+model CompanyBankTransactions {
+  id              String          @id @default(uuid())
+  companyBankId   String
+  companyBank     CompanyBank     @relation(fields: [companyBankId], references: [id])
+  date            DateTime
+  description     String?
+  amount          Float
+  transactionType TransactionType
+  accountNumber   String
+  category        String
+  referenceNumber String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([date])
+  @@index([companyBankId])
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  PAYMENT
+  FEE
+  REFUND
+}
+
+// Invoices or sales
+
+// expense
+
+// report
 
 model Sales {
   id          String    @id @default(uuid())
@@ -168,11 +299,4 @@ model EmployeePayout {
   @@index([companyId, userId])
   @@index([companyId])
   @@index([createdAt])
-}
-
-enum CompanyUserRole {
-  Owner
-  Accountant
-  Receiptor
-  Employee
 }
