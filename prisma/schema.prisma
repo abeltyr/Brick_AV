@@ -33,54 +33,109 @@ model File {
   Company     Company[]
 }
 
-// Basic Company and user data start
+// User profile data 
+
 model User {
-  id             String           @id @default(uuid())
-  name           String
-  preferredName  String
-  email          String           @unique
-  phoneNumber    String?
-  gender         Gender?
-  dateBirth      DateTime?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @default(now()) @updatedAt
-  deletedAt      DateTime?
-  Company        Company[]
-  Employee       Employee[]
-  Sales          Sales[]
-  Purchase       Purchase[]
-  Withholding    Withholding[]
-  EmployeePayout EmployeePayout[]
+  id          String  @id @default(uuid())
+  email       String  @unique
+  phoneNumber String?
+  name        String
+  profileId   String
+  profile     Profile @relation(fields: [profileId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  CompanyMember CompanyMember[]
+  Withholding   Withholding[]
 }
 
-model Company {
-  id              String            @id @default(uuid())
-  name            String
-  legalName       String            @unique
-  email           String?
-  phoneNumber     String?
-  structure       CompanyStructures
-  ownerId         String
-  user            User              @relation(fields: [ownerId], references: [id])
-  logoId          String?
-  logo            File?             @relation(fields: [logoId], references: [id])
-  tin             String?
-  vat             String?
-  region          String?
-  woreda          String?
-  houseNumber     String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @default(now()) @updatedAt
-  deletedAt       DateTime?
-  sales           Sales[]
-  purchases       Purchase[]
-  withholdings    Withholding[]
-  employeePayouts EmployeePayout[]
-  CompanyIndustry CompanyIndustry[]
-  Employee        Employee[]
-  CompanyBank     CompanyBank[]
+model Profile {
+  id            String    @id @default(uuid())
+  name          String
+  preferredName String
+  gender        Gender?
+  dateBirth     DateTime?
+  tinNumber     String?
+  addressId     String?
+  address       Address?  @relation(fields: [addressId], references: [id])
 
-  @@index([ownerId], type: Hash)
+  Employee   Employee[]
+  Contractor Contractor[]
+  User       User[]
+}
+
+enum Gender {
+  Male
+  Female
+}
+
+model Address {
+  id          String    @id @default(uuid())
+  region      String?
+  city        String?
+  woreda      String?
+  houseNumber String?
+  Company     Company[]
+  Profile     Profile[]
+}
+
+// Company related data setup start
+
+model Company {
+  id String @id @default(uuid())
+
+  // name and front data
+  name        String
+  legalName   String            @unique
+  email       String?
+  phoneNumber String?
+  structure   CompanyStructures
+
+  // owner and logo id
+  logoId String?
+  logo   File?   @relation(fields: [logoId], references: [id])
+
+  // tax based id
+  tin String?
+  vat String?
+
+  // location data
+  addressId String?
+  address   Address? @relation(fields: [addressId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  sales             Sales[]
+  purchases         Purchase[]
+  withholdings      Withholding[]
+  CompanyIndustry   CompanyIndustry[]
+  Employee          Employee[]
+  CompanyBank       CompanyBank[]
+  CompanyMember     CompanyMember[]
+  EmployeePayroll   EmployeePayroll[]
+  Contractor        Contractor[]
+  ContractorPayroll ContractorPayroll[]
+}
+
+model CompanyMember {
+  id        String            @id @default(uuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id])
+  companyId String
+  company   Company           @relation(fields: [companyId], references: [id])
+  role      CompanyMemberRole
+  active    Boolean           @default(true)
+
+  @@index([userId], type: Hash)
+}
+
+enum CompanyMemberRole {
+  Owner
+  Accountant
 }
 
 enum CompanyStructures {
@@ -101,94 +156,67 @@ model CompanyIndustry {
   industry   Industries @relation(fields: [industries], references: [identifier])
 }
 
-model Employee {
-  id                       String                     @id @default(uuid())
-  userId                   String
-  user                     User                       @relation(fields: [userId], references: [id])
-  companyId                String
-  company                  Company                    @relation(fields: [companyId], references: [id])
-  title                    String?
-  hireDate                 DateTime?
-  homeAddress              String
-  role                     CompanyUserRole
-  manager                  Boolean                    @default(false)
-  active                   Boolean                    @default(true)
-  createdAt                DateTime                   @default(now())
-  updatedAt                DateTime                   @default(now()) @updatedAt
-  deletedAt                DateTime?
-  EmployeeEmergencyContact EmployeeEmergencyContact[]
-  EmployeeBank             EmployeeBank[]
+// Company Related Bank transactions and account
 
-  @@index([companyId], type: Hash)
+model Bank {
+  id                String              @id @default(uuid())
+  name              String
+  uniqueName        String              @unique
+  CompanyBank       CompanyBank[]
+  EmployeeBank      EmployeeBank[]
+  ContractorPayroll ContractorPayroll[]
 }
-
-model EmployeeEmergencyContact {
-  id          String   @id @default(uuid())
-  name        String
-  phoneNumber String
-  order       Int      @default(0)
-  employeeId  String
-  employee    Employee @relation(fields: [employeeId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-
-  @@index([employeeId])
-}
-
-model EmployeeBank {
-  id            String   @id @default(uuid())
-  employeeId    String
-  employee      Employee @relation(fields: [employeeId], references: [id])
-  name          String
-  accountNumber String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now()) @updatedAt
-
-  @@index([employeeId])
-}
-
-enum CompanyUserRole {
-  Owner
-  Accountant
-  Receiptor
-  Employee
-}
-
-enum Gender {
-  Male
-  Female
-}
-
-// Basic Company and user data end
-
-// Bank transactions
 
 model CompanyBank {
   id                      String                    @id @default(uuid())
   companyId               String
   company                 Company                   @relation(fields: [companyId], references: [id])
-  name                    String
-  accountNumber           String
+  bankId                  String
+  bank                    Bank                      @relation(fields: [bankId], references: [id])
+  accountNumber           String?
+  balance                 Decimal                   @default(0.0)
+  type                    CompanyBankType
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @default(now()) @updatedAt
   CompanyBankTransactions CompanyBankTransactions[]
+  BankReconciliation      BankReconciliation[]
 
   @@index([companyId])
 }
 
+model BankReconciliation {
+  id                 String      @id @default(uuid())
+  companyBankId      String
+  companyBank        CompanyBank @relation(fields: [companyBankId], references: [id])
+  statementBalance   Decimal
+  clearedBalance     Decimal
+  unclearedBalance   Decimal
+  reconciliationDate DateTime
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  @@index([companyBankId])
+}
+
+enum CompanyBankType {
+  Checking
+  Saving
+}
+
 model CompanyBankTransactions {
-  id              String          @id @default(uuid())
+  id              String           @id @default(uuid())
   companyBankId   String
-  companyBank     CompanyBank     @relation(fields: [companyBankId], references: [id])
-  date            DateTime
-  description     String?
-  amount          Float
-  transactionType TransactionType
-  accountNumber   String
-  category        String
+  companyBank     CompanyBank      @relation(fields: [companyBankId], references: [id])
   referenceNumber String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  description     String?          @db.Text()
+  amount          Decimal
+  credit          Boolean
+  date            DateTime
+  type            TransactionType?
+  category        String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
 
   @@index([date])
   @@index([companyBankId])
@@ -196,6 +224,7 @@ model CompanyBankTransactions {
 
 enum TransactionType {
   DEPOSIT
+  SALES
   WITHDRAWAL
   TRANSFER
   PAYMENT
@@ -203,18 +232,202 @@ enum TransactionType {
   REFUND
 }
 
+// Employee related data setup start
+
+model Employee {
+  id        String  @id @default(uuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id])
+
+  title           String?
+  hireDate        DateTime  @default(now())
+  terminationDate DateTime?
+
+  role           String?
+  jobDescription String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  EmployeeEmergencyContact EmployeeEmergencyContact[]
+  EmployeeBank             EmployeeBank[]
+
+  EmployeePay     EmployeePay[]
+  EmployeePayroll EmployeePayroll[]
+
+  @@index([companyId], type: Hash)
+}
+
+model EmployeeEmergencyContact {
+  id           String      @id @default(uuid())
+  employeeId   String
+  employee     Employee    @relation(fields: [employeeId], references: [id])
+  name         String
+  phoneNumber  String
+  order        Int         @default(0)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @default(now()) @updatedAt
+  Contractor   Contractor? @relation(fields: [contractorId], references: [id])
+  contractorId String?
+
+  @@index([employeeId])
+}
+
+model EmployeeBank {
+  id String @id @default(uuid())
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  bankId String
+  bank   Bank   @relation(fields: [bankId], references: [id])
+
+  accountNumber   String
+  mainOne         Boolean           @default(false)
+  Contractor      Contractor?       @relation(fields: [contractorId], references: [id])
+  contractorId    String?
+  EmployeePayroll EmployeePayroll[]
+
+  @@index([employeeId])
+}
+
+model EmployeePay {
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  paymentAmount   Decimal
+  benefit         Decimal?
+  overTime        Decimal?
+  TaxAmount       Decimal
+  pensionStaff    Decimal
+  pensionEmployee Decimal
+  costSharing     Decimal?
+  other           Decimal?
+  total           Decimal
+
+  payCycle      PayCycle  @default(Monthly)
+  paymentDate   Int
+  createdDate   DateTime  @default(now())
+  endDate       DateTime?
+  currentActive Boolean   @default(true)
+
+  EmployeeBenefit EmployeeBenefit[]
+  EmployeePayroll EmployeePayroll[]
+
+  @@index([employeeId], type: Hash)
+}
+
+enum PayCycle {
+  Weekly
+  Biweekly
+  Monthly
+}
+
+model EmployeeBenefit {
+  id            String      @id @default(uuid())
+  employeePayId String
+  employeePay   EmployeePay @relation(fields: [employeePayId], references: [id])
+  amount        Decimal
+  type          String
+  description   String?     @db.Text()
+
+  @@index([employeePayId], type: Hash)
+}
+
+model EmployeePayroll {
+  id            String      @id @default(uuid())
+  companyId     String
+  company       Company     @relation(fields: [companyId], references: [id])
+  employeeId    String
+  employee      Employee    @relation(fields: [employeeId], references: [id])
+  employeePayId String
+  employeePay   EmployeePay @relation(fields: [employeePayId], references: [id])
+
+  date  DateTime @db.Date
+  month Int
+  year  Int
+
+  paymentMethod  String
+  employeeBankId String?
+  employeeBank   EmployeeBank? @relation(fields: [employeeBankId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId], type: Hash)
+  @@index([employeeId], type: Hash)
+  @@index([date, employeeId])
+  @@index([month, employeeId])
+  @@index([year, employeeId])
+}
+
+model Contractor {
+  id        String  @id @default(uuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id])
+
+  title          String?
+  role           String?
+  jobDescription String?
+
+  paymentAmount Decimal
+
+  startDate DateTime  @default(now())
+  endDate   DateTime?
+
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @default(now()) @updatedAt
+  deletedAt                DateTime?
+  EmployeeEmergencyContact EmployeeEmergencyContact[]
+  EmployeeBank             EmployeeBank[]
+  ContractorPayroll        ContractorPayroll[]
+
+  @@index([companyId], type: Hash)
+}
+
+model ContractorPayroll {
+  id           String     @id @default(uuid())
+  companyId    String
+  company      Company    @relation(fields: [companyId], references: [id])
+  contractorId String
+  contractor   Contractor @relation(fields: [contractorId], references: [id])
+
+  amount      Decimal
+  withholding Decimal
+  total       Decimal
+
+  date  DateTime @db.Date
+  month Int
+  year  Int
+
+  paymentMethod String
+  bankId        String?
+  bank          Bank?   @relation(fields: [bankId], references: [id])
+  accountNumber String?
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId], type: Hash)
+  @@index([contractorId], type: Hash)
+  @@index([date, contractorId])
+  @@index([month, contractorId])
+  @@index([year, contractorId])
+}
+
 // Invoices or sales
-
-// expense
-
-// report
-
 model Sales {
   id          String    @id @default(uuid())
   creditSales Boolean
   dataIndex   Int
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  // userId      String
+  // user        User      @relation(fields: [userId], references: [id])
   companyId   String
   company     Company   @relation(fields: [companyId], references: [id])
   amount      Float
@@ -226,16 +439,20 @@ model Sales {
 
   @@unique([companyId, dataIndex])
   @@index([companyId, date])
-  @@index([companyId, userId])
+  // @@index([companyId, userId])
   @@index([companyId])
   @@index([createdAt])
 }
 
+// expense
+
+// report
+
 model Purchase {
   id        String    @id @default(uuid())
   dataIndex Int
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
+  // userId    String
+  // user      User      @relation(fields: [userId], references: [id])
   companyId String
   company   Company   @relation(fields: [companyId], references: [id])
   vat       String
@@ -249,7 +466,7 @@ model Purchase {
 
   @@unique([companyId, dataIndex])
   @@index([companyId, date])
-  @@index([companyId, userId])
+  // @@index([companyId, userId])
   @@index([companyId])
   @@index([createdAt])
 }
@@ -270,29 +487,6 @@ model Withholding {
   deletedAt DateTime?
   user      User      @relation(fields: [userId], references: [id])
   company   Company   @relation(fields: [companyId], references: [id])
-
-  @@unique([companyId, dataIndex])
-  @@index([companyId, date])
-  @@index([companyId, userId])
-  @@index([companyId])
-  @@index([createdAt])
-}
-
-model EmployeePayout {
-  id         String    @id @default(uuid())
-  dataIndex  Int
-  userId     String
-  user       User      @relation(fields: [userId], references: [id])
-  companyId  String
-  company    Company   @relation(fields: [companyId], references: [id])
-  employeeId String
-  vat        String
-  tin        String
-  amount     Float
-  date       DateTime
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @default(now()) @updatedAt
-  deletedAt  DateTime?
 
   @@unique([companyId, dataIndex])
   @@index([companyId, date])
