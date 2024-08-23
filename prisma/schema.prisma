@@ -20,28 +20,30 @@ model Industries {
 }
 
 model File {
-  id          String    @id @default(cuid())
-  name        String
-  url         String
-  key         String
-  contentType String
-  previewUrl  String
-  previewKey  String
-  width       Float
-  height      Float
-  size        Float
-  Company     Company[]
+  id            String          @id @default(cuid())
+  name          String
+  url           String
+  key           String
+  contentType   String
+  previewUrl    String
+  previewKey    String
+  width         Float
+  height        Float
+  size          Float
+  Company       Company[]
+  Contractor    Contractor[]
+  PaymentDetail PaymentDetail[]
 }
 
 // User profile data 
 
 model User {
-  id          String  @id @default(uuid())
-  email       String  @unique
+  id          String   @id @default(uuid())
+  email       String   @unique
   phoneNumber String?
   name        String
-  profileId   String
-  profile     Profile @relation(fields: [profileId], references: [id])
+  profileId   String?
+  profile     Profile? @relation(fields: [profileId], references: [id])
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
@@ -61,6 +63,10 @@ model Profile {
   addressId     String?
   address       Address?  @relation(fields: [addressId], references: [id])
 
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+
   Employee   Employee[]
   Contractor Contractor[]
   User       User[]
@@ -79,6 +85,10 @@ model Address {
   houseNumber String?
   Company     Company[]
   Profile     Profile[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
 }
 
 // Company related data setup start
@@ -109,16 +119,19 @@ model Company {
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
 
-  sales             Sales[]
-  purchases         Purchase[]
-  withholdings      Withholding[]
-  CompanyIndustry   CompanyIndustry[]
-  Employee          Employee[]
-  CompanyBank       CompanyBank[]
-  CompanyMember     CompanyMember[]
-  EmployeePayroll   EmployeePayroll[]
-  Contractor        Contractor[]
-  ContractorPayroll ContractorPayroll[]
+  sales                 Sales[]
+  purchases             Purchase[]
+  withholdings          Withholding[]
+  CompanyIndustry       CompanyIndustry[]
+  Employee              Employee[]
+  CompanyBank           CompanyBank[]
+  CompanyMember         CompanyMember[]
+  Contractor            Contractor[]
+  ContractorPayment     ContractorPayment[]
+  EmployeePayment       EmployeePayment[]
+  EmployeeIncomeTax     EmployeeIncomeTax[]
+  EmployeePension       EmployeePension[]
+  ContractorWithholding ContractorWithholding[]
 }
 
 model CompanyMember {
@@ -129,6 +142,10 @@ model CompanyMember {
   company   Company           @relation(fields: [companyId], references: [id])
   role      CompanyMemberRole
   active    Boolean           @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
 
   @@index([userId], type: Hash)
 }
@@ -159,12 +176,12 @@ model CompanyIndustry {
 // Company Related Bank transactions and account
 
 model Bank {
-  id                String              @id @default(uuid())
-  name              String
-  uniqueName        String              @unique
-  CompanyBank       CompanyBank[]
-  EmployeeBank      EmployeeBank[]
-  ContractorPayroll ContractorPayroll[]
+  id            String          @id @default(uuid())
+  name          String
+  uniqueName    String          @unique
+  CompanyBank   CompanyBank[]
+  EmployeeBank  EmployeeBank[]
+  PaymentDetail PaymentDetail[]
 }
 
 model CompanyBank {
@@ -174,12 +191,13 @@ model CompanyBank {
   bankId                  String
   bank                    Bank                      @relation(fields: [bankId], references: [id])
   accountNumber           String?
-  balance                 Decimal                   @default(0.0)
   type                    CompanyBankType
-  createdAt               DateTime                  @default(now())
-  updatedAt               DateTime                  @default(now()) @updatedAt
   CompanyBankTransactions CompanyBankTransactions[]
   BankReconciliation      BankReconciliation[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
 
   @@index([companyId])
 }
@@ -214,11 +232,13 @@ model CompanyBankTransactions {
   date            DateTime
   type            TransactionType?
   category        String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  deletedAt       DateTime?
 
-  @@index([date])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  deletedAt     DateTime?
+  PaymentDetail PaymentDetail?
+
+  @@index([date, companyBankId])
   @@index([companyBankId])
 }
 
@@ -235,31 +255,45 @@ enum TransactionType {
 // Employee related data setup start
 
 model Employee {
-  id        String  @id @default(uuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
-
-  profileId String
-  profile   Profile @relation(fields: [profileId], references: [id])
-
-  title           String?
-  hireDate        DateTime  @default(now())
-  terminationDate DateTime?
-
+  id             String  @id @default(uuid())
+  companyId      String
+  company        Company @relation(fields: [companyId], references: [id])
+  profileId      String
+  profile        Profile @relation(fields: [profileId], references: [id])
+  title          String?
   role           String?
   jobDescription String?
+  active         Boolean @default(true)
+
+  EmployeeEmergencyContact EmployeeEmergencyContact[]
+  EmployeeBank             EmployeeBank[]
+  EmployeePayroll          EmployeePayroll[]
+  EmployeeTimeLine         EmployeeTimeLine[]
+  EmployeePayment          EmployeePayment[]
+  EmployeeIncomeTax        EmployeeIncomeTax[]
+  EmployeePension          EmployeePension[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
 
-  EmployeeEmergencyContact EmployeeEmergencyContact[]
-  EmployeeBank             EmployeeBank[]
-
-  EmployeePay     EmployeePay[]
-  EmployeePayroll EmployeePayroll[]
-
   @@index([companyId], type: Hash)
+}
+
+model EmployeeTimeLine {
+  id String @id @default(uuid())
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  hireDate        DateTime  @default(now())
+  terminationDate DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  @@index([employeeId], type: Hash)
 }
 
 model EmployeeEmergencyContact {
@@ -278,46 +312,57 @@ model EmployeeEmergencyContact {
 }
 
 model EmployeeBank {
-  id String @id @default(uuid())
+  id            String   @id @default(uuid())
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  bankId        String
+  bank          Bank     @relation(fields: [bankId], references: [id])
+  accountNumber String
+  prioryOrder   Int      @default(0)
 
-  employeeId String
-  employee   Employee @relation(fields: [employeeId], references: [id])
-
-  bankId String
-  bank   Bank   @relation(fields: [bankId], references: [id])
-
-  accountNumber   String
-  mainOne         Boolean           @default(false)
-  Contractor      Contractor?       @relation(fields: [contractorId], references: [id])
-  contractorId    String?
-  EmployeePayroll EmployeePayroll[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
 
   @@index([employeeId])
 }
 
-model EmployeePay {
+model EmployeePayroll {
   id         String   @id @default(uuid())
   employeeId String
   employee   Employee @relation(fields: [employeeId], references: [id])
 
-  paymentAmount   Decimal
-  benefit         Decimal?
-  overTime        Decimal?
-  TaxAmount       Decimal
-  pensionStaff    Decimal
-  pensionEmployee Decimal
-  costSharing     Decimal?
-  other           Decimal?
-  total           Decimal
+  // rates
+  incomeTaxRate                   Decimal
+  employeePensionContributionRate Decimal
+  employerPensionContributionRate Decimal
 
-  payCycle      PayCycle  @default(Monthly)
-  paymentDate   Int
-  createdDate   DateTime  @default(now())
-  endDate       DateTime?
-  currentActive Boolean   @default(true)
+  // amount detail
+  grossAmount                 Decimal
+  overTime                    Decimal?
+  incomeTax                   Decimal
+  employeePensionContribution Decimal
+  employerPensionContribution Decimal
+  costSharing                 Decimal?
+  benefit                     Decimal?
+  other                       Decimal?
+  netPay                      Decimal
+  deduction                   Decimal
+  total                       Decimal
 
-  EmployeeBenefit EmployeeBenefit[]
-  EmployeePayroll EmployeePayroll[]
+  payCycle    PayCycle @default(Monthly)
+  startDate   DateTime
+  endDate     DateTime @default(now())
+  paymentDate DateTime
+
+  EmployeeBenefit   EmployeeBenefit[]
+  EmployeePayment   EmployeePayment[]
+  EmployeeIncomeTax EmployeeIncomeTax[]
+  EmployeePension   EmployeePension[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
 
   @@index([employeeId], type: Hash)
 }
@@ -329,47 +374,122 @@ enum PayCycle {
 }
 
 model EmployeeBenefit {
-  id            String      @id @default(uuid())
-  employeePayId String
-  employeePay   EmployeePay @relation(fields: [employeePayId], references: [id])
-  amount        Decimal
-  type          String
-  description   String?     @db.Text()
+  id                String          @id @default(uuid())
+  employeePayrollId String
+  employeePayroll   EmployeePayroll @relation(fields: [employeePayrollId], references: [id])
+  amount            Decimal
+  type              BenefitType
+  description       String?         @db.Text()
 
-  @@index([employeePayId], type: Hash)
+  @@index([employeePayrollId], type: Hash)
 }
 
-model EmployeePayroll {
-  id            String      @id @default(uuid())
-  companyId     String
-  company       Company     @relation(fields: [companyId], references: [id])
-  employeeId    String
-  employee      Employee    @relation(fields: [employeeId], references: [id])
-  employeePayId String
-  employeePay   EmployeePay @relation(fields: [employeePayId], references: [id])
+enum BenefitType {
+  MedicalTreatment
+  TransportAllowance
+  HardshipAllowance
+  TourPerDiem
+  RecruitmentTravel
+  FreeMeals
+  GovernmentAllowance
+  BoardAllowance
+  PensionContribution
+  PensionExemption
+  GovernmentIncome
+  InternationalExemption
+  FinancialAidExemption
+  Scholarship
+  ChildSupport
+  NonProfitIncome
+  CashIndemnity
+  LegalExemption
+  DomesticSalary
+  PetroleumPayment
+}
 
-  date  DateTime @db.Date
+model PaymentDetail {
+  id                        String                   @id @default(uuid())
+  paymentDate               DateTime?
+  paymentDetail             String?
+  bankName                  String?
+  bank                      Bank?                    @relation(fields: [bankName], references: [uniqueName])
+  accountNumber             String?
+  paid                      Boolean                  @default(false)
+  recordId                  String?
+  record                    File?                    @relation(fields: [recordId], references: [id])
+  companyBankTransactionsId String?                  @unique
+  companyBankTransactions   CompanyBankTransactions? @relation(fields: [companyBankTransactionsId], references: [id])
+
+  EmployeePayment       EmployeePayment?
+  EmployeeIncomeTax     EmployeeIncomeTax?
+  EmployeePension       EmployeePension?
+  ContractorPayment     ContractorPayment?
+  ContractorWithholding ContractorWithholding?
+}
+
+model EmployeePayment {
+  id                String          @id @default(uuid())
+  companyId         String
+  company           Company         @relation(fields: [companyId], references: [id])
+  employeeId        String
+  employee          Employee        @relation(fields: [employeeId], references: [id])
+  employeePayrollId String          @unique
+  employeePayroll   EmployeePayroll @relation(fields: [employeePayrollId], references: [id])
+  paymentDetailId   String?         @unique
+  paymentDetail     PaymentDetail?  @relation(fields: [paymentDetailId], references: [id])
+
+  netPayAmount Decimal
+
   month Int
   year  Int
 
-  paymentMethod  String
-  employeeBankId String?
-  employeeBank   EmployeeBank? @relation(fields: [employeeBankId], references: [id])
+  @@index([month, year, companyId])
+  @@index([month, year, employeeId])
+}
 
-  createdAt DateTime @default(now())
+model EmployeeIncomeTax {
+  id                String          @id @default(uuid())
+  companyId         String
+  company           Company         @relation(fields: [companyId], references: [id])
+  employeeId        String
+  employee          Employee        @relation(fields: [employeeId], references: [id])
+  employeePayrollId String          @unique
+  employeePayroll   EmployeePayroll @relation(fields: [employeePayrollId], references: [id])
+  paymentDetailId   String?         @unique
+  paymentDetail     PaymentDetail?  @relation(fields: [paymentDetailId], references: [id])
 
-  @@index([companyId], type: Hash)
-  @@index([employeeId], type: Hash)
-  @@index([date, employeeId])
-  @@index([month, employeeId])
-  @@index([year, employeeId])
+  amount Decimal
+  month  Int
+  year   Int
+
+  @@index([month, year, companyId])
+  @@index([month, year, employeeId])
+}
+
+model EmployeePension {
+  id                String          @id @default(uuid())
+  companyId         String
+  company           Company         @relation(fields: [companyId], references: [id])
+  employeeId        String
+  employee          Employee        @relation(fields: [employeeId], references: [id])
+  employeePayrollId String          @unique
+  employeePayroll   EmployeePayroll @relation(fields: [employeePayrollId], references: [id])
+  paymentDetailId   String?         @unique
+  paymentDetail     PaymentDetail?  @relation(fields: [paymentDetailId], references: [id])
+
+  amount Decimal
+
+  month Int
+  year  Int
+
+  @@index([month, year, companyId])
+  @@index([month, year, employeeId])
 }
 
 model Contractor {
   id        String  @id @default(uuid())
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
-
   profileId String
   profile   Profile @relation(fields: [profileId], references: [id])
 
@@ -377,48 +497,69 @@ model Contractor {
   role           String?
   jobDescription String?
 
-  paymentAmount Decimal
+  withholdingRate Decimal
+  paymentAmount   Decimal
+  withholding     Decimal
+
+  grossPayment Decimal
 
   startDate DateTime  @default(now())
   endDate   DateTime?
+
+  contactId String?
+  contact   File?   @relation(fields: [contactId], references: [id])
 
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @default(now()) @updatedAt
   deletedAt                DateTime?
   EmployeeEmergencyContact EmployeeEmergencyContact[]
-  EmployeeBank             EmployeeBank[]
-  ContractorPayroll        ContractorPayroll[]
+  ContractorPayment        ContractorPayment[]
+  ContractorWithholding    ContractorWithholding[]
 
   @@index([companyId], type: Hash)
 }
 
-model ContractorPayroll {
+model ContractorPayment {
   id           String     @id @default(uuid())
   companyId    String
   company      Company    @relation(fields: [companyId], references: [id])
   contractorId String
   contractor   Contractor @relation(fields: [contractorId], references: [id])
 
-  amount      Decimal
-  withholding Decimal
-  total       Decimal
+  paymentDetailId String?        @unique
+  paymentDetail   PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
 
-  date  DateTime @db.Date
-  month Int
-  year  Int
+  netPayAmount Decimal
+  month        Int
+  year         Int
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  deletedAt    DateTime?
 
-  paymentMethod String
-  bankId        String?
-  bank          Bank?   @relation(fields: [bankId], references: [id])
-  accountNumber String?
+  @@index([month, year, companyId])
+  @@index([month, year, contractorId])
+}
 
-  createdAt DateTime @default(now())
+model ContractorWithholding {
+  id           String     @id @default(uuid())
+  companyId    String
+  company      Company    @relation(fields: [companyId], references: [id])
+  contractorId String
+  contractor   Contractor @relation(fields: [contractorId], references: [id])
 
-  @@index([companyId], type: Hash)
-  @@index([contractorId], type: Hash)
-  @@index([date, contractorId])
-  @@index([month, contractorId])
-  @@index([year, contractorId])
+  paymentDetailId String?        @unique
+  paymentDetail   PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
+
+  amount Decimal
+  month  Int
+  year   Int
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  @@index([month, year, companyId])
+  @@index([month, year, contractorId])
 }
 
 // Invoices or sales
