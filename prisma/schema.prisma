@@ -50,16 +50,21 @@ model User {
   deletedAt DateTime?
 
   CompanyMember CompanyMember[]
-  Withholding   Withholding[]
 }
 
 model Profile {
   id            String    @id @default(uuid())
-  name          String
+  companyId     String
+  company       Company   @relation(fields: [companyId], references: [id])
+  contactName   String
+  companyName   String?
+  email         String?
+  phoneNumber   String?
   preferredName String
   gender        Gender?
   dateBirth     DateTime?
   tinNumber     String?
+  vatNumber     String?
   addressId     String?
   address       Address?  @relation(fields: [addressId], references: [id])
 
@@ -67,9 +72,15 @@ model Profile {
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
 
-  Employee   Employee[]
-  Contractor Contractor[]
-  User       User[]
+  Employee      Employee[]
+  Contractor    Contractor[]
+  User          User[]
+  Purchase      Purchase[]
+  VatBasedSales VatBasedSales[]
+  TotBasedSales TotBasedSales[]
+
+  @@index([tinNumber], type: BTree)
+  @@index([vatNumber], type: BTree)
 }
 
 enum Gender {
@@ -119,9 +130,7 @@ model Company {
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
 
-  sales                 Sales[]
   purchases             Purchase[]
-  withholdings          Withholding[]
   CompanyIndustry       CompanyIndustry[]
   Employee              Employee[]
   CompanyBank           CompanyBank[]
@@ -132,6 +141,11 @@ model Company {
   EmployeeIncomeTax     EmployeeIncomeTax[]
   EmployeePension       EmployeePension[]
   ContractorWithholding ContractorWithholding[]
+  Product               Product[]
+  Profile               Profile[]
+  VatBasedSales         VatBasedSales[]
+  TotBasedSales         TotBasedSales[]
+  PurchaseWithholding   PurchaseWithholding[]
 }
 
 model CompanyMember {
@@ -408,15 +422,22 @@ enum BenefitType {
 }
 
 model PaymentDetail {
-  id                        String                   @id @default(uuid())
-  paymentDate               DateTime?
-  paymentDetail             String?
-  bankName                  String?
-  bank                      Bank?                    @relation(fields: [bankName], references: [uniqueName])
-  accountNumber             String?
-  paid                      Boolean                  @default(false)
-  recordId                  String?
-  record                    File?                    @relation(fields: [recordId], references: [id])
+  id          String    @id @default(uuid())
+  description String?   @db.Text()
+  paymentDate DateTime?
+
+  method PaymentMethod
+
+  bankName      String?
+  bank          Bank?   @relation(fields: [bankName], references: [uniqueName])
+  accountNumber String?
+
+  ChequeNumber String?
+  paid         Boolean @default(false)
+
+  recordId String?
+  record   File?   @relation(fields: [recordId], references: [id])
+
   companyBankTransactionsId String?                  @unique
   companyBankTransactions   CompanyBankTransactions? @relation(fields: [companyBankTransactionsId], references: [id])
 
@@ -425,6 +446,15 @@ model PaymentDetail {
   EmployeePension       EmployeePension?
   ContractorPayment     ContractorPayment?
   ContractorWithholding ContractorWithholding?
+  TotBasedSales         TotBasedSales?
+  VatBasedSales         VatBasedSales?
+  PurchaseWithholding   PurchaseWithholding?
+}
+
+enum PaymentMethod {
+  Cash
+  Cheque
+  BankTransfer
 }
 
 model EmployeePayment {
@@ -482,6 +512,157 @@ model EmployeePension {
 
   @@index([month, year, companyId])
   @@index([month, year, employeeId])
+}
+
+enum ProductType {
+  Good
+  Service
+}
+
+enum ProductUnit {
+  KG
+  ML
+  GM
+  LIT
+  MT
+  PCS
+  CT
+  OTHER
+  PC
+}
+
+model Product {
+  id            String          @id @default(uuid())
+  companyId     String
+  company       Company         @relation(fields: [companyId], references: [id])
+  name          String
+  description   String?         @db.Text()
+  type          ProductType
+  unit          ProductUnit
+  unitPrice     Decimal
+  active        Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  deletedAt     DateTime?
+  Purchase      Purchase[]
+  selling       Boolean         @default(true)
+  VatBasedSales VatBasedSales[]
+  TotBasedSales TotBasedSales[]
+
+  @@index([companyId], type: Hash)
+}
+
+enum PurchaseType {
+  taxableLocalCapitalAssets
+  taxableImportedCapitalAssets
+  taxableLocalInputs
+  taxableImportedInputs
+  taxableGeneralExpenseInputs
+  taxExemptedPurchase
+}
+
+// Invoices or sales
+model Purchase {
+  id        String  @id @default(uuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+  vendorId  String
+  vendor    Profile @relation(fields: [vendorId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  date             DateTime
+  purchaseType     PurchaseType
+  MRCNumber        String?
+  VatReceiptNumber String?
+  quantity         Int
+  totalValues      Decimal
+  vat              Decimal
+  grossAmount      Decimal
+
+  month     Int
+  year      Int
+  dataIndex Int
+
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @default(now()) @updatedAt
+  deletedAt           DateTime?
+  PurchaseWithholding PurchaseWithholding?
+
+  @@index([month, year, companyId])
+  @@index([month, year, vendorId])
+  @@index([month, year, productId])
+}
+
+enum SalesType {
+  taxableLocalCapitalAssets
+  taxableImportedCapitalAssets
+  taxableLocalInputs
+}
+
+model VatBasedSales {
+  id              String         @id @default(uuid())
+  companyId       String
+  company         Company        @relation(fields: [companyId], references: [id])
+  customerId      String
+  customer        Profile        @relation(fields: [customerId], references: [id])
+  productId       String
+  product         Product        @relation(fields: [productId], references: [id])
+  paymentDetailId String?        @unique
+  paymentDetail   PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
+
+  date             DateTime
+  salesType        SalesType
+  MRCNumber        String?
+  VatReceiptNumber String?
+
+  quantity      Int
+  vatPercentage Decimal
+  totalValues   Decimal
+  vat           Decimal
+  grossAmount   Decimal
+
+  month         Int
+  year          Int
+  invoiceNumber Int
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  @@index([month, year, companyId])
+  @@index([month, year, customerId])
+  @@index([month, year, productId])
+}
+
+model TotBasedSales {
+  id              String         @id @default(uuid())
+  companyId       String
+  company         Company        @relation(fields: [companyId], references: [id])
+  customerId      String
+  customer        Profile        @relation(fields: [customerId], references: [id])
+  productId       String
+  product         Product        @relation(fields: [productId], references: [id])
+  paymentDetailId String?        @unique
+  paymentDetail   PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
+
+  quantity      Int
+  totPercentage Decimal
+  totalValues   Decimal
+  vat           Decimal
+  grossAmount   Decimal
+
+  date          DateTime
+  month         Int
+  year          Int
+  invoiceNumber Int
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  @@index([month, year, companyId])
+  @@index([month, year, customerId])
+  @@index([month, year, productId])
 }
 
 model Contractor {
@@ -559,76 +740,22 @@ model ContractorWithholding {
   @@index([month, year, contractorId])
 }
 
-// report
+model PurchaseWithholding {
+  id              String         @id @default(uuid())
+  companyId       String
+  company         Company        @relation(fields: [companyId], references: [id])
+  purchaseId      String         @unique
+  purchase        Purchase       @relation(fields: [purchaseId], references: [id])
+  paymentDetailId String?        @unique
+  paymentDetail   PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
 
-model Purchase {
-  id        String    @id @default(uuid())
-  dataIndex Int
-  // userId    String
-  // user      User      @relation(fields: [userId], references: [id])
-  companyId String
-  company   Company   @relation(fields: [companyId], references: [id])
-  vat       String
-  tin       String
-  amount    Float
-  taxAmount Float
-  date      DateTime
+  amount Decimal
+  month  Int
+  year   Int
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
 
-  @@unique([companyId, dataIndex])
-  @@index([companyId, date])
-  // @@index([companyId, userId])
-  @@index([companyId])
-  @@index([createdAt])
-}
-
-// Invoices or sales
-model Sales {
-  id          String    @id @default(uuid())
-  creditSales Boolean
-  dataIndex   Int
-  // userId      String
-  // user        User      @relation(fields: [userId], references: [id])
-  companyId   String
-  company     Company   @relation(fields: [companyId], references: [id])
-  amount      Float
-  taxAmount   Float
-  date        DateTime  @default(now())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now()) @updatedAt
-  deletedAt   DateTime?
-
-  @@unique([companyId, dataIndex])
-  @@index([companyId, date])
-  // @@index([companyId, userId])
-  @@index([companyId])
-  @@index([createdAt])
-}
-
-// expense
-
-model Withholding {
-  id        String    @id @default(uuid())
-  dataIndex Int
-  userId    String
-  companyId String
-  vat       String
-  tin       String
-  amount    Float
-  taxAmount Float
-  reason    String
-  date      DateTime
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  deletedAt DateTime?
-  user      User      @relation(fields: [userId], references: [id])
-  company   Company   @relation(fields: [companyId], references: [id])
-
-  @@unique([companyId, dataIndex])
-  @@index([companyId, date])
-  @@index([companyId, userId])
-  @@index([companyId])
-  @@index([createdAt])
+  @@index([month, year, companyId])
 }
