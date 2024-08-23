@@ -439,9 +439,8 @@ model EmployeePayment {
   paymentDetail     PaymentDetail?  @relation(fields: [paymentDetailId], references: [id])
 
   netPayAmount Decimal
-
-  month Int
-  year  Int
+  month        Int
+  year         Int
 
   @@index([month, year, companyId])
   @@index([month, year, employeeId])
@@ -478,9 +477,8 @@ model EmployeePension {
   paymentDetail     PaymentDetail?  @relation(fields: [paymentDetailId], references: [id])
 
   amount Decimal
-
-  month Int
-  year  Int
+  month  Int
+  year   Int
 
   @@index([month, year, companyId])
   @@index([month, year, employeeId])
@@ -500,8 +498,7 @@ model Contractor {
   withholdingRate Decimal
   paymentAmount   Decimal
   withholding     Decimal
-
-  grossPayment Decimal
+  grossPayment    Decimal
 
   startDate DateTime  @default(now())
   endDate   DateTime?
@@ -509,9 +506,10 @@ model Contractor {
   contactId String?
   contact   File?   @relation(fields: [contactId], references: [id])
 
-  createdAt                DateTime                   @default(now())
-  updatedAt                DateTime                   @default(now()) @updatedAt
-  deletedAt                DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+
   EmployeeEmergencyContact EmployeeEmergencyContact[]
   ContractorPayment        ContractorPayment[]
   ContractorWithholding    ContractorWithholding[]
@@ -520,33 +518,32 @@ model Contractor {
 }
 
 model ContractorPayment {
-  id           String     @id @default(uuid())
-  companyId    String
-  company      Company    @relation(fields: [companyId], references: [id])
-  contractorId String
-  contractor   Contractor @relation(fields: [contractorId], references: [id])
-
+  id              String         @id @default(uuid())
+  companyId       String
+  company         Company        @relation(fields: [companyId], references: [id])
+  contractorId    String
+  contractor      Contractor     @relation(fields: [contractorId], references: [id])
   paymentDetailId String?        @unique
   paymentDetail   PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
 
   netPayAmount Decimal
   month        Int
   year         Int
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @default(now()) @updatedAt
-  deletedAt    DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
 
   @@index([month, year, companyId])
   @@index([month, year, contractorId])
 }
 
 model ContractorWithholding {
-  id           String     @id @default(uuid())
-  companyId    String
-  company      Company    @relation(fields: [companyId], references: [id])
-  contractorId String
-  contractor   Contractor @relation(fields: [contractorId], references: [id])
-
+  id              String         @id @default(uuid())
+  companyId       String
+  company         Company        @relation(fields: [companyId], references: [id])
+  contractorId    String
+  contractor      Contractor     @relation(fields: [contractorId], references: [id])
   paymentDetailId String?        @unique
   paymentDetail   PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
 
@@ -560,6 +557,31 @@ model ContractorWithholding {
 
   @@index([month, year, companyId])
   @@index([month, year, contractorId])
+}
+
+// report
+
+model Purchase {
+  id        String    @id @default(uuid())
+  dataIndex Int
+  // userId    String
+  // user      User      @relation(fields: [userId], references: [id])
+  companyId String
+  company   Company   @relation(fields: [companyId], references: [id])
+  vat       String
+  tin       String
+  amount    Float
+  taxAmount Float
+  date      DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  @@unique([companyId, dataIndex])
+  @@index([companyId, date])
+  // @@index([companyId, userId])
+  @@index([companyId])
+  @@index([createdAt])
 }
 
 // Invoices or sales
@@ -586,31 +608,6 @@ model Sales {
 }
 
 // expense
-
-// report
-
-model Purchase {
-  id        String    @id @default(uuid())
-  dataIndex Int
-  // userId    String
-  // user      User      @relation(fields: [userId], references: [id])
-  companyId String
-  company   Company   @relation(fields: [companyId], references: [id])
-  vat       String
-  tin       String
-  amount    Float
-  taxAmount Float
-  date      DateTime
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  deletedAt DateTime?
-
-  @@unique([companyId, dataIndex])
-  @@index([companyId, date])
-  // @@index([companyId, userId])
-  @@index([companyId])
-  @@index([createdAt])
-}
 
 model Withholding {
   id        String    @id @default(uuid())
