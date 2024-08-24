@@ -34,10 +34,12 @@ model File {
   Contractor    Contractor[]
   PaymentDetail PaymentDetail[]
 
-  createdAt                DateTime                   @default(now())
-  updatedAt                DateTime                   @default(now()) @updatedAt
-  EmployeeIncomeTaxPayment EmployeeIncomeTaxPayment[]
-  EmployeePensionPayment   EmployeePensionPayment[]
+  createdAt                    DateTime                       @default(now())
+  updatedAt                    DateTime                       @default(now()) @updatedAt
+  EmployeeIncomeTaxPayment     EmployeeIncomeTaxPayment[]
+  EmployeePensionPayment       EmployeePensionPayment[]
+  MonthlyVatPayment            MonthlyVatPayment[]
+  ContractorWithholdingPayment ContractorWithholdingPayment[]
 }
 
 model Address {
@@ -75,10 +77,9 @@ model Profile {
 
   Employee      Employee[]
   Contractor    Contractor[]
-  Purchase      Purchase[]
-  VatBasedSales VatBasedSales[]
-  TotBasedSales TotBasedSales[]
   CompanyMember CompanyMember[]
+  Vendor        Vendor[]
+  Customer      Customer[]
 
   @@index([tinNumber], type: BTree)
   @@index([vatNumber], type: BTree)
@@ -118,25 +119,31 @@ model Company {
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
 
-  CompanyIndustry          CompanyIndustry[]
-  CompanyMember            CompanyMember[]
-  CompanyBank              CompanyBank[]
-  CompanyBankTransactions  CompanyBankTransactions[]
-  Employee                 Employee[]
-  EmployeePayment          EmployeePayment[]
-  EmployeePaymentReport    EmployeePaymentReport[]
-  EmployeeIncomeTax        EmployeeIncomeTax[]
-  EmployeeIncomeTaxPayment EmployeeIncomeTaxPayment[]
-  EmployeePension          EmployeePension[]
-  EmployeePensionPayment   EmployeePensionPayment[]
-  Product                  Product[]
-  Purchase                 Purchase[]
-  PurchaseReport           PurchaseReport[]
-  VatBasedSales            VatBasedSales[]
-  TotBasedSales            TotBasedSales[]
-  Contractor               Contractor[]
-  ContractorPayment        ContractorPayment[]
-  ContractorWithholding    ContractorWithholding[]
+  CompanyIndustry              CompanyIndustry[]
+  CompanyMember                CompanyMember[]
+  CompanyBank                  CompanyBank[]
+  CompanyBankTransactions      CompanyBankTransactions[]
+  Employee                     Employee[]
+  EmployeePayment              EmployeePayment[]
+  EmployeePaymentReport        EmployeePaymentReport[]
+  EmployeeIncomeTax            EmployeeIncomeTax[]
+  EmployeeIncomeTaxPayment     EmployeeIncomeTaxPayment[]
+  EmployeePension              EmployeePension[]
+  EmployeePensionPayment       EmployeePensionPayment[]
+  Product                      Product[]
+  Purchase                     Purchase[]
+  PurchaseReport               PurchaseReport[]
+  Contractor                   Contractor[]
+  ContractorPayment            ContractorPayment[]
+  ContractorWithholding        ContractorWithholding[]
+  Vendor                       Vendor[]
+  Customer                     Customer[]
+  VatSales                     VatSales[]
+  MonthlyVatSaleIncome         MonthlyVatSaleIncome[]
+  YearlyVatSaleIncome          YearlyVatSaleIncome[]
+  MonthlyVatPayment            MonthlyVatPayment[]
+  VatPaymentCredit             VatPaymentCredit?
+  ContractorWithholdingPayment ContractorWithholdingPayment[]
 }
 
 enum CompanyStructures {
@@ -439,14 +446,14 @@ model PaymentDetail {
   companyBankTransactionsId String?                  @unique
   companyBankTransactions   CompanyBankTransactions? @relation(fields: [companyBankTransactionsId], references: [id])
 
-  EmployeePayment          EmployeePayment?
-  ContractorPayment        ContractorPayment?
-  ContractorWithholding    ContractorWithholding?
-  TotBasedSales            TotBasedSales?
-  VatBasedSales            VatBasedSales?
-  EmployeeIncomeTaxPayment EmployeeIncomeTaxPayment?
-  EmployeePensionPayment   EmployeePensionPayment?
-  Purchase                 Purchase?
+  EmployeePayment              EmployeePayment?
+  ContractorPayment            ContractorPayment?
+  EmployeeIncomeTaxPayment     EmployeeIncomeTaxPayment?
+  EmployeePensionPayment       EmployeePensionPayment?
+  Purchase                     Purchase?
+  VatSales                     VatSales?
+  MonthlyVatPayment            MonthlyVatPayment?
+  ContractorWithholdingPayment ContractorWithholdingPayment?
 }
 
 enum PaymentMethod {
@@ -569,7 +576,7 @@ model EmployeePensionPayment {
   recordId        String?
   record          File?          @relation(fields: [recordId], references: [id])
 
-  count                    Decimal
+  count                    Int
   employeeContributionRate Decimal
   employerContributionRate Decimal
   employeeContribution     Decimal
@@ -613,9 +620,8 @@ model Product {
   selling         Boolean           @default(true)
   createdAt       DateTime          @default(now())
   deletedAt       DateTime?
-  VatBasedSales   VatBasedSales[]
-  TotBasedSales   TotBasedSales[]
   PurchaseProduct PurchaseProduct[]
+  VatSaleProduct  VatSaleProduct[]
 
   @@index([companyId], type: Hash)
 }
@@ -629,13 +635,35 @@ enum PurchaseType {
   taxExemptedPurchase
 }
 
+model Vendor {
+  id        String     @id @default(uuid())
+  companyId String
+  company   Company    @relation(fields: [companyId], references: [id])
+  profileId String
+  profile   Profile    @relation(fields: [profileId], references: [id])
+  Purchase  Purchase[]
+
+  @@index([companyId], type: Hash)
+}
+
+model Customer {
+  id        String     @id @default(uuid())
+  companyId String
+  company   Company    @relation(fields: [companyId], references: [id])
+  profileId String
+  profile   Profile    @relation(fields: [profileId], references: [id])
+  VatSales  VatSales[]
+
+  @@index([companyId], type: Hash)
+}
+
 // Invoices or sales
 model Purchase {
   id        String  @id @default(uuid())
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
   vendorId  String
-  vendor    Profile @relation(fields: [vendorId], references: [id])
+  vendor    Vendor  @relation(fields: [vendorId], references: [id])
 
   date             DateTime
   purchaseType     PurchaseType
@@ -698,83 +726,164 @@ model PurchaseReport {
   vat              Decimal
   grossAmount      Decimal
 
-  month    Int
-  year     Int
-  Purchase Purchase[]
+  month             Int
+  year              Int
+  Purchase          Purchase[]
+  MonthlyVatPayment MonthlyVatPayment?
 
   @@index([month, year, companyId])
 }
 
-enum SalesType {
+model VatSales {
+  id               String         @id @default(uuid())
+  companyId        String
+  company          Company        @relation(fields: [companyId], references: [id])
+  customerId       String
+  customer         Customer       @relation(fields: [customerId], references: [id])
+  paymentDetailId  String?        @unique
+  paymentDetail    PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
+  date             DateTime
+  MRCNumber        String?
+  VatReceiptNumber String?
+  vatBased         Boolean
+
+  taxableAmount    Decimal
+  nonTaxableAmount Decimal
+  tax              Decimal
+  grossAmount      Decimal
+
+  month         Int
+  year          Int
+  invoiceNumber Int
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  monthlyVatSaleIncomeId String?
+  monthlyVatSaleIncome   MonthlyVatSaleIncome? @relation(fields: [monthlyVatSaleIncomeId], references: [id])
+
+  monthlyVatSalePaymentId String?
+  monthlyVatSalePayment   MonthlyVatPayment? @relation(fields: [monthlyVatSalePaymentId], references: [id])
+  VatSaleProduct          VatSaleProduct[]
+
+  @@index([month, year, companyId])
+  @@index([month, year, customerId])
+}
+
+enum SaleType {
   taxableLocalCapitalAssets
   taxableImportedCapitalAssets
   taxableLocalInputs
 }
 
-model VatBasedSales {
-  id              String         @id @default(uuid())
-  companyId       String
-  company         Company        @relation(fields: [companyId], references: [id])
-  customerId      String
-  customer        Profile        @relation(fields: [customerId], references: [id])
-  productId       String
-  product         Product        @relation(fields: [productId], references: [id])
-  paymentDetailId String?        @unique
-  paymentDetail   PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
+model VatSaleProduct {
+  id          String      @id @default(uuid())
+  vatSalesId  String
+  vatSales    VatSales    @relation(fields: [vatSalesId], references: [id])
+  productId   String
+  product     Product     @relation(fields: [productId], references: [id])
+  type        ProductType
+  unit        ProductUnit
+  unitPrice   Decimal
+  quantity    Int
+  saleType    SaleType
+  totalValues Decimal
+  vat         Decimal
+  grossAmount Decimal
 
-  date             DateTime
-  salesType        SalesType
-  MRCNumber        String?
-  VatReceiptNumber String?
-
-  quantity      Int
-  vatPercentage Decimal
-  totalValues   Decimal
-  vat           Decimal
-  grossAmount   Decimal
-
-  month         Int
-  year          Int
-  invoiceNumber Int
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  deletedAt DateTime?
-
-  @@index([month, year, companyId])
-  @@index([month, year, customerId])
-  @@index([month, year, productId])
+  @@index([vatSalesId], type: Hash)
+  @@index([productId], type: Hash)
 }
 
-model TotBasedSales {
-  id              String         @id @default(uuid())
-  companyId       String
-  company         Company        @relation(fields: [companyId], references: [id])
-  customerId      String
-  customer        Profile        @relation(fields: [customerId], references: [id])
-  productId       String
-  product         Product        @relation(fields: [productId], references: [id])
-  paymentDetailId String?        @unique
-  paymentDetail   PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
+model MonthlyVatSaleIncome {
+  id        String  @id @default(uuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
 
-  quantity      Int
-  totPercentage Decimal
-  totalValues   Decimal
-  vat           Decimal
-  grossAmount   Decimal
+  count            Int
+  taxableAmount    Decimal
+  nonTaxableAmount Decimal
+  totalAmount      Decimal
 
-  date          DateTime
-  month         Int
-  year          Int
-  invoiceNumber Int
+  month Int
+  year  Int
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  deletedAt DateTime?
+  yearlyVatSaleIncomeId String?
+  yearlyVatSaleIncome   YearlyVatSaleIncome? @relation(fields: [yearlyVatSaleIncomeId], references: [id])
+  VatSales              VatSales[]
 
   @@index([month, year, companyId])
-  @@index([month, year, customerId])
-  @@index([month, year, productId])
+  @@index([yearlyVatSaleIncomeId], type: Hash)
+}
+
+model YearlyVatSaleIncome {
+  id        String  @id @default(uuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  count            Int
+  taxableAmount    Decimal
+  nonTaxableAmount Decimal
+  totalAmount      Decimal
+
+  year                 Int
+  MonthlyVatSaleIncome MonthlyVatSaleIncome[]
+
+  @@index([year, companyId])
+}
+
+// this might need to be reconsidered
+model VatPaymentCredit {
+  id                     String                   @id @default(uuid())
+  companyId              String                   @unique
+  company                Company                  @relation(fields: [companyId], references: [id])
+  amount                 Decimal
+  VatPaymentCreditDetail VatPaymentCreditDetail[]
+
+  @@index([companyId])
+}
+
+model VatPaymentCreditDetail {
+  id                  String            @id @default(uuid())
+  vatPaymentCreditId  String
+  vatPaymentCredit    VatPaymentCredit  @relation(fields: [vatPaymentCreditId], references: [id])
+  monthlyVatPaymentId String
+  monthlyVatPayment   MonthlyVatPayment @relation(fields: [monthlyVatPaymentId], references: [id])
+  amount              Decimal
+  credit              Boolean
+
+  @@index([vatPaymentCreditId])
+  @@index([monthlyVatPaymentId])
+}
+
+model MonthlyVatPayment {
+  id        String  @id @default(uuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  purchaseReportId String         @unique
+  purchaseReport   PurchaseReport @relation(fields: [purchaseReportId], references: [id])
+
+  count      Int
+  owedAmount Decimal // from the purchaseReport vat
+  oweAmount  Decimal // from the sum of the sales vat
+  pastCredit Decimal // from the sum of the sales vat
+  total      Decimal
+  credit     Decimal
+
+  month    Int
+  year     Int
+  VatSales VatSales[]
+
+  recordId String?
+  record   File?   @relation(fields: [recordId], references: [id])
+
+  paymentDetailId        String?                  @unique
+  paymentDetail          PaymentDetail?           @relation(fields: [paymentDetailId], references: [id])
+  VatPaymentCreditDetail VatPaymentCreditDetail[]
+
+  @@index([month, year, companyId])
 }
 
 model Contractor {
@@ -832,22 +941,49 @@ model ContractorPayment {
 }
 
 model ContractorWithholding {
-  id              String         @id @default(uuid())
-  companyId       String
-  company         Company        @relation(fields: [companyId], references: [id])
-  contractorId    String
-  contractor      Contractor     @relation(fields: [contractorId], references: [id])
-  paymentDetailId String?        @unique
-  paymentDetail   PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
+  id           String     @id @default(uuid())
+  companyId    String
+  company      Company    @relation(fields: [companyId], references: [id])
+  contractorId String
+  contractor   Contractor @relation(fields: [contractorId], references: [id])
+  //might need to also add the purchase one here
 
-  amount Decimal
-  month  Int
-  year   Int
+  withholdingRate Int
+  amount          Decimal
+  month           Int
+  year            Int
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
 
+  contractorWithholdingPaymentId String
+  contractorWithholdingPayment   ContractorWithholdingPayment @relation(fields: [contractorWithholdingPaymentId], references: [id])
+
   @@index([month, year, companyId])
   @@index([month, year, contractorId])
+}
+
+model ContractorWithholdingPayment {
+  id              String         @id @default(uuid())
+  companyId       String
+  company         Company        @relation(fields: [companyId], references: [id])
+  paymentDetailId String?        @unique
+  paymentDetail   PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
+  recordId        String?
+  record          File?          @relation(fields: [recordId], references: [id])
+
+  thirtyPercentageCount Int
+  twoPercentageCount    Int
+  count                 Int
+
+  thirtyPercentageAmount Decimal
+  twoPercentageAmount    Decimal
+  totalAmount            Decimal
+
+  month                 Int
+  year                  Int
+  ContractorWithholding ContractorWithholding[]
+
+  @@index([month, year, companyId])
 }
