@@ -144,6 +144,7 @@ model Company {
   MonthlyVatPayment            MonthlyVatPayment[]
   VatPaymentCredit             VatPaymentCredit?
   ContractorWithholdingPayment ContractorWithholdingPayment[]
+  DebitNote                    DebitNote?
 }
 
 enum CompanyStructures {
@@ -622,8 +623,31 @@ model Product {
   deletedAt       DateTime?
   PurchaseProduct PurchaseProduct[]
   VatSaleProduct  VatSaleProduct[]
+  Inventory       Inventory[]
+  BOM             BOM[]
 
   @@index([companyId], type: Hash)
+}
+
+model Inventory {
+  id             String   @id @default(uuid())
+  productId      String
+  product        Product  @relation(fields: [productId], references: [id])
+  quantityOnHand Int      @default(0) // Current quantity in stock
+  lastUpdated    DateTime @default(now()) @updatedAt
+
+  @@index([productId])
+}
+
+model BOM {
+  id                String  @id @default(uuid())
+  finishedProductId String
+  componentId       String
+  component         Product @relation(fields: [componentId], references: [id])
+  quantityRequired  Int
+
+  @@unique([finishedProductId, componentId]) // Ensure a component can only appear once per finished product
+  @@index([finishedProductId])
 }
 
 enum PurchaseType {
@@ -669,6 +693,24 @@ model Purchase {
   purchaseType     PurchaseType
   MRCNumber        String?
   VatReceiptNumber String?
+
+  localPurchaseCapitalAssets         Decimal
+  vatOnLocalPurchaseCapitalAssets    Decimal
+  importedCapitalAssets              Decimal
+  vatOnImportedCapitalAssets         Decimal
+  purchaseWithNoVatOrUnclaimedInputs Decimal
+  totalCapitalAssets                 Decimal
+  vatOnTotalAssets                   Decimal
+
+  localPurchaseInputs                     Decimal
+  vatOnLocalPurchaseInputs                Decimal
+  importedInputs                          Decimal
+  vatOnImportedInputs                     Decimal
+  generalExpenseInputs                    Decimal
+  vatOnGeneralExpenseInputs               Decimal
+  purchaseWithNoVatOrUnclaimedInputsAgain Decimal
+  totalNonCapitalInputs                   Decimal
+  vatOnTotalInputs                        Decimal
 
   taxableAmount    Decimal
   nonTaxableAmount Decimal
@@ -720,7 +762,36 @@ model PurchaseReport {
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
 
-  count            Int
+  count Int
+
+  localPurchaseCapitalAssets         Decimal
+  vatOnLocalPurchaseCapitalAssets    Decimal
+  importedCapitalAssets              Decimal
+  vatOnImportedCapitalAssets         Decimal
+  purchaseWithNoVatOrUnclaimedInputs Decimal
+  totalCapitalAssets                 Decimal
+  vatOnTotalAssets                   Decimal
+
+  localPurchaseInputs                     Decimal
+  vatOnLocalPurchaseInputs                Decimal
+  importedInputs                          Decimal
+  vatOnImportedInputs                     Decimal
+  generalExpenseInputs                    Decimal
+  vatOnGeneralExpenseInputs               Decimal
+  purchaseWithNoVatOrUnclaimedInputsAgain Decimal
+
+  deductibleOnVatReverseTaxation      Decimal
+  vatOnDeductibleOnVatReverseTaxation Decimal
+
+  taxAdjustmentsDebitNote      Decimal
+  vatOnTaxAdjustmentsDebitNote Decimal
+
+  taxAdjustmentsCreditNote      Decimal
+  vatOnTaxAdjustmentsCreditNote Decimal
+
+  totalNonCapitalInputs Decimal
+  vatOnTotalInputs      Decimal
+
   taxableAmount    Decimal
   nonTaxableAmount Decimal
   vat              Decimal
@@ -772,9 +843,9 @@ model VatSales {
 }
 
 enum SaleType {
-  taxableLocalCapitalAssets
-  taxableImportedCapitalAssets
-  taxableLocalInputs
+  taxableSales
+  zeroRatedSales
+  taxExemptSales
 }
 
 model VatSaleProduct {
@@ -833,25 +904,37 @@ model YearlyVatSaleIncome {
   @@index([year, companyId])
 }
 
+model DebitNote {
+  id        Int      @id @default(autoincrement())
+  companyId String   @unique
+  company   Company  @relation(fields: [companyId], references: [id])
+  date      DateTime
+  amount    Decimal
+  reason    String
+}
+
 // this might need to be reconsidered
 model VatPaymentCredit {
-  id                     String                   @id @default(uuid())
-  companyId              String                   @unique
-  company                Company                  @relation(fields: [companyId], references: [id])
-  amount                 Decimal
-  VatPaymentCreditDetail VatPaymentCreditDetail[]
+  id                String              @id @default(uuid())
+  companyId         String              @unique
+  company           Company             @relation(fields: [companyId], references: [id])
+  totalCredits      Decimal             @default(0) // The current total VAT credits
+  lastUpdated       DateTime            @default(now()) @updatedAt
+  VatCreditRollover VatCreditRollover[]
 
   @@index([companyId])
 }
 
-model VatPaymentCreditDetail {
+model VatCreditRollover {
   id                  String            @id @default(uuid())
   vatPaymentCreditId  String
   vatPaymentCredit    VatPaymentCredit  @relation(fields: [vatPaymentCreditId], references: [id])
   monthlyVatPaymentId String
   monthlyVatPayment   MonthlyVatPayment @relation(fields: [monthlyVatPaymentId], references: [id])
-  amount              Decimal
-  credit              Boolean
+  previousCredits     Decimal // Credits before rollover
+  rolloverAmount      Decimal // Amount of credits rolled over
+  newTotalCredits     Decimal // New total credits after rollover
+  rolloverDate        DateTime          @default(now())
 
   @@index([vatPaymentCreditId])
   @@index([monthlyVatPaymentId])
@@ -879,9 +962,9 @@ model MonthlyVatPayment {
   recordId String?
   record   File?   @relation(fields: [recordId], references: [id])
 
-  paymentDetailId        String?                  @unique
-  paymentDetail          PaymentDetail?           @relation(fields: [paymentDetailId], references: [id])
-  VatPaymentCreditDetail VatPaymentCreditDetail[]
+  paymentDetailId   String?             @unique
+  paymentDetail     PaymentDetail?      @relation(fields: [paymentDetailId], references: [id])
+  VatCreditRollover VatCreditRollover[]
 
   @@index([month, year, companyId])
 }
