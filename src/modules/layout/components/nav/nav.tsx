@@ -41,6 +41,18 @@ export function MainNav({
             >
                 Purchase
             </Link>
+            <Link
+                href="/order"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            >
+                Order
+            </Link>
+            <Link
+                href="/form"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            >
+                form
+            </Link>
         </nav>
     )
 }
