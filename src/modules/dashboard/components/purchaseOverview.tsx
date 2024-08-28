@@ -11,27 +11,22 @@ export const PurchaseOverview = () => {
         <Card x-chunk="dashboard-01-chunk-5">
             <CardHeader className="flex flex-row items-center">
                 <div className="grid gap-2">
-                    <CardTitle>Sales</CardTitle>
+                    <CardTitle>Year </CardTitle>
                     <CardDescription>
-                        Recent sales from your store.
+                        cumulated Data
                     </CardDescription>
                 </div>
-                <Button asChild size="sm" className="ml-auto gap-1 text-black">
-                    <Link href="#">
-                        View All
-                        <ArrowUpRight className="h-4 w-4" />
-                    </Link>
+                <Button className="ml-auto gap-1 text-black">
+                    2016
                 </Button>
             </CardHeader>
+            T
             <CardContent className="grid gap-8">
                 <div className="flex items-center gap-4">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                        <AvatarImage src="/avatars/01.png" alt="Avatar" />
-                        <AvatarFallback>OM</AvatarFallback>
-                    </Avatar>
+
                     <div className="grid gap-1">
                         <p className="text-sm font-medium leading-none">
-                            Olivia Martin
+                            Nehase
                         </p>
                         <p className="text-sm text-muted-foreground">
                             0092181112

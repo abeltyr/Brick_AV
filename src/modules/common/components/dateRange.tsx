@@ -23,14 +23,14 @@ export function CalendarDateRangePicker({
     })
 
     return (
-        <div className={cn("grid gap-2", className)}>
+        <div className={cn("flex gap-2", className)}>
             <Popover>
                 <PopoverTrigger asChild>
                     <Button
                         id="date"
                         variant={"outline"}
                         className={cn(
-                            "w-[260px] justify-start text-left font-normal",
+                            "w-[100px] justify-start text-left font-normal",
                             !date && "text-muted-foreground"
                         )}
                     >
@@ -38,11 +38,45 @@ export function CalendarDateRangePicker({
                         {date?.from ? (
                             date.to ? (
                                 <>
-                                    {format(date.from, "LLL dd, y")} -{" "}
-                                    {format(date.to, "LLL dd, y")}
+                                    {format(date.from, "LLL")}
                                 </>
                             ) : (
-                                format(date.from, "LLL dd, y")
+                                format(date.from, "LLL")
+                            )
+                        ) : (
+                            <span>Pick a date</span>
+                        )}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                        initialFocus
+                        mode="range"
+                        defaultMonth={date?.from}
+                        selected={date}
+                        onSelect={setDate}
+                        numberOfMonths={2}
+                    />
+                </PopoverContent>
+            </Popover>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        id="date"
+                        variant={"outline"}
+                        className={cn(
+                            "w-[100px] justify-start text-left font-normal",
+                            !date && "text-muted-foreground"
+                        )}
+                    >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date?.from ? (
+                            date.to ? (
+                                <>
+                                    {format(date.from, "Y")}
+                                </>
+                            ) : (
+                                format(date.from, "Y")
                             )
                         ) : (
                             <span>Pick a date</span>

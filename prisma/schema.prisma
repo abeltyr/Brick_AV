@@ -347,8 +347,6 @@ model Product {
   description     String?           @db.Text()
   type            ProductType       @default(Good)
   purchaseType    PurchaseType
-  unit            ProductUnit
-  unitPrice       Decimal
   active          Boolean           @default(true)
   purchase        Boolean           @default(true)
   createdAt       DateTime          @default(now())
@@ -357,8 +355,24 @@ model Product {
   VatSaleProduct  VatSaleProduct[]
   BOM             BOM[]
   Inventory       Inventory?
+  ProductPrice    ProductPrice?
 
   @@index([companyId], type: Hash)
+}
+
+model ProductPrice {
+  id        String      @id @default(uuid())
+  productId String      @unique
+  product   Product     @relation(fields: [productId], references: [id])
+  active    Boolean     @default(true)
+  unit      ProductUnit
+  unitPrice Decimal
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@index([productId], type: Hash)
+  @@index([active, createdAt, productId])
 }
 
 model Inventory {

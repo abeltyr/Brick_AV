@@ -21,9 +21,9 @@ export const SalesOverview = () => {
         <Card x-chunk="dashboard-01-chunk-4">
             <CardHeader className="flex flex-row items-center">
                 <div className="grid gap-2">
-                    <CardTitle>Sales</CardTitle>
+                    <CardTitle>Year Summation</CardTitle>
                     <CardDescription>
-                        Recent sales from your store.
+                        cumulated Data
                     </CardDescription>
                 </div>
                 <Button asChild size="sm" className="ml-auto gap-1">
