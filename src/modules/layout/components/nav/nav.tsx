@@ -1,6 +1,8 @@
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
+import { translator } from '@/lib/lang/translator'
+import { LanguageTranslator } from '@/modules/language/components'
 
 export function MainNav({
     className,
@@ -15,43 +17,25 @@ export function MainNav({
                 href="/"
                 className="text-sm font-medium transition-colors hover:text-primary"
             >
-                Overview
+                <LanguageTranslator>
+                    Overview
+                </LanguageTranslator>
             </Link>
             <Link
-                href="/sales"
+                href="/vendors"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
-                Sales
+                <LanguageTranslator>
+                    Vendor
+                </LanguageTranslator>
             </Link>
             <Link
-                href="/withholding"
+                href="/products"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
-                Withholding
-            </Link>
-            <Link
-                href="/employee"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-                Employee
-            </Link>
-            <Link
-                href="/purchase"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-                Purchase
-            </Link>
-            <Link
-                href="/order"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-                Order
-            </Link>
-            <Link
-                href="/form"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-                form
+                <LanguageTranslator>
+                    Product
+                </LanguageTranslator>
             </Link>
         </nav>
     )

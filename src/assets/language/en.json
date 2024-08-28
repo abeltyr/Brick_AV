@@ -1,0 +1,21 @@
+{
+    "language": "English",
+    "words": {
+        "Overview": {
+            "translation": "Overview",
+            "detail": ""
+        },
+        "Vendor": {
+            "translation": "Vendor",
+            "detail": ""
+        },
+        "Product": {
+            "translation": "Product",
+            "detail": ""
+        },
+        "Inventory": {
+            "translation": "Inventory",
+            "detail": ""
+        }
+    }
+}
