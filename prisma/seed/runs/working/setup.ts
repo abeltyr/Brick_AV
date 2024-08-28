@@ -1,26 +1,62 @@
 import { PrismaClient } from "@prisma/client";
 
 export const runSetupSeed = async (prisma: PrismaClient) => {
-  // const company = await prisma.company.create({
-  //   data: {
-  //     legalName: "eurka",
-  //     name: "Eurka",
-  //   },
-  // });
-  // const user = await prisma.user.create({
-  //   data: {
-  //     email: "abel@texly.co",
-  //     name: "Abel",
-  //     id: "74387e66-0125-484c-a7be-21a6a3992ab3",
-  //   },
-  // });
-  // const companyUser = await prisma.companyUser.create({
-  //   data: {
-  //     userId: "74387e66-0125-484c-a7be-21a6a3992ab3",
-  //     companyId: company.id,
-  //     role: "Owner",
-  //   },
-  // });
+  const company = await prisma.company.create({
+    data: {
+      legalName: "eurka",
+      name: "Eurka",
+      structure: "Plc",
+      tin: "123456789",
+    },
+  });
+  const texlyCompany = await prisma.company.create({
+    data: {
+      legalName: "texly",
+      name: "texly",
+      structure: "Plc",
+      tin: "1234567891",
+    },
+  });
+
+  const nivorCompany = await prisma.company.create({
+    data: {
+      legalName: "nivor",
+      name: "nivor",
+      structure: "Plc",
+      tin: "1a234567891",
+    },
+  });
+  const user = await prisma.profile.create({
+    data: {
+      id: "e40fbc07-c963-444b-bbb6-306b4b2585f3",
+      email: "abel@tecly.co",
+      name: "Abel",
+    },
+  });
+  await prisma.companyMember.create({
+    data: {
+      profileId: user.id,
+      companyId: company.id,
+      role: "Owner",
+    },
+  });
+
+  await prisma.companyMember.create({
+    data: {
+      profileId: user.id,
+      companyId: texlyCompany.id,
+      role: "Owner",
+    },
+  });
+
+  await prisma.companyMember.create({
+    data: {
+      profileId: user.id,
+      companyId: nivorCompany.id,
+      role: "Accountant",
+    },
+  });
+
   // const company = await prisma.contractorPayroll.findMany({
   //   where: {
   //     contractor:{

@@ -47,25 +47,8 @@ import {
     SelectValue,
 } from "@/modules/ui/select"
 import { useAuth } from '@/lib/context/auth/user'
-import { Company } from '@prisma/client'
+import { Skeleton } from "@/modules/ui/skeleton"
 
-const groups = [
-    {
-        label: "Companies",
-        teams: [
-            {
-                label: "Acme Inc.",
-                value: "acme-inc",
-            },
-            {
-                label: "Monsters Inc.",
-                value: "monsters",
-            },
-        ],
-    },
-]
-
-type Team = (typeof groups)[number]["teams"][number]
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<typeof PopoverTrigger>
 
@@ -74,61 +57,61 @@ interface TeamSwitcherProps extends PopoverTriggerProps { }
 export default function TeamSwitcher({ className }: TeamSwitcherProps) {
     const [open, setOpen] = React.useState(false)
     const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false)
-    const { companies, updateCompanyIndex, companyIndex } = useAuth()
-
-
-    return (
-        <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
-            <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={open}
-                        aria-label="Select a team"
-                        className={cn("w-[200px] justify-between", className)}
-                    >
-                        <Avatar className="mr-2 h-5 w-5">
-                            <AvatarImage
-                                src={`https://avatar.vercel.sh/acme-inc.png`}
-                                alt={companies && companies.length > companyIndex ? companies[companyIndex].name : ""}
-                                className="grayscale"
-                            />
-                            <AvatarFallback>{companies && companies.length > companyIndex ? companies[companyIndex].name : "SC"}</AvatarFallback>
-                        </Avatar>
-                        {companies && companies.length > companyIndex ? companies[companyIndex].name : ""}
-                        <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0">
-                    <Command>
-                        <CommandInput placeholder="Search team..." />
-                        <CommandList>
-                            <CommandEmpty>No team found.</CommandEmpty>
-                            {groups.map((group) => (
-                                <CommandGroup key={group.label} heading={group.label}>
-                                    {companies && companies.map((company, index) => (
+    const { companies, updateCompanyIndex, companyIndex, loading } = useAuth()
+    if (loading)
+        return <Skeleton className="w-[200px] h-[35px] rounded-fmd" />
+    else
+        return (
+            <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
+                <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={open}
+                            aria-label="Select a team"
+                            className={cn("w-[200px] justify-between", className)}
+                        >
+                            <Avatar className="mr-2 h-5 w-5">
+                                <AvatarImage
+                                    src={`images/companyLogo.webp`}
+                                    alt={companies && companies.length > companyIndex ? companies[companyIndex].company?.name : ""}
+                                // className="grayscale"
+                                />
+                                <AvatarFallback>{companies && companies.length > companyIndex ? companies[companyIndex].company?.name : "SC"}</AvatarFallback>
+                            </Avatar>
+                            {companies && companies.length > companyIndex ? companies[companyIndex].company?.name : ""}
+                            <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                        <Command>
+                            <CommandInput placeholder="Search team..." />
+                            <CommandList>
+                                <CommandEmpty>No team found.</CommandEmpty>
+                                <CommandGroup >
+                                    {companies && companies.map((companyMember, index) => (
                                         <CommandItem
-                                            key={company.id}
+                                            key={companyMember.companyId}
                                             onSelect={() => {
                                                 updateCompanyIndex(index)
                                                 setOpen(false)
                                             }}
-                                            className="text-sm"
+                                            className="text-sm group"
                                         >
                                             <Avatar className="mr-2 h-5 w-5">
                                                 <AvatarImage
-                                                    src={`https://avatar.vercel.sh/acme-inc.png`}
-                                                    alt={company.name}
-                                                    className="grayscale"
+                                                    src={`images/companyLogo.webp`}
+                                                    alt={companyMember.company?.name}
+                                                // className="opacity-40 group-hover:opacity-90"
                                                 />
                                                 <AvatarFallback>SC</AvatarFallback>
                                             </Avatar>
-                                            {company.name}
+                                            {companyMember.company?.name}
                                             <CheckIcon
                                                 className={cn(
                                                     "ml-auto h-4 w-4",
-                                                    companies && companies.length > companyIndex && companies[companyIndex].id === company.id
+                                                    companies && companies.length > companyIndex && companies[companyIndex].companyId === companyMember.companyId
                                                         ? "opacity-100"
                                                         : "opacity-0"
                                                 )}
@@ -136,71 +119,70 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
                                         </CommandItem>
                                     ))}
                                 </CommandGroup>
-                            ))}
-                        </CommandList>
-                        <CommandSeparator />
-                        <CommandList>
-                            <CommandGroup>
-                                <DialogTrigger asChild>
-                                    <CommandItem
-                                        onSelect={() => {
-                                            setOpen(false)
-                                            setShowNewTeamDialog(true)
-                                        }}
-                                    >
-                                        <PlusCircledIcon className="mr-2 h-5 w-5" />
-                                        Create Company
-                                    </CommandItem>
-                                </DialogTrigger>
-                            </CommandGroup>
-                        </CommandList>
-                    </Command>
-                </PopoverContent>
-            </Popover>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Create team</DialogTitle>
-                    <DialogDescription>
-                        Add a new team to manage products and customers.
-                    </DialogDescription>
-                </DialogHeader>
-                <div>
-                    <div className="space-y-4 py-2 pb-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Team name</Label>
-                            <Input id="name" placeholder="Acme Inc." />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="plan">Subscription plan</Label>
-                            <Select>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a plan" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="free">
-                                        <span className="font-medium">Free</span> -{" "}
-                                        <span className="text-muted-foreground">
-                                            Trial for two weeks
-                                        </span>
-                                    </SelectItem>
-                                    <SelectItem value="pro">
-                                        <span className="font-medium">Pro</span> -{" "}
-                                        <span className="text-muted-foreground">
-                                            $9/month per user
-                                        </span>
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
+                            </CommandList>
+                            <CommandSeparator />
+                            <CommandList>
+                                <CommandGroup>
+                                    <DialogTrigger asChild>
+                                        <CommandItem
+                                            onSelect={() => {
+                                                setOpen(false)
+                                                setShowNewTeamDialog(true)
+                                            }}
+                                        >
+                                            <PlusCircledIcon className="mr-2 h-5 w-5" />
+                                            Create Company
+                                        </CommandItem>
+                                    </DialogTrigger>
+                                </CommandGroup>
+                            </CommandList>
+                        </Command>
+                    </PopoverContent>
+                </Popover>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Create team</DialogTitle>
+                        <DialogDescription>
+                            Add a new team to manage products and customers.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div>
+                        <div className="space-y-4 py-2 pb-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Team name</Label>
+                                <Input id="name" placeholder="Acme Inc." />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="plan">Subscription plan</Label>
+                                <Select>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a plan" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="free">
+                                            <span className="font-medium">Free</span> -{" "}
+                                            <span className="text-muted-foreground">
+                                                Trial for two weeks
+                                            </span>
+                                        </SelectItem>
+                                        <SelectItem value="pro">
+                                            <span className="font-medium">Pro</span> -{" "}
+                                            <span className="text-muted-foreground">
+                                                $9/month per user
+                                            </span>
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => setShowNewTeamDialog(false)}>
-                        Cancel
-                    </Button>
-                    <Button type="submit">Continue</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    )
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowNewTeamDialog(false)}>
+                            Cancel
+                        </Button>
+                        <Button type="submit">Continue</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        )
 }

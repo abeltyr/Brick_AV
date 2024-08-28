@@ -38,35 +38,75 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.runSetupSeed = void 0;
 var runSetupSeed = function (prisma) { return __awaiter(void 0, void 0, void 0, function () {
-    var company, user, companyUser;
+    var company, texlyCompany, nivorCompany, user;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, prisma.company.create({
                     data: {
-                        userName: "eurka",
+                        legalName: "eurka",
                         name: "Eurka",
+                        structure: "Plc",
+                        tin: "123456789",
                     },
                 })];
             case 1:
                 company = _a.sent();
-                return [4 /*yield*/, prisma.user.create({
+                return [4 /*yield*/, prisma.company.create({
                         data: {
-                            email: "abel@texly.co",
-                            name: "Abel",
-                            id: "74387e66-0125-484c-a7be-21a6a3992ab3",
+                            legalName: "texly",
+                            name: "texly",
+                            structure: "Plc",
+                            tin: "1234567891",
                         },
                     })];
             case 2:
-                user = _a.sent();
-                return [4 /*yield*/, prisma.companyUser.create({
+                texlyCompany = _a.sent();
+                return [4 /*yield*/, prisma.company.create({
                         data: {
-                            userId: "74387e66-0125-484c-a7be-21a6a3992ab3",
+                            legalName: "nivor",
+                            name: "nivor",
+                            structure: "Plc",
+                            tin: "1a234567891",
+                        },
+                    })];
+            case 3:
+                nivorCompany = _a.sent();
+                return [4 /*yield*/, prisma.profile.create({
+                        data: {
+                            id: "e40fbc07-c963-444b-bbb6-306b4b2585f3",
+                            email: "abel@tecly.co",
+                            name: "Abel",
+                        },
+                    })];
+            case 4:
+                user = _a.sent();
+                return [4 /*yield*/, prisma.companyMember.create({
+                        data: {
+                            profileId: user.id,
                             companyId: company.id,
                             role: "Owner",
                         },
                     })];
-            case 3:
-                companyUser = _a.sent();
+            case 5:
+                _a.sent();
+                return [4 /*yield*/, prisma.companyMember.create({
+                        data: {
+                            profileId: user.id,
+                            companyId: texlyCompany.id,
+                            role: "Owner",
+                        },
+                    })];
+            case 6:
+                _a.sent();
+                return [4 /*yield*/, prisma.companyMember.create({
+                        data: {
+                            profileId: user.id,
+                            companyId: nivorCompany.id,
+                            role: "Accountant",
+                        },
+                    })];
+            case 7:
+                _a.sent();
                 return [2 /*return*/];
         }
     });

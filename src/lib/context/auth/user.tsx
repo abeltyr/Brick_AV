@@ -6,8 +6,8 @@ import { createClient } from '@/lib/utils/supabase/client';
 import { signInWithPasswordAction } from '@/lib/data/account/signIn';
 import { getUserAction, refreshAccountToken } from '@/lib/data/account/fetch';
 import { logoutAction } from '@/lib/data/account/logout';
-import { Company } from '@prisma/client';
-import { getUserCompanies } from '@/lib/data/company/userCompanies';
+import { getMemberCompanyAction } from '@/lib/data/companyMember/fetchMemberCompany';
+import { CompanyMemberIndex } from '@/types/company';
 
 
 const initialValues: {
@@ -17,14 +17,14 @@ const initialValues: {
     logout: () => void,
     fetchUser: () => void,
     updateUser: ({ }: {}) => void,
-    companies: Company[] | null,
+    companies: CompanyMemberIndex[] | null,
     companyIndex: number,
     companyLoading: boolean
     updateCompanyIndex: (index: number) => void,
 } = {
     session: null,
     loading: true,
-    login: ({ email, password }: { email: string, password: string }) => { },
+    login: ({ }: { email: string, password: string }) => { },
     logout: () => { },
     fetchUser: () => { },
     updateUser: ({ }: {}) => { },
@@ -47,7 +47,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [companyLoading, setCompanyLoading] = useState(true);
     const [session, setSession] = useState<Session | null>(null)
-    const [companies, setCompanies] = useState<Company[] | null>(null)
+    const [companies, setCompanies] = useState<CompanyMemberIndex[] | null>(null)
     const [companyIndex, setCompanyIndex] = useState<number>(0)
 
 
@@ -149,25 +149,25 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
             setCompanyLoading(true);
             let fetchData = true;
             try {
-                const data = localStorage.getItem("companiesData")
+                const data = localStorage.getItem("memberData")
 
                 if (data && !refetch) {
                     const extractData = JSON.parse(data);
                     const minSinceLastPull = (new Date().getTime() - extractData.date) / 60000;
                     if (minSinceLastPull < 60) {
-                        setCompanies(extractData.companies);
+                        setCompanies(extractData.memberData);
                         fetchData = false;
                         console.log("local data");
                     }
                 }
 
                 if (!companies && fetchData) {
-                    const companiesData = await getUserCompanies({ userId });
-                    localStorage.setItem("companiesData", JSON.stringify({
-                        companies: companiesData,
+                    const memberData = await getMemberCompanyAction(userId);
+                    localStorage.setItem("memberData", JSON.stringify({
+                        memberData: memberData,
                         date: new Date().getTime()
                     }))
-                    setCompanies(companiesData);
+                    setCompanies(memberData);
                     console.log("new Save");
 
                 }

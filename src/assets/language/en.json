@@ -16,6 +16,42 @@
         "Inventory": {
             "translation": "Inventory",
             "detail": ""
+        },
+        "Bills & Report": {
+            "translation": "Bills & Report",
+            "detail": ""
+        },
+        "Overview of charges, payments, and detailed insights.": {
+            "translation": "Overview of charges, payments, and detailed insights.",
+            "detail": ""
+        },
+        "Download": {
+            "translation": "Download",
+            "detail": ""
+        },
+        "Total Purchase": {
+            "translation": "Total Purchase",
+            "detail": ""
+        },
+        "ETB": {
+            "translation": "ETB",
+            "detail": ""
+        },
+        "from last month": {
+            "translation": "from last month",
+            "detail": ""
+        },
+        "Vat": {
+            "translation": "Vat",
+            "detail": ""
+        },
+        "Amount": {
+            "translation": "Amount",
+            "detail": ""
+        },
+        "Before": {
+            "translation": "Before",
+            "detail": ""
         }
     }
 }

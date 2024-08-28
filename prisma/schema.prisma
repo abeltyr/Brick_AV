@@ -156,8 +156,8 @@ model Company {
   logo   File?   @relation(fields: [logoId], references: [id])
 
   // tax based id
-  tin String?
-  vat String?
+  tin String? @unique
+  vat String? @unique
 
   // location data
   addressId String?
@@ -228,7 +228,8 @@ model CompanyMember {
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
 
-  @@index([profileId], type: Hash)
+  @@index([profileId, active])
+  @@index([companyId, active])
 }
 
 enum CompanyMemberRole {
