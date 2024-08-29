@@ -43,13 +43,15 @@ model File {
 }
 
 model Address {
-  id          String    @id @default(uuid())
+  id          String  @id @default(uuid())
   region      String?
   city        String?
   woreda      String?
   houseNumber String?
-  Company     Company[]
-  Profile     Profile[]
+  description String?
+
+  Company Company[]
+  Profile Profile[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -379,7 +381,7 @@ model Inventory {
   id          String   @id @default(uuid())
   productId   String   @unique
   product     Product  @relation(fields: [productId], references: [id])
-  quantity    Int      @default(0) // Current quantity in stock
+  quantity    Int      @default(0)
   lastUpdated DateTime @default(now()) @updatedAt
 }
 
@@ -414,7 +416,6 @@ model Purchase {
   vendor    Vendor  @relation(fields: [vendorId], references: [id])
 
   date             DateTime
-  purchaseType     PurchaseType
   MRCNumber        String?
   VatReceiptNumber String?
 
@@ -445,6 +446,12 @@ model Purchase {
   nonTaxableAmount Decimal
   totalVat         Decimal
   grossAmount      Decimal
+
+  totalQuantity Decimal      @default(0)
+  averagePrice  Decimal      @default(0)
+  purchaseType  PurchaseType
+  productType   ProductType
+  unit          ProductUnit
 
   month     Int
   year      Int
@@ -535,7 +542,7 @@ model PurchaseReport {
   Purchase          Purchase[]
   MonthlyVatPayment MonthlyVatPayment?
 
-  @@index([month, year, companyId])
+  @@unique([month, year, companyId])
 }
 
 // Employee payroll based data setup

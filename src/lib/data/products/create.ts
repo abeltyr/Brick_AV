@@ -24,10 +24,14 @@ export const createProductAction = async (data: {
       description: data.description,
       type: data.type,
       purchaseType: data.purchaseType,
-
       active: true,
       purchase: data.purchase,
       companyId: data.companyId,
+      Inventory: {
+        create: {
+          quantity: 0,
+        },
+      },
     },
   });
 };
