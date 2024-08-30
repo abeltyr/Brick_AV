@@ -1,3 +1,4 @@
+import { ProductsProvider } from '@/lib/context/product';
 import { VendorsProvider } from '@/lib/context/vendor';
 import type { Metadata } from "next";
 
@@ -16,7 +17,9 @@ export default async function RootLayout({
   return (
     <div>
       <VendorsProvider>
-        {children}
+        <ProductsProvider>
+          {children}
+        </ProductsProvider>
       </VendorsProvider>
     </div>
   );

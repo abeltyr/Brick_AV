@@ -7,6 +7,7 @@ import {
   ProductUnit,
   PurchaseType,
 } from "@prisma/client";
+import Decimal from "decimal.js";
 const prisma = getPrisma();
 
 export const createProductAction = async (data: {
@@ -17,6 +18,8 @@ export const createProductAction = async (data: {
   purchaseType: PurchaseType;
   active?: boolean;
   purchase?: boolean;
+  unitPrice: Decimal;
+  unit: ProductUnit;
 }): Promise<Product> => {
   return await prisma.product.create({
     data: {
@@ -27,11 +30,26 @@ export const createProductAction = async (data: {
       active: true,
       purchase: data.purchase,
       companyId: data.companyId,
+      ProductPrice: {
+        create: {
+          unit: data.unit,
+          unitPrice: data.unitPrice,
+          active: true,
+        },
+      },
       Inventory: {
         create: {
           quantity: 0,
         },
       },
+    },
+    include: {
+      ProductPrice: {
+        where: {
+          active: true,
+        },
+      },
+      Inventory: true,
     },
   });
 };

@@ -48,6 +48,7 @@ export const fetchProductsByCompanyIdAction = async ({
           active: true,
         },
       },
+      Inventory: true,
     },
   });
 };
