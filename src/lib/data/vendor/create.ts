@@ -11,14 +11,6 @@ export const createVenderAction = async (data: {
   address: AddressType;
   companyId: string;
 }): Promise<Vendor> => {
-  //   const addressData = await prisma.address.create({
-  //     data: {
-  //       ...data.address,
-  //     },
-  //   });
-
-  //   const addressId = addressData.id;
-
   return await prisma.vendor.create({
     data: {
       profile: {

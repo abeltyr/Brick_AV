@@ -23,8 +23,8 @@ export default async function RootLayout({
       <div className='flex'>
         {/* <SideBarSection /> */}
         <main className='flex-1 '>
-          <MobileNavBar />
           <NavBar />
+          <div className='min-h-14 h-[8vh] max-h-20' />
           {children}
         </main>
       </div>

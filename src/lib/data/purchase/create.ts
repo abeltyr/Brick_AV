@@ -9,13 +9,18 @@ import {
   PurchaseReport,
   PurchaseType,
 } from "@prisma/client";
+import { toEthiopian } from "@/lib/utils/calendar";
 const prisma = getPrisma();
 
 export const createPurchaseAction = async (data: {
   companyId: string;
   vendorId: string;
   date: Date;
+  productType: ProductType;
   purchaseType: PurchaseType;
+  unit: ProductUnit;
+  averagePrice: Decimal;
+  totalQuantity: number;
   MRCNumber?: string;
   VatReceiptNumber?: string;
   localPurchaseCapitalAssets?: Decimal;
@@ -53,6 +58,15 @@ export const createPurchaseAction = async (data: {
   purchase: Purchase;
   purchaseReport: PurchaseReport;
 }> => {
+  const ethioDate = toEthiopian({
+    date: new Date(data.date).getDate(),
+    month: new Date(data.date).getMonth(),
+    year: new Date(data.date).getFullYear(),
+  });
+  let month = ethioDate?.month;
+  let year = ethioDate?.year;
+  if (!month || !year) throw new Error("date is not setup right");
+
   let localPurchaseCapitalAssets: Decimal = new Decimal(0);
   let vatOnLocalPurchaseCapitalAssets: Decimal = new Decimal(0);
 
@@ -197,6 +211,7 @@ export const createPurchaseAction = async (data: {
     .plus(totalVat);
 
   const beforeVat = taxableAmount.plus(nonTaxableAmount);
+
   const averagePrice = beforeVat.dividedBy(totalQuantity);
 
   let unit: ProductUnit = "KG";
@@ -204,8 +219,7 @@ export const createPurchaseAction = async (data: {
   Object.values(units).map((data, index) => {
     if (unitAmount < data) unit = Object.keys(units)[index] as ProductUnit;
   });
-  let month = 0;
-  let year = 2016;
+  productGood > productService ? "Good" : "Service";
 
   let purchaseReport = await prisma.purchaseReport.findUnique({
     where: {
@@ -226,7 +240,7 @@ export const createPurchaseAction = async (data: {
       vendorId: data.vendorId,
       VatReceiptNumber: data.VatReceiptNumber,
       MRCNumber: data.MRCNumber,
-      purchaseType: data.purchaseType,
+
       localPurchaseCapitalAssets,
       vatOnLocalPurchaseCapitalAssets,
       importedCapitalAssets,
@@ -246,10 +260,13 @@ export const createPurchaseAction = async (data: {
       nonTaxableAmount,
       totalVat,
       grossAmount,
-      totalQuantity,
-      averagePrice,
-      productType: productGood > productService ? "Good" : "Service",
-      unit: unit,
+
+      totalQuantity: data.totalQuantity,
+      averagePrice: data.averagePrice,
+      productType: data.productType,
+      unit: data.unit,
+      purchaseType: data.purchaseType,
+
       date: data.date,
       month,
       year,

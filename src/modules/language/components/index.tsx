@@ -1,5 +1,7 @@
+'use client'
+
 import { translator } from '@/lib/lang/translator'
-import React from 'react'
+import React, { useState } from 'react'
 
 
 export interface LanguageTranslatorProps
@@ -8,12 +10,16 @@ export interface LanguageTranslatorProps
 
 
 export const LanguageTranslator = ({ className, children, ...props }: LanguageTranslatorProps) => {
-    return (
-        <>
-            {translator({
-                key: children ? children.toString() : "",
-                langCode: "en"
-            })?.translation}
-        </>
-    )
+    const [data, setData] = useState(translator({
+        key: children ? children.toString() : "",
+        langCode: "en"
+    }))
+
+    if (data)
+        return (
+            <>
+                {data.translation}
+            </>
+        )
+    else return <>{children}</>
 }
