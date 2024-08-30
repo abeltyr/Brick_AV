@@ -108,7 +108,7 @@ enum PaymentMethod {
 
 model Profile {
   id               String    @id @default(uuid())
-  name             String
+  name             String?
   preferredName    String?
   companyName      String?
   companyLegalName String?
@@ -131,8 +131,8 @@ model Profile {
   Vendor        Vendor[]
   Customer      Customer[]
 
-  @@index([tinNumber], type: BTree)
-  @@index([vatNumber], type: BTree)
+  @@index([tinNumber], type: Hash)
+  @@index([vatNumber], type: Hash)
 }
 
 enum Gender {
@@ -403,6 +403,10 @@ model Vendor {
   profileId String
   profile   Profile    @relation(fields: [profileId], references: [id])
   Purchase  Purchase[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
 
   @@index([companyId], type: Hash)
 }

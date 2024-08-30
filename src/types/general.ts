@@ -1,7 +1,7 @@
 import { Gender } from "@prisma/client";
 
-export interface ProfileType {
-  name: string;
+export interface ProfileInputType {
+  name?: string;
   preferredName?: string;
   companyName?: string;
   companyLegalName?: string;
@@ -13,7 +13,7 @@ export interface ProfileType {
   vatNumber?: string;
 }
 
-export interface AddressType {
+export interface AddressInputType {
   region?: string;
   city?: string;
   woreda?: string;

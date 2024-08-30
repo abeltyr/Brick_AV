@@ -16,7 +16,6 @@ export const signInWithPasswordAction = async ({
     password,
   });
 
-  console.log(response);
   if (response.error) {
     throw new Error(JSON.stringify(response.error));
   }

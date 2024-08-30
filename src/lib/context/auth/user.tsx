@@ -7,7 +7,7 @@ import { signInWithPasswordAction } from '@/lib/data/account/signIn';
 import { getUserAction, refreshAccountToken } from '@/lib/data/account/fetch';
 import { logoutAction } from '@/lib/data/account/logout';
 import { getMemberCompanyAction } from '@/lib/data/companyMember/fetchMemberCompany';
-import { CompanyMemberIndex } from '@/types/company';
+import { CompanyMemberType } from '@/types/company';
 
 
 const initialValues: {
@@ -17,10 +17,11 @@ const initialValues: {
     logout: () => void,
     fetchUser: () => void,
     updateUser: ({ }: {}) => void,
-    companies: CompanyMemberIndex[] | null,
+    companies: CompanyMemberType[] | null,
     companyIndex: number,
     companyLoading: boolean
     updateCompanyIndex: (index: number) => void,
+    currentCompany: CompanyMemberType | null
 } = {
     session: null,
     loading: true,
@@ -32,7 +33,7 @@ const initialValues: {
     companyIndex: 0,
     companyLoading: true,
     updateCompanyIndex: (index: number) => { },
-
+    currentCompany: null
 };
 
 type Props = {
@@ -47,7 +48,8 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [companyLoading, setCompanyLoading] = useState(true);
     const [session, setSession] = useState<Session | null>(null)
-    const [companies, setCompanies] = useState<CompanyMemberIndex[] | null>(null)
+    const [companies, setCompanies] = useState<CompanyMemberType[] | null>(null)
+    const [currentCompany, setCurrentCompany] = useState<CompanyMemberType | null>(null)
     const [companyIndex, setCompanyIndex] = useState<number>(0)
 
 
@@ -86,8 +88,9 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     const updateCompanyIndex = useCallback(
         async (index: number) => {
             setCompanyIndex(index)
+            setCurrentCompany(companies && companies[index])
         },
-        [],
+        [companies],
     );
 
     const login = useCallback(
@@ -156,6 +159,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                     const minSinceLastPull = (new Date().getTime() - extractData.date) / 60000;
                     if (minSinceLastPull < 60) {
                         setCompanies(extractData.memberData);
+                        setCurrentCompany(extractData.memberData && extractData.memberData[0])
                         fetchData = false;
                         console.log("local data");
                     }
@@ -168,6 +172,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                         date: new Date().getTime()
                     }))
                     setCompanies(memberData);
+                    setCurrentCompany(memberData && memberData[0])
                     console.log("new Save");
 
                 }
@@ -207,7 +212,8 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                 companyIndex,
                 companies,
                 companyLoading,
-                updateCompanyIndex
+                updateCompanyIndex,
+                currentCompany
             }}
         >
             {children}

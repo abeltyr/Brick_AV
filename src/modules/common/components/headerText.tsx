@@ -4,7 +4,7 @@ import React from 'react'
 export const HeaderTextComponent = ({ description, title }: { title: string, description: string }) => {
     return (
         <div className='flex flex-col gap-2'>
-            <p className='font-black text-3xl text-white'>
+            <p className='font-black text-3xl text-foreground'>
                 <LanguageTranslator>
 
                     {title}

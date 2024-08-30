@@ -1,17 +1,17 @@
 export type Filter = {
-    after?: string;
-    before?: string;
-    limit?: number;
+  after?: string;
+  before?: string;
+  limit?: number;
 };
 
 export type PageListIndexType = {
-    start: number;
-    end: number;
-    name: string;
+  start: number;
+  end: number;
+  name: string;
 };
 
-export const loadLimit = 30;
+export const loadLimit = 10;
 
 export const filter: Filter = {
-    limit: loadLimit,
-}
+  limit: loadLimit,
+};

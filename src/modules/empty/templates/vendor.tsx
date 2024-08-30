@@ -8,8 +8,12 @@ export const VendorEmptyState = () => {
         <EmptyState
             title='No vendor added'
             description='Description text of Vendor.'
-            buttonText='Add Vendor'
+            actionButtonText='Add Vendor'
+            reloadButtonText="Refetch"
             action={() => {
+                alert("Hello")
+            }}
+            reload={() => {
                 alert("Hello")
             }}
         />

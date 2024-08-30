@@ -1,14 +1,14 @@
 "use server";
 
 import { getPrisma } from "@/lib/utils/database";
-import { AddressType, ProfileType } from "@/types/general";
+import { AddressInputType, ProfileInputType } from "@/types/general";
 import { Vendor } from "@prisma/client";
 
 const prisma = getPrisma();
 
 export const createVenderAction = async (data: {
-  profile: ProfileType;
-  address: AddressType;
+  profile: ProfileInputType;
+  address: AddressInputType;
   companyId: string;
 }): Promise<Vendor> => {
   return await prisma.vendor.create({
@@ -26,6 +26,13 @@ export const createVenderAction = async (data: {
       company: {
         connect: {
           id: data.companyId,
+        },
+      },
+    },
+    include: {
+      profile: {
+        include: {
+          address: true,
         },
       },
     },

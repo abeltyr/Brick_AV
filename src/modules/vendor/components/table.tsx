@@ -1,10 +1,17 @@
 "use client"
 
+import AddSVG from '@/assets/icons/add'
+import LoadingSVG from '@/assets/icons/loading'
+import { useAuth } from '@/lib/context/auth/user'
+import { useVendors } from '@/lib/context/vendor'
+import { LanguageTranslator } from '@/modules/language/components'
 import { Badge } from "@/modules/ui/badge"
+import { Button } from '@/modules/ui/button'
 import {
     Card,
     CardContent,
     CardDescription,
+    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/modules/ui/card"
@@ -16,159 +23,114 @@ import {
     TableHeader,
     TableRow,
 } from "@/modules/ui/table"
+import { VendorType } from '@/types/vendor'
 
-export default function VendorsTableList() {
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/modules/ui/pagination"
+import { limitAmount } from '@/lib/utils/limiter'
+
+
+
+export default function VendorsTableList({ vendors }: { vendors: VendorType[] }) {
+
+    const { getVendor, loadMoreData, fetchingVendors, fetchVendors } = useVendors();
+    const { currentCompany } = useAuth();
     return (
         <Card>
-            <CardHeader className="px-7">
-                <CardTitle>Orders</CardTitle>
-                <CardDescription>Recent orders from your store.</CardDescription>
+            <CardHeader className="px-7 ">
+                <div className='flex w-full justify-between items-center'>
+                    <div className='flex flex-col gap-2'>
+                        <CardTitle>Vendors list</CardTitle>
+                        <CardDescription>Listing of all the vendors</CardDescription>
+                    </div>
+                    <Button className='flex gap-2 p-x4 py-2'
+                        onClick={() => {
+                            if (currentCompany) getVendor({ companyId: currentCompany?.companyId });
+                        }}
+                    >
+                        <AddSVG />
+                        <LanguageTranslator>
+                            Refetch
+                        </LanguageTranslator>
+                    </Button>
+                </div>
+
             </CardHeader>
             <CardContent>
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Customer</TableHead>
-                            <TableHead className="hidden sm:table-cell">Type</TableHead>
-                            <TableHead className="hidden sm:table-cell">Status</TableHead>
-                            <TableHead className="hidden md:table-cell">Date</TableHead>
-                            <TableHead className="text-right">Amount</TableHead>
+                            <TableHead>Tin Number</TableHead>
+                            <TableHead className="sm:table-cell text-center">Company Name</TableHead>
+                            <TableHead className="hidden sm:table-cell text-center">Seller Name</TableHead>
+                            <TableHead className="hidden md:table-cell text-center">City</TableHead>
+                            <TableHead className="hidden md:table-cell text-center">vatNumber</TableHead>
+                            <TableHead className="hidden md:table-cell text-right">Date</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow className="bg-accent">
-                            <TableCell>
-                                <div className="font-medium">Liam Johnson</div>
-                                <div className="hidden text-sm text-muted-foreground md:inline">
-                                    liam@example.com
-                                </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">Sale</TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                                <Badge className="text-xs" variant="secondary">
-                                    Fulfilled
-                                </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">2023-06-23</TableCell>
-                            <TableCell className="text-right">$250.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                                <div className="font-medium">Olivia Smith</div>
-                                <div className="hidden text-sm text-muted-foreground md:inline">
-                                    olivia@example.com
-                                </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">Refund</TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                                <Badge className="text-xs" variant="outline">
-                                    Declined
-                                </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">2023-06-24</TableCell>
-                            <TableCell className="text-right">$150.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                                <div className="font-medium">Noah Williams</div>
-                                <div className="hidden text-sm text-muted-foreground md:inline">
-                                    noah@example.com
-                                </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                                Subscription
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                                <Badge className="text-xs" variant="secondary">
-                                    Fulfilled
-                                </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">2023-06-25</TableCell>
-                            <TableCell className="text-right">$350.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                                <div className="font-medium">Emma Brown</div>
-                                <div className="hidden text-sm text-muted-foreground md:inline">
-                                    emma@example.com
-                                </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">Sale</TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                                <Badge className="text-xs" variant="secondary">
-                                    Fulfilled
-                                </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">2023-06-26</TableCell>
-                            <TableCell className="text-right">$450.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                                <div className="font-medium">Liam Johnson</div>
-                                <div className="hidden text-sm text-muted-foreground md:inline">
-                                    liam@example.com
-                                </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">Sale</TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                                <Badge className="text-xs" variant="secondary">
-                                    Fulfilled
-                                </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">2023-06-23</TableCell>
-                            <TableCell className="text-right">$250.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                                <div className="font-medium">Liam Johnson</div>
-                                <div className="hidden text-sm text-muted-foreground md:inline">
-                                    liam@example.com
-                                </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">Sale</TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                                <Badge className="text-xs" variant="secondary">
-                                    Fulfilled
-                                </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">2023-06-23</TableCell>
-                            <TableCell className="text-right">$250.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                                <div className="font-medium">Olivia Smith</div>
-                                <div className="hidden text-sm text-muted-foreground md:inline">
-                                    olivia@example.com
-                                </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">Refund</TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                                <Badge className="text-xs" variant="outline">
-                                    Declined
-                                </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">2023-06-24</TableCell>
-                            <TableCell className="text-right">$150.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                                <div className="font-medium">Emma Brown</div>
-                                <div className="hidden text-sm text-muted-foreground md:inline">
-                                    emma@example.com
-                                </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">Sale</TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                                <Badge className="text-xs" variant="secondary">
-                                    Fulfilled
-                                </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">2023-06-26</TableCell>
-                            <TableCell className="text-right">$450.00</TableCell>
-                        </TableRow>
+                        {vendors.map((data, index) => {
+                            return <TableRow
+                                key={index}
+                                className="bg-accent">
+                                <TableCell>
+                                    <div className="font-medium">
+                                        {data.profile && data.profile.tinNumber ? data.profile.tinNumber : "---"}
+                                    </div>
+                                </TableCell>
+                                <TableCell className="table-cell text-center">
+                                    {data.profile && data.profile.companyName ? data.profile.companyName : "---"}
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell text-center">
+                                    {data.profile && data.profile.name ? data.profile.name : "---"}
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell text-center">
+                                    {data.profile && data.profile.address && data.profile.address.city ? data.profile.address.city : "---"}
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell text-center">
+                                    {data.profile && data.profile.vatNumber ? data.profile.vatNumber : "---"}
+                                </TableCell>
+                                <TableCell className="hidden md:table-cell text-right ">
+                                    {data.createdAt && data.createdAt.toLocaleDateString('en-GB', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                    })}
+                                </TableCell>
+                            </TableRow>
+                        })}
+
+
                     </TableBody>
                 </Table>
             </CardContent>
+            <CardFooter>
+                <div className='w-full flex justify-center'>
+                    {loadMoreData && <div className='w-full flex justify-center'>
+                        <Button
+                            disabled={fetchingVendors}
+                            variant={"outline"}
+                            className='px-5 py-2'
+                            onClick={() => {
+                                if (currentCompany)
+                                    fetchVendors({ companyId: currentCompany?.companyId });
+                            }}>
+
+                            {fetchingVendors && <div className='animate-spin '>
+                                <LoadingSVG className="h-5 w-5 stroke-[1]" />
+                            </div>}
+                            Load More
+                        </Button>
+                    </div>}
+                </div>
+            </CardFooter>
         </Card>
     )
 }

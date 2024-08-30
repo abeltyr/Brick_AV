@@ -97,7 +97,7 @@
 
 @layer components {
   .screen-padding {
-    @apply min-w-[320px] max-w-[1880px] w-full px-2 2xsm:px-4 md:px-12;
+    @apply min-w-[320px] max-w-[1880px] w-full px-2 2xsm:px-4 md:px-10;
   }
   .screen-parent {
     @apply w-full flex justify-center;

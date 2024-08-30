@@ -9,9 +9,9 @@ import LogoSVG from '@/assets/icons/logo';
 
 export const NavBar = () => {
     return (
-        <div className='screen-parent min-h-14 h-[8vh] max-h-20 fixed'>
+        <div className='screen-parent min-h-14 h-[8vh] max-h-20 fixed z-30'>
             <header className="border-b 
-         top-0 z-30
+         top-0 
         flex justify-between items-center 
         w-full 
         gap-4 

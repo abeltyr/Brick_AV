@@ -1,8 +1,9 @@
 'use client'
 
 
+import { createVenderAction } from '@/lib/data/vendor/create';
 import { fetchVendorsByCompanyIdAction } from '@/lib/data/vendor/fetchByCompanyId';
-import { Filter, loadLimit } from '@/types/shared';
+import { filter, Filter, loadLimit } from '@/types/shared';
 import { VendorType } from '@/types/vendor';
 import React, { useCallback, useContext, useState } from "react";
 
@@ -12,13 +13,45 @@ const initialValues: {
     loadMoreData: boolean,
     setupVendorsData: ({ dataVendors, companyId }: { dataVendors: VendorType[], companyId: string }) => void,
     fetchVendors: ({ companyId }: { companyId: string }) => void,
+    getVendor: ({ companyId }: { companyId: string }) => void,
     fetchingVendors: boolean,
+    initialLoading: boolean,
+    createVendor: ({ }: {
+        name?: string;
+        tinNumber: string;
+        companyName?: string;
+        vatNumber?: string;
+        email?: string;
+        phoneNumber?: string;
+        region?: string;
+        city?: string;
+        woreda?: string;
+        houseNumber?: string;
+        description?: string;
+        companyId: string;
+    }) => void,
 } = {
     vendors: {},
     loadMoreData: true,
     setupVendorsData: ({ }: { dataVendors: VendorType[], companyId: string }) => { },
     fetchVendors: ({ }: { companyId: string }) => { },
+    getVendor: ({ }: { companyId: string }) => { },
     fetchingVendors: true,
+    initialLoading: true,
+    createVendor: ({ }: {
+        name?: string;
+        tinNumber: string;
+        companyName?: string;
+        vatNumber?: string;
+        email?: string;
+        phoneNumber?: string;
+        region?: string;
+        city?: string;
+        woreda?: string;
+        houseNumber?: string;
+        description?: string;
+        companyId: string;
+    }) => { }
 };
 
 type Props = {
@@ -32,7 +65,8 @@ const useVendors = () => useContext(VendorsContext);
 const VendorsProvider: React.FC<Props> = ({ children }) => {
     const [vendors, setVendors] = useState<{ [id: string]: VendorType[] }>({})
     const [loadMoreData, setLoadMoreData] = useState<boolean>(true)
-    const [fetchingVendors, setFetchingVendors] = useState<boolean>(true)
+    const [fetchingVendors, setFetchingVendors] = useState<boolean>(false)
+    const [initialLoading, setInitialLoading] = useState<boolean>(true)
 
 
 
@@ -54,44 +88,114 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
 
 
 
-    const fetchVendors = useCallback(
+
+    const createVendor = async ({ name, tinNumber, companyName, vatNumber, email, phoneNumber, region, city, woreda, houseNumber, description, companyId }: {
+        name?: string;
+        tinNumber: string;
+        companyName?: string;
+        vatNumber?: string;
+        email?: string;
+        phoneNumber?: string;
+        region?: string;
+        city?: string;
+        woreda?: string;
+        houseNumber?: string;
+        description?: string;
+        companyId: string;
+    }) => {
+
+        try {
+            const vendorsData = { ...vendors }
+
+            const newVendor = await createVenderAction({
+                companyId,
+                address: {
+                    city,
+                    description,
+                    houseNumber,
+                    region,
+                    woreda
+                },
+                profile: {
+                    name,
+                    companyName,
+                    phoneNumber,
+                    email,
+                    tinNumber,
+                    vatNumber,
+                }
+            })
+            vendorsData[companyId] = [newVendor, ...vendorsData[companyId]];
+            setVendors(vendorsData);
+            return newVendor;
+        }
+        catch (e) {
+            throw new Error("Error Creating the vendor")
+        }
+
+    };
+
+
+    const getVendor = useCallback(
         async ({ companyId }: { companyId: string }) => {
-
-            if (fetchingVendors) return;
-
-            setFetchingVendors(true);
+            setInitialLoading(true);
             try {
-                const filter: Filter = {
-                    limit: loadLimit,
-                }
-
-                if (vendors[companyId].length > 0) {
-                    filter.after = vendors[companyId][length - 1].id
-                }
-
-
                 const newVendors = await fetchVendorsByCompanyIdAction({
                     companyId,
                     filter
                 });
-
-
                 const vendorsData = { ...vendors };
-                if (vendorsData[companyId])
-                    vendorsData[companyId] = [...vendorsData[companyId], ...newVendors]
-                else {
-                    vendorsData[companyId] = [...newVendors]
-                }
-
-                setVendors(vendorsData);
+                vendorsData[companyId] = [...newVendors]
                 if (newVendors.length < loadLimit) {
                     setLoadMoreData(false)
+                } else {
+                    setLoadMoreData(true)
                 }
+                setVendors(vendorsData);
             } catch (e) {
-
+                console.log(e)
             }
+            setInitialLoading(false);
+        },
+        [vendors],
+    );
 
-            setFetchingVendors(false);
+    const fetchVendors = useCallback(
+        async ({ companyId }: { companyId: string }) => {
+
+            if (!fetchingVendors) {
+                setFetchingVendors(true);
+                try {
+                    const filter: Filter = {
+                        limit: loadLimit,
+                    }
+
+                    if (vendors[companyId] && vendors[companyId].length > 0) {
+                        filter.after = vendors[companyId][vendors[companyId].length - 1].id
+                    }
+                    const vendorsData = { ...vendors };
+                    const newVendors = await fetchVendorsByCompanyIdAction({
+                        companyId,
+                        filter
+                    });
+
+                    if (vendorsData[companyId])
+                        vendorsData[companyId] = [...vendorsData[companyId], ...newVendors]
+                    else {
+                        vendorsData[companyId] = [...newVendors]
+                    }
+
+                    setVendors(vendorsData);
+                    if (newVendors.length < loadLimit) {
+                        setLoadMoreData(false)
+                    }
+                } catch (e) {
+                    console.log(e)
+                    alert("e")
+                    // throw new Error("error")
+                }
+                setFetchingVendors(false);
+            }
         },
         [vendors, fetchingVendors],
     );
@@ -101,10 +205,13 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
         <VendorsContext.Provider
             value={{
                 vendors,
+                initialLoading,
                 loadMoreData,
                 setupVendorsData,
                 fetchingVendors,
-                fetchVendors
+                fetchVendors,
+                createVendor,
+                getVendor
             }}
         >
             {children}

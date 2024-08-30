@@ -3,7 +3,7 @@ import EmptyStateSVG from '@/assets/icons/empty'
 import { Button } from '@/modules/ui/button'
 import React from 'react'
 
-export const EmptyState = ({ action, title, description, buttonText }: { title: string, description: string, action: Function, buttonText: string }) => {
+export const EmptyState = ({ reload, action, title, description, actionButtonText, reloadButtonText }: { title: string, description: string, action: Function, reload: Function, actionButtonText: string, reloadButtonText: string }) => {
     return (
         <div className='w-full flex flex-col gap-6 border-[1px] border-foreground/20 rounded-xl justify-center items-center min-h-[600px] flex-1'>
             <EmptyStateSVG />
@@ -15,12 +15,18 @@ export const EmptyState = ({ action, title, description, buttonText }: { title: 
                     {description}
                 </p>
             </div>
-            <div>
+            <div className='flex gap-8'>
                 <Button className='flex gap-2 p-x4 py-2' onClick={() => {
                     action()
                 }}>
                     <AddSVG />
-                    {buttonText}
+                    {actionButtonText}
+                </Button>
+                <Button className='flex gap-2 p-x4 py-2' onClick={() => {
+                    reload()
+                }}>
+                    <AddSVG />
+                    {reloadButtonText}
                 </Button>
             </div>
         </div>

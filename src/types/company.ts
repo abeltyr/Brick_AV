@@ -1,6 +1,6 @@
 import { Company, CompanyMember, Profile } from "@prisma/client";
 
-export type CompanyMemberIndex = CompanyMember & {
+export type CompanyMemberType = CompanyMember & {
   company?: Company;
   profile?: Profile;
 };

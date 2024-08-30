@@ -8,8 +8,12 @@ export const ProductEmptyState = () => {
         <EmptyState
             title='No product added'
             description='Description text of Vendor.'
-            buttonText='Add Product'
+            actionButtonText='Add Product'
+            reloadButtonText="Refetch"
             action={() => {
+                alert("Hello")
+            }}
+            reload={() => {
                 alert("Hello")
             }}
         />

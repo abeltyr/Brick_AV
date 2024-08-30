@@ -34,11 +34,9 @@ export const fetchVendorsByCompanyIdAction = async ({
     where,
     take: limit,
     cursor: myCursor,
-    orderBy: [
-      {
-        id: orderBy,
-      },
-    ],
+    orderBy: {
+      createdAt: orderBy,
+    },
     skip,
     include: {
       profile: {
