@@ -1,4 +1,5 @@
 import { Inventory, Product, ProductPrice } from "@prisma/client";
+import { z } from "zod";
 
 export type ProductType = Product & {
   ProductPrice?: ProductPrice;
@@ -33,3 +34,35 @@ export const purchaseInputType = [
   },
   { value: "taxExemptedPurchase", data: "Tax Exempted Purchase" },
 ];
+
+export const zProductInputType = z.enum(["Good", "Service"]);
+export const zProductInputUnit = z.enum([
+  "KG",
+  "ML",
+  "GM",
+  "LIT",
+  "MT",
+  "PCS",
+  "CT",
+  "OTHER",
+  "PC",
+]);
+
+export const zPurchaseInputType = z.enum([
+  "taxableLocalCapitalAssets",
+  "taxableImportedCapitalAssets",
+  "taxableLocalInputs",
+  "taxableImportedInputs",
+  "taxableGeneralExpenseInputs",
+  "taxExemptedPurchase",
+]);
+
+export type PurchaseInputType =
+  | "taxableLocalCapitalAssets"
+  | "taxableImportedCapitalAssets"
+  | "taxableLocalInputs"
+  | "taxableImportedInputs"
+  | "taxableGeneralExpenseInputs"
+  | "taxExemptedPurchase";
+
+export type ProductInputType = "Good" | "Service";

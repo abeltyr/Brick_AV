@@ -3,9 +3,8 @@
 import AddSVG from '@/assets/icons/add'
 import LoadingSVG from '@/assets/icons/loading'
 import { useAuth } from '@/lib/context/auth/user'
-import { useProducts } from '@/lib/context/product'
+import { usePurchases } from '@/lib/context/purchase'
 import { LanguageTranslator } from '@/modules/language/components'
-import { Badge } from '@/modules/ui/badge'
 import { Button } from '@/modules/ui/button'
 import {
     Card,
@@ -23,26 +22,26 @@ import {
     TableHeader,
     TableRow,
 } from "@/modules/ui/table"
-import { ProductType } from '@/types/product'
 
 
 
-export default function ProductsTableList({ companyId }: { companyId: string }) {
+export default function PurchasesTableList({ companyId }: { companyId: string }) {
 
-    const { getProduct, loadMoreData, fetchingProducts, fetchProducts, products } = useProducts();
+    const { getPurchase, loadMoreData, fetchingPurchases, fetchPurchases, purchases } = usePurchases();
     const { currentCompany } = useAuth();
     return (
         <Card>
             <CardHeader className="px-7 ">
                 <div className='flex w-full justify-between items-center'>
                     <div className='flex flex-col gap-2'>
-                        <CardTitle>Products list</CardTitle>
-                        <CardDescription>Listing of all the products</CardDescription>
+                        <CardTitle>Purchases list</CardTitle>
+                        <CardDescription>Listing of all the purchases</CardDescription>
                     </div>
-                    <Button className='flex gap-2 p-x4 py-2'
+                    <Button
                         variant={"secondary"}
+                        className='flex gap-2 p-x4 py-2'
                         onClick={() => {
-                            if (currentCompany) getProduct({ companyId: currentCompany?.companyId });
+                            if (currentCompany) getPurchase({ companyId: currentCompany?.companyId });
                         }}
                     >
                         {/* <AddSVG /> */}
@@ -67,37 +66,46 @@ export default function ProductsTableList({ companyId }: { companyId: string }) 
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {products[companyId] && products[companyId].map((product, index) => {
-                            console.log("Inventory", product.Inventory)
+                        {purchases[companyId] && purchases[companyId].map((purchase, index) => {
                             return <TableRow
                                 key={index}
                                 className="bg-accent">
                                 <TableCell>
                                     <div className="font-medium">
-                                        {product && product.name ? product.name : "---"}
+                                        {
+                                            purchase &&
+                                                purchase.vendor &&
+                                                purchase.vendor.profile &&
+                                                purchase.vendor.profile.tinNumber ?
+                                                purchase.vendor.profile.tinNumber :
+                                                "---"
+                                        }
                                     </div>
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-center">
-                                    <Badge>
-                                        {product && product.type ? product.type : "---"}
-                                    </Badge>
+                                    {purchase &&
+                                        purchase.vendor &&
+                                        purchase.vendor.profile &&
+                                        purchase.vendor.profile.companyName ?
+                                        purchase.vendor.profile.companyName :
+                                        "---"}
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-center">
-                                    {product && product.purchaseType ? product.purchaseType : "---"}
+                                    {purchase && purchase.totalVat ? `${purchase.totalVat}` : "---"}
                                 </TableCell>
                                 <TableCell className="table-cell text-center">
-                                    {product && product.ProductPrice && product.ProductPrice.unit ? product.ProductPrice.unit : "---"}
+                                    {purchase && purchase.taxableAmount ? `${purchase.taxableAmount}` : "---"}
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-center">
-                                    {product && product.ProductPrice && product.ProductPrice.unitPrice ? `${product.ProductPrice.unitPrice}` : "---"}
+                                    {purchase && purchase.nonTaxableAmount ? `${purchase.nonTaxableAmount}` : "---"}
                                 </TableCell>
 
                                 <TableCell className="hidden md:table-cell text-center ">
-                                    {product && product.Inventory ? `${product.Inventory.quantity}` : "---"}
+                                    {purchase && purchase.grossAmount ? `${purchase.grossAmount}` : "---"}
                                 </TableCell>
 
                                 <TableCell className="hidden md:table-cell text-center ">
-                                    {product && product.createdAt ? `${product.createdAt.toLocaleDateString('en-GB', {
+                                    {purchase && purchase.createdAt ? `${purchase.createdAt.toLocaleDateString('en-GB', {
                                         day: '2-digit',
                                         month: '2-digit',
                                         year: 'numeric',
@@ -114,15 +122,15 @@ export default function ProductsTableList({ companyId }: { companyId: string }) 
                 <div className='w-full flex justify-center'>
                     {loadMoreData && <div className='w-full flex justify-center'>
                         <Button
-                            disabled={fetchingProducts}
+                            disabled={fetchingPurchases}
                             variant={"outline"}
                             className='px-5 py-2'
                             onClick={() => {
                                 if (currentCompany)
-                                    fetchProducts({ companyId: currentCompany?.companyId });
+                                    fetchPurchases({ companyId: currentCompany?.companyId });
                             }}>
 
-                            {fetchingProducts && <div className='animate-spin '>
+                            {fetchingPurchases && <div className='animate-spin '>
                                 <LoadingSVG className="h-5 w-5 stroke-[1]" />
                             </div>}
                             Load More

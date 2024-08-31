@@ -1,0 +1,38 @@
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/modules/ui/breadcrumb'
+import { Button } from '@/modules/ui/button'
+import { Separator } from '@/modules/ui/separator'
+import { ChevronLeft } from 'lucide-react'
+import Link from 'next/link'
+import React from 'react'
+
+export const AddPurchaseHeader = () => {
+    return (
+        <div className='flex flex-col w-full fixed top-[8vh] left-0 right-0  bg-background z-10 '>
+            <div className='screen-padding py-3'>
+                <div className="flex items-center gap-4">
+                    <Link href="/purchases"> <Button variant="outline" size="icon" className="h-7 w-7" >
+                        <ChevronLeft className="h-4 w-4" />
+                        <span className="sr-only">Back</span>
+                    </Button></Link>
+                    <Breadcrumb className="hidden md:flex items-center">
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink asChild>
+                                    <Link href="/purchases">Purchases</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>Add Purchase</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                    <div className="hidden items-center gap-2 md:ml-auto md:flex">
+                        <Button size="sm" >Add Purchase</Button>
+                    </div>
+                </div>
+            </div>
+            <Separator />
+        </div>
+    )
+}

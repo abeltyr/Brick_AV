@@ -51,11 +51,12 @@ export default function VendorsTableList({ vendors }: { vendors: VendorType[] })
                         <CardDescription>Listing of all the vendors</CardDescription>
                     </div>
                     <Button className='flex gap-2 p-x4 py-2'
+                        variant={"secondary"}
                         onClick={() => {
                             if (currentCompany) getVendor({ companyId: currentCompany?.companyId });
                         }}
                     >
-                        <AddSVG />
+                        {/* <AddSVG /> */}
                         <LanguageTranslator>
                             Refetch
                         </LanguageTranslator>

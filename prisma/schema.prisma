@@ -457,9 +457,9 @@ model Purchase {
   productType   ProductType
   unit          ProductUnit
 
-  month     Int
-  year      Int
-  dataIndex Int
+  month         Int
+  year          Int
+  invoiceNumber Int
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt

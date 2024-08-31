@@ -1,4 +1,5 @@
 import { ProductsProvider } from '@/lib/context/product';
+import { PurchasesProvider } from '@/lib/context/purchase';
 import { VendorsProvider } from '@/lib/context/vendor';
 import type { Metadata } from "next";
 
@@ -16,11 +17,13 @@ export default async function RootLayout({
 
   return (
     <div>
-      <VendorsProvider>
-        <ProductsProvider>
-          {children}
-        </ProductsProvider>
-      </VendorsProvider>
+      <PurchasesProvider>
+        <VendorsProvider>
+          <ProductsProvider>
+            {children}
+          </ProductsProvider>
+        </VendorsProvider>
+      </PurchasesProvider>
     </div>
   );
 }

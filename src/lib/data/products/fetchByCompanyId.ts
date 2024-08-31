@@ -38,7 +38,7 @@ export const fetchProductsByCompanyIdAction = async ({
     cursor: myCursor,
     orderBy: [
       {
-        id: orderBy,
+        createdAt: orderBy,
       },
     ],
     skip,

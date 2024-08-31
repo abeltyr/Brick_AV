@@ -8,10 +8,10 @@ export const EmptyState = ({ reload, action, title, description, actionButtonTex
         <div className='w-full flex flex-col gap-6 border-[1px] border-foreground/20 rounded-xl justify-center items-center min-h-[600px] flex-1'>
             <EmptyStateSVG />
             <div className='flex flex-col justify-center w-full items-center gap-2'>
-                <p className='text-3xl font-black text-gray-300'>
+                <p className='text-3xl font-black text-foreground'>
                     {title}
                 </p>
-                <p className='text-lg font-light text-[#757575]'>
+                <p className='text-lg font-light text-tertiary'>
                     {description}
                 </p>
             </div>

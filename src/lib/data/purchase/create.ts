@@ -42,7 +42,7 @@ export const createPurchaseAction = async (data: {
   nonTaxableAmount: Decimal;
   totalVat: Decimal;
   grossAmount: Decimal;
-  dataIndex: number;
+  invoiceNumber: number;
   purchaseProducts: {
     productId: string;
     type: ProductType;
@@ -270,7 +270,7 @@ export const createPurchaseAction = async (data: {
       date: data.date,
       month,
       year,
-      dataIndex: data.dataIndex,
+      invoiceNumber: data.invoiceNumber,
       purchaseReportId,
       PurchaseProduct: {
         create: purchaseProducts,

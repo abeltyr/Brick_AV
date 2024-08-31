@@ -21,29 +21,8 @@ import { useProducts } from '@/lib/context/product'
 import Decimal from 'decimal.js'
 import ProductTypeForm from '../components/add/productTypeForm'
 import ProductDetailForm from '../components/add/productDetailForm'
+import { zProductInputType, zProductInputUnit, zPurchaseInputType } from '@/types/product'
 
-
-const zProductInputType = z.enum(['Good', 'Service']);
-const zProductInputUnit = z.enum([
-    'KG',
-    'ML',
-    'GM',
-    'LIT',
-    'MT',
-    'PCS',
-    'CT',
-    'OTHER',
-    'PC',
-]);
-
-const zPurchaseInputType = z.enum([
-    'taxableLocalCapitalAssets',
-    'taxableImportedCapitalAssets',
-    'taxableLocalInputs',
-    'taxableImportedInputs',
-    'taxableGeneralExpenseInputs',
-    'taxExemptedPurchase'
-]);
 
 const formSchema = z.object({
     purchaseType: zPurchaseInputType,
