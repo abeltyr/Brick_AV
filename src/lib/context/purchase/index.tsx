@@ -18,46 +18,25 @@ const initialValues: {
     initialLoading: boolean;
     createPurchase: ({ }: {
         companyId: string;
-        vendorId: string;
-        date: Date;
-        MRCNumber?: string;
-        VatReceiptNumber?: string;
-        invoiceNumber?: string;
-        productType: ProductInputType;
-        purchaseType: PurchaseInputType;
-        unit: ProductUnit;
-        averagePrice: Decimal;
-        totalQuantity: number;
-
-        purchaseProducts: {
-            productId: string;
-            type: ProductInputType;
+        data: {
+            vendorId: string;
+            date: Date;
+            MRCNumber?: string;
+            VatReceiptNumber?: string;
+            invoiceNumber?: string;
+            productType: ProductInputType;
             purchaseType: PurchaseInputType;
             unit: ProductUnit;
-            unitPrice: Decimal;
-            quantity: number;
-            totalValue: Decimal;
-        }[];
+            purchaseProducts: {
+                productId: string;
+                type: ProductInputType;
+                purchaseType: PurchaseInputType;
+                unit: ProductUnit;
+                unitPrice: Decimal;
+                quantity: number;
+            }[];
 
-        localPurchaseCapitalAssets?: Decimal;
-        vatOnLocalPurchaseCapitalAssets?: Decimal;
-        importedCapitalAssets?: Decimal;
-        vatOnImportedCapitalAssets?: Decimal;
-        totalCapitalAssets?: Decimal;
-        vatOnTotalAssets?: Decimal;
-        localPurchaseInputs?: Decimal;
-        vatOnLocalPurchaseInputs?: Decimal;
-        importedInputs?: Decimal;
-        vatOnImportedInputs?: Decimal;
-        generalExpenseInputs?: Decimal;
-        vatOnGeneralExpenseInputs?: Decimal;
-        purchaseWithNoVat?: Decimal;
-        totalNonCapitalInputs?: Decimal;
-        vatOnTotalInputs?: Decimal;
-        taxableAmount: Decimal;
-        nonTaxableAmount: Decimal;
-        totalVat: Decimal;
-        grossAmount: Decimal;
+        }
     }) => void;
 } = {
     purchases: {},
@@ -69,46 +48,25 @@ const initialValues: {
     initialLoading: true,
     createPurchase: ({ }: {
         companyId: string;
-        vendorId: string;
-        date: Date;
-        MRCNumber?: string;
-        VatReceiptNumber?: string;
-        invoiceNumber?: string;
-        productType: ProductInputType;
-        purchaseType: PurchaseInputType;
-        unit: ProductUnit;
-        averagePrice: Decimal;
-        totalQuantity: number;
-
-        purchaseProducts: {
-            productId: string;
-            type: ProductInputType;
+        data: {
+            vendorId: string;
+            date: Date;
+            MRCNumber?: string;
+            VatReceiptNumber?: string;
+            invoiceNumber?: string;
+            productType: ProductInputType;
             purchaseType: PurchaseInputType;
             unit: ProductUnit;
-            unitPrice: Decimal;
-            quantity: number;
-            totalValue: Decimal;
-        }[];
+            purchaseProducts: {
+                productId: string;
+                type: ProductInputType;
+                purchaseType: PurchaseInputType;
+                unit: ProductUnit;
+                unitPrice: Decimal;
+                quantity: number;
+            }[];
 
-        localPurchaseCapitalAssets?: Decimal;
-        vatOnLocalPurchaseCapitalAssets?: Decimal;
-        importedCapitalAssets?: Decimal;
-        vatOnImportedCapitalAssets?: Decimal;
-        totalCapitalAssets?: Decimal;
-        vatOnTotalAssets?: Decimal;
-        localPurchaseInputs?: Decimal;
-        vatOnLocalPurchaseInputs?: Decimal;
-        importedInputs?: Decimal;
-        vatOnImportedInputs?: Decimal;
-        generalExpenseInputs?: Decimal;
-        vatOnGeneralExpenseInputs?: Decimal;
-        purchaseWithNoVat?: Decimal;
-        totalNonCapitalInputs?: Decimal;
-        vatOnTotalInputs?: Decimal;
-        taxableAmount: Decimal;
-        nonTaxableAmount: Decimal;
-        totalVat: Decimal;
-        grossAmount: Decimal;
+        }
     }) => { },
 };
 
@@ -139,63 +97,46 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
         setFetchingPurchases(false);
     };
 
-    const createPurchase = async (data: {
+    const createPurchase = async ({ data, companyId }: {
         companyId: string;
-        vendorId: string;
-        date: Date;
-        MRCNumber?: string;
-        VatReceiptNumber?: string;
-        invoiceNumber?: string;
-        productType: ProductInputType;
-        purchaseType: PurchaseInputType;
-        unit: ProductUnit;
-        averagePrice: Decimal;
-        totalQuantity: number;
-        purchaseProducts: {
-            productId: string;
-            type: ProductInputType;
+        data: {
+            vendorId: string;
+            date: Date;
+            MRCNumber?: string;
+            VatReceiptNumber?: string;
+            invoiceNumber?: string;
+            productType: ProductInputType;
             purchaseType: PurchaseInputType;
             unit: ProductUnit;
-            unitPrice: Decimal;
-            quantity: number;
-            totalValue: Decimal;
-        }[];
-        localPurchaseCapitalAssets?: Decimal;
-        vatOnLocalPurchaseCapitalAssets?: Decimal;
-        importedCapitalAssets?: Decimal;
-        vatOnImportedCapitalAssets?: Decimal;
-        totalCapitalAssets?: Decimal;
-        vatOnTotalAssets?: Decimal;
-        localPurchaseInputs?: Decimal;
-        vatOnLocalPurchaseInputs?: Decimal;
-        importedInputs?: Decimal;
-        vatOnImportedInputs?: Decimal;
-        generalExpenseInputs?: Decimal;
-        vatOnGeneralExpenseInputs?: Decimal;
-        purchaseWithNoVat?: Decimal;
-        totalNonCapitalInputs?: Decimal;
-        vatOnTotalInputs?: Decimal;
-        taxableAmount: Decimal;
-        nonTaxableAmount: Decimal;
-        totalVat: Decimal;
-        grossAmount: Decimal;
-
+            purchaseProducts: {
+                productId: string;
+                type: ProductInputType;
+                purchaseType: PurchaseInputType;
+                unit: ProductUnit;
+                unitPrice: Decimal;
+                quantity: number;
+            }[];
+        }
     }) => {
         try {
-            // const purchasesData = { ...purchases };
-            // const newPurchase = await createPurchaseAction({
-            //     companyId,
-            //     unit,
-            //     type,
-            //     averagePrice,
-            //     invoiceNumber,
-            //     date,
+            const purchasesData = { ...purchases };
+            const newPurchase = await createPurchaseAction({
+                companyId,
+                ...data
+            });
+            if (newPurchase) {
 
-            // });
-            // purchasesData[companyId] = [newPurchase, ...purchasesData[companyId]];
-            // setPurchases(purchasesData);
-            // return newPurchase;
+                if (purchasesData[companyId]) {
+                    purchasesData[companyId] = [newPurchase.purchase, ...purchasesData[companyId]];
+                } else {
+                    purchasesData[companyId] = [newPurchase.purchase];
+                }
+                setPurchases(purchasesData);
+
+                return newPurchase;
+            }
         } catch (e) {
+            console.log(e)
             throw new Error("Error Creating the purchase");
         }
     };

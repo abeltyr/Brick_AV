@@ -459,7 +459,7 @@ model Purchase {
 
   month         Int
   year          Int
-  invoiceNumber Int
+  invoiceNumber String?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt

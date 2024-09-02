@@ -19,7 +19,6 @@ const productSchema = z.object({
     unit: zProductInputUnit,
     unitPrice: z.instanceof(Decimal),
     quantity: z.number(),
-    totalValue: z.instanceof(Decimal),
 });
 
 const productArraySchema = z.array(productSchema);

@@ -20,7 +20,6 @@ import {
     SelectValue,
 } from "@/modules/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/modules/ui/table'
-import { ToggleGroup, ToggleGroupItem } from '@/modules/ui/toggle-group'
 import { productInputType, productInputUnit, purchaseInputType } from '@/types/product'
 import Decimal from 'decimal.js'
 import { PlusCircle } from 'lucide-react'
@@ -59,21 +58,21 @@ export default function PurchaseProductsForm({ form }: { form: any }) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Product ID</TableHead>
+                            {/* <TableHead>Product ID</TableHead> */}
                             <TableHead>Name</TableHead>
                             <TableHead>Purchase Type</TableHead>
                             <TableHead>Type</TableHead>
                             <TableHead>Unit</TableHead>
-                            <TableHead>Unit Price</TableHead>
                             <TableHead>Quantity</TableHead>
-                            <TableHead>Total Value</TableHead>
-                            <TableHead></TableHead>
+                            <TableHead>Unit Price</TableHead>
+                            {/* <TableHead>Total Value</TableHead> */}
+                            <TableHead>Remove</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {fields.map((field, index) => (
-                            <TableRow key={field.id}>
-                                <TableCell>
+                            <TableRow key={field.id} >
+                                {/* <TableCell>
                                     <FormField
                                         control={form.control}
                                         name={`purchaseProducts.${index}.productId`}
@@ -86,8 +85,8 @@ export default function PurchaseProductsForm({ form }: { form: any }) {
                                             </FormItem>
                                         )}
                                     />
-                                </TableCell>
-                                <TableCell>
+                                </TableCell> */}
+                                <TableCell className='p-1 w-[130px]'>
                                     <FormField
                                         control={form.control}
                                         name={`purchaseProducts.${index}.name`}
@@ -101,7 +100,7 @@ export default function PurchaseProductsForm({ form }: { form: any }) {
                                         )}
                                     />
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className='p-1 pr-2 '>
                                     <FormField
                                         control={form.control}
                                         name={`purchaseProducts.${index}.purchaseType`}
@@ -132,7 +131,7 @@ export default function PurchaseProductsForm({ form }: { form: any }) {
                                         )}
                                     />
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className='p-0'>
                                     <FormField
                                         control={form.control}
                                         name={`purchaseProducts.${index}.type`}
@@ -145,7 +144,7 @@ export default function PurchaseProductsForm({ form }: { form: any }) {
                                                         defaultValue={field.value}
                                                         value={field.value}
                                                     >
-                                                        <SelectTrigger id="ProductType" aria-label="Product Type">
+                                                        <SelectTrigger className='w-[100px]' id="ProductType" aria-label="Product Type">
                                                             <SelectValue placeholder="Product Type" />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -164,7 +163,7 @@ export default function PurchaseProductsForm({ form }: { form: any }) {
                                         )}
                                     />
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className='p-0'>
                                     <FormField
                                         control={form.control}
                                         name={`purchaseProducts.${index}.unit`}
@@ -177,7 +176,7 @@ export default function PurchaseProductsForm({ form }: { form: any }) {
                                                         defaultValue={field.value}
                                                         value={field.value}
                                                     >
-                                                        <SelectTrigger id="PurchaseUnit" aria-label="Purchase Unit">
+                                                        <SelectTrigger className='w-[70px]' id="PurchaseUnit" aria-label="Purchase Unit">
                                                             <SelectValue placeholder="Purchase Unit" />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -196,7 +195,28 @@ export default function PurchaseProductsForm({ form }: { form: any }) {
                                         )}
                                     />
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className='w-[110px] p-1'>
+                                    <FormField
+                                        control={form.control}
+                                        name={`purchaseProducts.${index}.quantity`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                    <Input
+                                                        {...field}
+                                                        type="number"
+                                                        step="1"
+                                                        onChange={(e) => {
+                                                            const value = e.target.value;
+                                                            field.onChange(value === "" ? undefined : Number(value));
+                                                        }} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </TableCell>
+                                <TableCell className='w-[160px] p-1'>
                                     <FormField
                                         control={form.control}
                                         name={`purchaseProducts.${index}.unitPrice`}
@@ -218,28 +238,7 @@ export default function PurchaseProductsForm({ form }: { form: any }) {
                                         )}
                                     />
                                 </TableCell>
-                                <TableCell>
-                                    <FormField
-                                        control={form.control}
-                                        name={`purchaseProducts.${index}.quantity`}
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormControl>
-                                                    <Input
-                                                        {...field}
-                                                        type="number"
-                                                        step="1"
-                                                        onChange={(e) => {
-                                                            const value = e.target.value;
-                                                            field.onChange(value === "" ? undefined : Number(value));
-                                                        }} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </TableCell>
-                                <TableCell>
+                                {/* <TableCell>
                                     <FormField
                                         control={form.control}
                                         name={`purchaseProducts.${index}.totalValue`}
@@ -261,9 +260,9 @@ export default function PurchaseProductsForm({ form }: { form: any }) {
                                             </FormItem>
                                         )}
                                     />
-                                </TableCell>
+                                </TableCell> */}
                                 <TableCell>
-                                    <Button type="button" variant="ghost" onClick={() => remove(index)}>Remove</Button>
+                                    <Button type="button" variant="ghost" onClick={() => remove(index)}>[]</Button>
                                 </TableCell>
                             </TableRow>
                         ))}

@@ -19,30 +19,9 @@ export const createPurchaseAction = async (data: {
   productType: ProductType;
   purchaseType: PurchaseType;
   unit: ProductUnit;
-  averagePrice: Decimal;
-  totalQuantity: number;
   MRCNumber?: string;
   VatReceiptNumber?: string;
-  localPurchaseCapitalAssets?: Decimal;
-  vatOnLocalPurchaseCapitalAssets?: Decimal;
-  importedCapitalAssets?: Decimal;
-  vatOnImportedCapitalAssets?: Decimal;
-  totalCapitalAssets?: Decimal;
-  vatOnTotalAssets?: Decimal;
-  localPurchaseInputs?: Decimal;
-  vatOnLocalPurchaseInputs?: Decimal;
-  importedInputs?: Decimal;
-  vatOnImportedInputs?: Decimal;
-  generalExpenseInputs?: Decimal;
-  vatOnGeneralExpenseInputs?: Decimal;
-  purchaseWithNoVat?: Decimal;
-  totalNonCapitalInputs?: Decimal;
-  vatOnTotalInputs?: Decimal;
-  taxableAmount: Decimal;
-  nonTaxableAmount: Decimal;
-  totalVat: Decimal;
-  grossAmount: Decimal;
-  invoiceNumber: number;
+  invoiceNumber?: string;
   purchaseProducts: {
     productId: string;
     type: ProductType;
@@ -50,22 +29,24 @@ export const createPurchaseAction = async (data: {
     unit: ProductUnit;
     unitPrice: Decimal;
     quantity: number;
-    totalValue: Decimal;
-    vat: Decimal;
-    grossAmount: Decimal;
   }[];
 }): Promise<{
   purchase: Purchase;
   purchaseReport: PurchaseReport;
-}> => {
+} | null> => {
   const ethioDate = toEthiopian({
     date: new Date(data.date).getDate(),
-    month: new Date(data.date).getMonth(),
+    month: new Date(data.date).getMonth() + 1,
     year: new Date(data.date).getFullYear(),
   });
-  let month = ethioDate?.month;
+  if (!ethioDate) throw new Error("date is wrong");
+  let month = ethioDate?.month >= 12 ? ethioDate?.month : 12;
   let year = ethioDate?.year;
   if (!month || !year) throw new Error("date is not setup right");
+  console.log({
+    month,
+    year,
+  });
 
   let localPurchaseCapitalAssets: Decimal = new Decimal(0);
   let vatOnLocalPurchaseCapitalAssets: Decimal = new Decimal(0);
@@ -103,90 +84,82 @@ export const createPurchaseAction = async (data: {
   }[] = [];
 
   let totalQuantity: number = 0;
-  let productGood = 0;
-  let productService = 0;
-  let units = {
-    KG: 0,
-    ML: 0,
-    GM: 0,
-    LIT: 0,
-    MT: 0,
-    PCS: 0,
-    CT: 0,
-    OTHER: 0,
-    PC: 0,
-  };
 
   data.purchaseProducts.map(async (product, index) => {
-    await prisma.inventory.update({
+    const VAT_RATE = new Decimal("0.15"); // 15% VAT rate
+
+    const totalValue = new Decimal(product.unitPrice || 0).times(
+      product.quantity || 0,
+    );
+    const vat = totalValue.times(VAT_RATE);
+
+    let grossAmount = totalValue.plus(vat);
+    if (product.purchaseType === "taxableLocalCapitalAssets") {
+      localPurchaseCapitalAssets = localPurchaseCapitalAssets.plus(
+        new Decimal(totalValue),
+      );
+      vatOnLocalPurchaseCapitalAssets = vatOnLocalPurchaseCapitalAssets.plus(
+        new Decimal(vat),
+      );
+    } else if (product.purchaseType === "taxableImportedCapitalAssets") {
+      importedCapitalAssets = importedCapitalAssets.plus(
+        new Decimal(totalValue),
+      );
+      vatOnImportedCapitalAssets = vatOnImportedCapitalAssets.plus(
+        new Decimal(vat),
+      );
+    } else if (product.purchaseType === "taxableLocalInputs") {
+      localPurchaseInputs = localPurchaseInputs.plus(new Decimal(totalValue));
+      vatOnLocalPurchaseInputs = vatOnLocalPurchaseInputs.plus(
+        new Decimal(vat),
+      );
+    } else if (product.purchaseType === "taxableImportedInputs") {
+      importedInputs = importedInputs.plus(new Decimal(totalValue));
+      vatOnImportedInputs = vatOnImportedInputs.plus(new Decimal(vat));
+    } else if (product.purchaseType === "taxableGeneralExpenseInputs") {
+      generalExpenseInputs = generalExpenseInputs.plus(new Decimal(totalValue));
+      vatOnGeneralExpenseInputs = vatOnGeneralExpenseInputs.plus(
+        new Decimal(vat),
+      );
+    } else if (product.purchaseType === "taxExemptedPurchase") {
+      purchaseWithNoVat = purchaseWithNoVat.plus(new Decimal(totalValue));
+      grossAmount = totalValue;
+    }
+
+    totalQuantity = totalQuantity + product.quantity;
+
+    // create the sum for each case
+    purchaseProducts = [
+      ...purchaseProducts,
+      {
+        vat: vat,
+        grossAmount: grossAmount,
+        productId: product.productId,
+        purchaseType: product.purchaseType,
+        type: product.type,
+        unit: product.unit,
+        unitPrice: new Decimal(product.unitPrice),
+        quantity: product.quantity,
+        totalValue: totalValue,
+      },
+    ];
+
+    await prisma.inventory.upsert({
       where: {
         productId: product.productId,
       },
-      data: {
+      create: {
+        quantity: product.quantity,
+        productId: product.productId,
+        lastUpdated: new Date(),
+      },
+      update: {
         quantity: {
           increment: product.quantity,
         },
         lastUpdated: new Date(),
       },
     });
-    if (product.purchaseType === "taxableLocalCapitalAssets") {
-      localPurchaseCapitalAssets = localPurchaseCapitalAssets.plus(
-        new Decimal(product.totalValue),
-      );
-      vatOnLocalPurchaseCapitalAssets = vatOnLocalPurchaseCapitalAssets.plus(
-        new Decimal(product.vat),
-      );
-    } else if (product.purchaseType === "taxableImportedCapitalAssets") {
-      importedCapitalAssets = importedCapitalAssets.plus(
-        new Decimal(product.totalValue),
-      );
-      vatOnImportedCapitalAssets = vatOnImportedCapitalAssets.plus(
-        new Decimal(product.vat),
-      );
-    } else if (product.purchaseType === "taxableLocalInputs") {
-      localPurchaseInputs = localPurchaseInputs.plus(
-        new Decimal(product.totalValue),
-      );
-      vatOnLocalPurchaseInputs = vatOnLocalPurchaseInputs.plus(
-        new Decimal(product.vat),
-      );
-    } else if (product.purchaseType === "taxableImportedInputs") {
-      importedInputs = importedInputs.plus(new Decimal(product.totalValue));
-      vatOnImportedInputs = vatOnImportedInputs.plus(new Decimal(product.vat));
-    } else if (product.purchaseType === "taxableGeneralExpenseInputs") {
-      generalExpenseInputs = generalExpenseInputs.plus(
-        new Decimal(product.totalValue),
-      );
-      vatOnGeneralExpenseInputs = vatOnGeneralExpenseInputs.plus(
-        new Decimal(product.vat),
-      );
-    } else if (product.purchaseType === "taxExemptedPurchase") {
-      purchaseWithNoVat = purchaseWithNoVat.plus(
-        new Decimal(product.totalValue),
-      );
-    }
-
-    totalQuantity = totalQuantity + product.quantity;
-    productGood = productGood + product.type === "Good" ? 1 : 0;
-    productService = productService + product.type === "Service" ? 1 : 0;
-
-    units[product.unit] = units[product.unit] + 1;
-
-    // create the sum for each case
-    purchaseProducts = [
-      ...purchaseProducts,
-      {
-        vat: product.vat,
-        grossAmount: product.grossAmount,
-        productId: product.productId,
-        purchaseType: product.purchaseType,
-        type: product.type,
-        unit: product.unit,
-        unitPrice: product.unitPrice,
-        quantity: product.quantity,
-        totalValue: product.totalValue,
-      },
-    ];
   });
 
   totalCapitalAssets = localPurchaseCapitalAssets.plus(importedCapitalAssets);
@@ -196,15 +169,27 @@ export const createPurchaseAction = async (data: {
   totalNonCapitalInputs = localPurchaseInputs
     .plus(importedInputs)
     .plus(generalExpenseInputs);
-  vatOnTotalInputs = localPurchaseInputs
-    .plus(importedInputs)
-    .plus(generalExpenseInputs);
+  vatOnTotalInputs = vatOnLocalPurchaseInputs
+    .plus(vatOnImportedInputs)
+    .plus(vatOnGeneralExpenseInputs);
 
   // create month and year from the date base on ethiopia calender
 
   // sum up the tax and gross amount
   let taxableAmount: Decimal = totalCapitalAssets.plus(totalNonCapitalInputs);
   let nonTaxableAmount: Decimal = purchaseWithNoVat;
+  console.log("vatOnTotalAssets", {
+    vatOnTotalAssets,
+    vatOnLocalPurchaseInputs,
+    vatOnImportedInputs,
+    vatOnGeneralExpenseInputs,
+  });
+  console.log("vatOnTotalInputs", {
+    vatOnTotalInputs,
+    vatOnLocalPurchaseCapitalAssets,
+    vatOnImportedCapitalAssets,
+  });
+
   let totalVat: Decimal = vatOnTotalAssets.plus(vatOnTotalInputs);
   let grossAmount: Decimal = taxableAmount
     .plus(nonTaxableAmount)
@@ -213,26 +198,6 @@ export const createPurchaseAction = async (data: {
   const beforeVat = taxableAmount.plus(nonTaxableAmount);
 
   const averagePrice = beforeVat.dividedBy(totalQuantity);
-
-  let unit: ProductUnit = "KG";
-  let unitAmount = 0;
-  Object.values(units).map((data, index) => {
-    if (unitAmount < data) unit = Object.keys(units)[index] as ProductUnit;
-  });
-  productGood > productService ? "Good" : "Service";
-
-  let purchaseReport = await prisma.purchaseReport.findUnique({
-    where: {
-      month_year_companyId: {
-        companyId: data.companyId,
-        month,
-        year,
-      },
-    },
-  });
-
-  let purchaseReportId = v4();
-  if (purchaseReport) purchaseReportId = purchaseReport.id;
 
   const purchase = await prisma.purchase.create({
     data: {
@@ -261,19 +226,28 @@ export const createPurchaseAction = async (data: {
       totalVat,
       grossAmount,
 
-      totalQuantity: data.totalQuantity,
-      averagePrice: data.averagePrice,
+      month,
+      year,
+      totalQuantity: totalQuantity,
+      averagePrice: averagePrice,
       productType: data.productType,
       unit: data.unit,
       purchaseType: data.purchaseType,
-
       date: data.date,
-      month,
-      year,
       invoiceNumber: data.invoiceNumber,
-      purchaseReportId,
+      // purchaseReportId,
       PurchaseProduct: {
         create: purchaseProducts,
+      },
+    },
+  });
+
+  let purchaseReport = await prisma.purchaseReport.findUnique({
+    where: {
+      month_year_companyId: {
+        companyId: data.companyId,
+        month,
+        year,
       },
     },
   });
@@ -427,6 +401,7 @@ export const createPurchaseAction = async (data: {
     });
   }
 
+  console.log({ purchase, purchaseReport });
   return {
     purchase,
     purchaseReport,

@@ -65,7 +65,6 @@ const formSchema = z.object({
         unit: zProductInputUnit,
         unitPrice: z.instanceof(Decimal),
         quantity: z.number(),
-        totalValue: z.instanceof(Decimal),
     })),
 })
 
@@ -118,8 +117,7 @@ export const AddPurchaseSection = () => {
                     type: "Good",
                     unit: "PC",
                     quantity: 9,
-                    totalValue: 36000,
-                    unitPrice: 4000
+                    unitPrice: new Decimal(4000)
                 }],
 
             purchaseType: "taxableLocalCapitalAssets",
@@ -229,53 +227,29 @@ export const AddPurchaseSection = () => {
     }, [watchedProducts]);
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        console.log(values, "values")
         if (!isLoading) {
             setIsLoading(true)
             try {
                 if (currentCompany) {
                     const purchase = await createPurchase({
-                        averagePrice: values.averagePrice,
                         companyId: currentCompany.companyId,
-                        date: values.date,
-                        invoiceNumber: values.invoiceNumber,
-                        MRCNumber: values.MRCNumber,
-                        productType: values.type,
-                        purchaseProducts: values.purchaseProducts,
-                        purchaseType: values.purchaseType,
-                        unit: values.unit,
-                        vendorId: values.vendorId,
-                        VatReceiptNumber: values.VatReceiptNumber,
-                        grossAmount,
-                        nonTaxableAmount,
-                        taxableAmount,
-                        totalVat,
-                        vatOnLocalPurchaseCapitalAssets,
-                        vatOnImportedCapitalAssets,
-                        vatOnTotalAssets,
-                        vatOnLocalPurchaseInputs,
-                        vatOnImportedInputs,
-                        vatOnGeneralExpenseInputs,
-                        vatOnTotalInputs,
-                        totalQuantity,
-                        generalExpenseInputs,
-                        importedCapitalAssets,
-                        importedInputs,
-                        localPurchaseCapitalAssets,
-                        localPurchaseInputs,
-                        purchaseWithNoVat,
-                        totalCapitalAssets,
-                        totalNonCapitalInputs,
-
-
-
-
+                        data: {
+                            date: values.date,
+                            invoiceNumber: values.invoiceNumber,
+                            MRCNumber: values.MRCNumber,
+                            productType: values.type,
+                            purchaseProducts: values.purchaseProducts,
+                            purchaseType: values.purchaseType,
+                            unit: values.unit,
+                            vendorId: values.vendorId,
+                        }
                     })
+                    console.log(purchase)
                     /// TODO:Close the side bar
                     // SheetPrimitive.Close;
                 }
             } catch (e) {
-                console.log(e)
+                console.log("errro", e)
                 toast({
                     title: "Error Creating Purchase",
                     description: (
@@ -296,14 +270,14 @@ export const AddPurchaseSection = () => {
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full ">
                         <AddPurchaseHeader />
                         <div className='h-[8vh]' />
-                        <div className='flex gap-6'>
-                            <div className='w-[75%] flex-1 flex flex-col gap-6'>
+                        <div className='flex gap-6 flex-wrap xl:flex-nowrap'>
+                            <div className='w-full   xl:w-[75%]  flex-1 flex flex-col gap-6'>
                                 <PurchaseDetailForm form={form} />
                                 <PurchaseProductsForm form={form} />
                                 <PurchaseDeclarationAdjustmentForm form={form} />
                             </div>
-                            <div className='w-[25%] flex flex-col gap-6 relative h-full'>
-                                <div className='w-[25%] fixed right-6' >
+                            <div className='w-full xl:w-[25%]  flex flex-col gap-6 relative h-full'>
+                                <div className=' right-6' >
                                     <TotalPurchaseData
                                         grossAmount={grossAmount}
                                         nonTaxableAmount={nonTaxableAmount}

@@ -180,7 +180,7 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
                     });
 
                     if (vendorsData[companyId])
-                        vendorsData[companyId] = [...vendorsData[companyId], ...newVendors]
+                        vendorsData[companyId] = [...newVendors, ...vendorsData[companyId]]
                     else {
                         vendorsData[companyId] = [...newVendors]
                     }
