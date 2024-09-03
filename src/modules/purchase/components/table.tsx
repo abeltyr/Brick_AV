@@ -1,6 +1,5 @@
 "use client"
 
-import AddSVG from '@/assets/icons/add'
 import LoadingSVG from '@/assets/icons/loading'
 import { useAuth } from '@/lib/context/auth/user'
 import { usePurchases } from '@/lib/context/purchase'

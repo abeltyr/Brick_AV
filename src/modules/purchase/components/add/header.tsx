@@ -28,7 +28,7 @@ export const AddPurchaseHeader = () => {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="hidden items-center gap-2 md:ml-auto md:flex">
-                        <Button size="sm" >Add Purchase</Button>
+                        <Button size="sm" > Save Purchase</Button>
                     </div>
                 </div>
             </div>

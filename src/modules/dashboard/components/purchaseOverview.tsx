@@ -1,99 +1,158 @@
 import React from 'react'
+
+import { Button } from '@/modules/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/modules/ui/card';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/modules/ui/avatar';
-import { Button } from '@/modules/ui/button';
-import { ArrowUpRight, Link } from 'lucide-react';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/modules/ui/table"
+import { Badge } from '@/modules/ui/badge';
+import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 
 
 export const PurchaseOverview = () => {
     return (
-        <Card x-chunk="dashboard-01-chunk-5">
+        <Card x-chunk="dashboard-01-chunk-4">
             <CardHeader className="flex flex-row items-center">
                 <div className="grid gap-2">
-                    <CardTitle>Year </CardTitle>
+                    <CardTitle>Year Summation</CardTitle>
                     <CardDescription>
                         cumulated Data
                     </CardDescription>
                 </div>
-                <Button className="ml-auto gap-1 text-black">
-                    2016
+                <Button asChild size="sm" className="ml-auto gap-1">
+                    <Link href="#">
+                        View All
+                        <ArrowUpRight className="h-4 w-4" />
+                    </Link>
                 </Button>
             </CardHeader>
-            T
-            <CardContent className="grid gap-8">
-                <div className="flex items-center gap-4">
-
-                    <div className="grid gap-1">
-                        <p className="text-sm font-medium leading-none">
-                            Nehase
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            0092181112
-                        </p>
-                    </div>
-                    <div className="ml-auto font-medium">+ETB 1,999.00</div>
-                </div>
-                <div className="flex items-center gap-4">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                        <AvatarImage src="/avatars/02.png" alt="Avatar" />
-                        <AvatarFallback>JL</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-1">
-                        <p className="text-sm font-medium leading-none">
-                            Jackson Lee
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            0092181112
-                        </p>
-                    </div>
-                    <div className="ml-auto font-medium">+ETB 39.00</div>
-                </div>
-                <div className="flex items-center gap-4">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                        <AvatarImage src="/avatars/03.png" alt="Avatar" />
-                        <AvatarFallback>IN</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-1">
-                        <p className="text-sm font-medium leading-none">
-                            Isabella Nguyen
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            0092181112
-                        </p>
-                    </div>
-                    <div className="ml-auto font-medium">+ETB 299.00</div>
-                </div>
-                <div className="flex items-center gap-4">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                        <AvatarImage src="/avatars/04.png" alt="Avatar" />
-                        <AvatarFallback>WK</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-1">
-                        <p className="text-sm font-medium leading-none">
-                            William Kim
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            0092181112
-                        </p>
-                    </div>
-                    <div className="ml-auto font-medium">+ETB 99.00</div>
-                </div>
-                <div className="flex items-center gap-4">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                        <AvatarImage src="/avatars/05.png" alt="Avatar" />
-                        <AvatarFallback>SD</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-1">
-                        <p className="text-sm font-medium leading-none">
-                            Sofia Davis
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            0092181112
-                        </p>
-                    </div>
-                    <div className="ml-auto font-medium">+ETB 39.00</div>
-                </div>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Customer</TableHead>
+                            <TableHead className="hidden xl:table-column">
+                                Type
+                            </TableHead>
+                            <TableHead className="hidden xl:table-column">
+                                Status
+                            </TableHead>
+                            <TableHead className="hidden xl:table-column">
+                                Date
+                            </TableHead>
+                            <TableHead className="text-right">Amount</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>
+                                <div className="font-medium">Johnson LLC</div>
+                                <div className="hidden text-sm text-muted-foreground md:inline">
+                                    0091121212
+                                </div>
+                            </TableCell>
+                            <TableCell className="hidden xl:table-column">
+                                Sale
+                            </TableCell>
+                            <TableCell className="hidden xl:table-column">
+                                <Badge className="text-xs" variant="outline">
+                                    Approved
+                                </Badge>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell xl:table-column">
+                                2023-06-23
+                            </TableCell>
+                            <TableCell className="text-right">ETB 250.00</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>
+                                <div className="font-medium">Pola LLC</div>
+                                <div className="hidden text-sm text-muted-foreground md:inline">
+                                    0091121212
+                                </div>
+                            </TableCell>
+                            <TableCell className="hidden xl:table-column">
+                                Refund
+                            </TableCell>
+                            <TableCell className="hidden xl:table-column">
+                                <Badge className="text-xs" variant="outline">
+                                    Declined
+                                </Badge>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
+                                2023-06-24
+                            </TableCell>
+                            <TableCell className="text-right">ETB 150.00</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>
+                                <div className="font-medium">Williams PLC</div>
+                                <div className="hidden text-sm text-muted-foreground md:inline">
+                                    00941221212
+                                </div>
+                            </TableCell>
+                            <TableCell className="hidden xl:table-column">
+                                Subscription
+                            </TableCell>
+                            <TableCell className="hidden xl:table-column">
+                                <Badge className="text-xs" variant="outline">
+                                    Approved
+                                </Badge>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
+                                2023-06-25
+                            </TableCell>
+                            <TableCell className="text-right">ETB 350.00</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>
+                                <div className="font-medium">Brown PLC</div>
+                                <div className="hidden text-sm text-muted-foreground md:inline">
+                                    0092181112
+                                </div>
+                            </TableCell>
+                            <TableCell className="hidden xl:table-column">
+                                Sale
+                            </TableCell>
+                            <TableCell className="hidden xl:table-column">
+                                <Badge className="text-xs" variant="outline">
+                                    Approved
+                                </Badge>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
+                                2023-06-26
+                            </TableCell>
+                            <TableCell className="text-right">ETB 450.00</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>
+                                <div className="font-medium">Johnson PLC</div>
+                                <div className="hidden text-sm text-muted-foreground md:inline">
+                                    00129101112
+                                </div>
+                            </TableCell>
+                            <TableCell className="hidden xl:table-column">
+                                Sale
+                            </TableCell>
+                            <TableCell className="hidden xl:table-column">
+                                <Badge className="text-xs" variant="outline">
+                                    Approved
+                                </Badge>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
+                                2023-06-27
+                            </TableCell>
+                            <TableCell className="text-right">ETB 550.00</TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
             </CardContent>
         </Card>
     )
