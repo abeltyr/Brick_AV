@@ -1,9 +1,9 @@
 'use client'
 
-import { createPurchaseAction } from '@/lib/data/purchase/create';
-import { fetchPurchasesByCompanyIdAction } from '@/lib/data/purchase/fetchByCompanyId';
+import { createPurchaseAction } from '@/lib/data/purchaseReport/create';
+import { fetchPurchaseReportByCompanyIdAction } from '@/lib/data/purchaseReport/fetchByCompanyId';
 import { filter, Filter, loadLimit } from '@/types/shared';
-import { PurchaseType } from '@/types/purchase';
+import { PurchaseType } from '@/types/purchaseReport';
 import React, { useCallback, useContext, useState } from "react";
 import Decimal from 'decimal.js';
 import { ProductUnit } from '@prisma/client';
@@ -11,16 +11,16 @@ import { ProductInputType, PurchaseInputType } from '@/types/product'
 import { toEthiopian, } from '@/lib/utils/calendar';
 
 const initialValues: {
-    purchases: { [id: string]: PurchaseType[] };
+    purchaseReports: { [id: string]: PurchaseType[] };
     loadMoreData: boolean;
-    setupPurchasesData: ({ dataPurchases, companyId }: { dataPurchases: PurchaseType[], companyId: string }) => void;
-    fetchPurchases: ({ companyId }: { companyId: string }) => void;
+    setupPurchaseReportData: ({ dataPurchaseReport, companyId }: { dataPurchaseReport: PurchaseType[], companyId: string }) => void;
+    fetchPurchaseReport: ({ companyId }: { companyId: string }) => void;
     getPurchase: ({ companyId }: {
         companyId: string,
         yearData: number,
         monthData: number,
     }) => void;
-    fetchingPurchases: boolean;
+    fetchingPurchaseReport: boolean;
     initialLoading: boolean;
     createPurchase: ({ }: {
         companyId: string;
@@ -31,13 +31,12 @@ const initialValues: {
             VatReceiptNumber?: string;
             invoiceNumber?: string;
             productType: ProductInputType;
-            purchaseType: PurchaseInputType;
+            purchaseReportType: PurchaseInputType;
             unit: ProductUnit;
-            description: string,
-            purchaseProducts: {
+            purchaseReportProducts: {
                 productId: string;
                 type: ProductInputType;
-                purchaseType: PurchaseInputType;
+                purchaseReportType: PurchaseInputType;
                 unit: ProductUnit;
                 unitPrice: Decimal;
                 quantity: number;
@@ -50,16 +49,16 @@ const initialValues: {
     month: number,
     updateMonth: (value: number) => void
 } = {
-    purchases: {},
+    purchaseReports: {},
     loadMoreData: true,
-    setupPurchasesData: ({ }: { dataPurchases: PurchaseType[], companyId: string }) => { },
-    fetchPurchases: ({ }: { companyId: string }) => { },
+    setupPurchaseReportData: ({ }: { dataPurchaseReport: PurchaseType[], companyId: string }) => { },
+    fetchPurchaseReport: ({ }: { companyId: string }) => { },
     getPurchase: ({ }: {
         companyId: string,
         yearData: number,
         monthData: number,
     }) => { },
-    fetchingPurchases: true,
+    fetchingPurchaseReport: true,
     initialLoading: true,
     createPurchase: ({ }: {
         companyId: string;
@@ -70,12 +69,12 @@ const initialValues: {
             VatReceiptNumber?: string;
             invoiceNumber?: string;
             productType: ProductInputType;
-            purchaseType: PurchaseInputType;
+            purchaseReportType: PurchaseInputType;
             unit: ProductUnit;
-            purchaseProducts: {
+            purchaseReportProducts: {
                 productId: string;
                 type: ProductInputType;
-                purchaseType: PurchaseInputType;
+                purchaseReportType: PurchaseInputType;
                 unit: ProductUnit;
                 unitPrice: Decimal;
                 quantity: number;
@@ -93,20 +92,20 @@ type Props = {
     children?: React.ReactNode;
 };
 
-const PurchasesContext = React.createContext(initialValues);
+const PurchaseReportContext = React.createContext(initialValues);
 
-const usePurchases = () => useContext(PurchasesContext);
+const usePurchaseReport = () => useContext(PurchaseReportContext);
 
-const PurchasesProvider: React.FC<Props> = ({ children }) => {
+const PurchaseReportProvider: React.FC<Props> = ({ children }) => {
     const georgiaYear = new Date();
     const ethiopiaYear = toEthiopian({
         date: 1,
         month: georgiaYear.getMonth() + 1,
         year: georgiaYear.getFullYear()
     });
-    const [purchases, setPurchases] = useState<{ [id: string]: PurchaseType[] }>({});
+    const [purchaseReports, setPurchaseReport] = useState<{ [id: string]: PurchaseType[] }>({});
     const [loadMoreData, setLoadMoreData] = useState<boolean>(true);
-    const [fetchingPurchases, setFetchingPurchases] = useState<boolean>(false);
+    const [fetchingPurchaseReport, setFetchingPurchaseReport] = useState<boolean>(false);
     const [initialLoading, setInitialLoading] = useState<boolean>(true);
     const [year, setYear] = useState<number>(ethiopiaYear ? ethiopiaYear.year : 2016);
     const [month, setMonth] = useState<number>(ethiopiaYear ? ethiopiaYear.month : 12);
@@ -122,17 +121,17 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
 
 
 
-    const setupPurchasesData = ({ dataPurchases, companyId }: { dataPurchases: PurchaseType[], companyId: string }) => {
-        const purchasesData = { ...purchases };
-        purchasesData[companyId] = dataPurchases;
-        setPurchases(purchasesData);
+    const setupPurchaseReportData = ({ dataPurchaseReport, companyId }: { dataPurchaseReport: PurchaseType[], companyId: string }) => {
+        const purchaseReportsData = { ...purchaseReports };
+        purchaseReportsData[companyId] = dataPurchaseReport;
+        setPurchaseReport(purchaseReportsData);
 
-        if (dataPurchases.length < loadLimit) {
+        if (dataPurchaseReport.length < loadLimit) {
             setLoadMoreData(false);
         } else {
             setLoadMoreData(true);
         }
-        setFetchingPurchases(false);
+        setFetchingPurchaseReport(false);
     };
 
     const createPurchase = async ({ data, companyId }: {
@@ -144,13 +143,12 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
             VatReceiptNumber?: string;
             invoiceNumber?: string;
             productType: ProductInputType;
-            purchaseType: PurchaseInputType;
+            purchaseReportType: PurchaseInputType;
             unit: ProductUnit;
-            description: string;
-            purchaseProducts: {
+            purchaseReportProducts: {
                 productId: string;
                 type: ProductInputType;
-                purchaseType: PurchaseInputType;
+                purchaseReportType: PurchaseInputType;
                 unit: ProductUnit;
                 unitPrice: Decimal;
                 quantity: number;
@@ -158,25 +156,25 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
         }
     }) => {
         try {
-            const purchasesData = { ...purchases };
+            const purchaseReportsData = { ...purchaseReports };
             const newPurchase = await createPurchaseAction({
                 companyId,
                 ...data
             });
             if (newPurchase) {
 
-                if (purchasesData[companyId]) {
-                    purchasesData[companyId] = [newPurchase.purchase, ...purchasesData[companyId]];
+                if (purchaseReportsData[companyId]) {
+                    purchaseReportsData[companyId] = [newPurchase.purchaseReport, ...purchaseReportsData[companyId]];
                 } else {
-                    purchasesData[companyId] = [newPurchase.purchase];
+                    purchaseReportsData[companyId] = [newPurchase.purchaseReport];
                 }
-                setPurchases(purchasesData);
+                setPurchaseReport(purchaseReportsData);
 
                 return newPurchase;
             }
         } catch (e) {
             console.log(e)
-            throw new Error("Error Creating the purchase");
+            throw new Error("Error Creating the purchaseReport");
         }
     };
 
@@ -189,78 +187,78 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
         }) => {
             setInitialLoading(true);
             try {
-                const newPurchases = await fetchPurchasesByCompanyIdAction({
+                const newPurchaseReport = await fetchPurchaseReportByCompanyIdAction({
                     companyId,
                     filter,
                     year: yearData,
                     month: monthData
                 });
-                console.log("newPurchases", newPurchases)
-                const purchasesData = { ...purchases };
-                purchasesData[companyId] = [...newPurchases];
-                if (newPurchases.length < loadLimit) {
+                console.log("newPurchaseReport", newPurchaseReport)
+                const purchaseReportsData = { ...purchaseReports };
+                purchaseReportsData[companyId] = [...newPurchaseReport];
+                if (newPurchaseReport.length < loadLimit) {
                     setLoadMoreData(false);
                 } else {
                     setLoadMoreData(true);
                 }
-                setPurchases(purchasesData);
+                setPurchaseReport(purchaseReportsData);
             } catch (e) {
                 console.log(e);
             }
             setInitialLoading(false);
         },
-        [purchases],
+        [purchaseReports],
     );
 
-    const fetchPurchases = useCallback(
+    const fetchPurchaseReport = useCallback(
         async ({ companyId }: { companyId: string }) => {
-            if (!fetchingPurchases) {
-                setFetchingPurchases(true);
+            if (!fetchingPurchaseReport) {
+                setFetchingPurchaseReport(true);
                 try {
                     const filter: Filter = {
                         limit: loadLimit,
                     };
 
-                    if (purchases[companyId] && purchases[companyId].length > 0) {
-                        filter.after = purchases[companyId][purchases[companyId].length - 1].id;
+                    if (purchaseReports[companyId] && purchaseReports[companyId].length > 0) {
+                        filter.after = purchaseReports[companyId][purchaseReports[companyId].length - 1].id;
                     }
-                    const purchasesData = { ...purchases };
-                    const newPurchases = await fetchPurchasesByCompanyIdAction({
+                    const purchaseReportsData = { ...purchaseReports };
+                    const newPurchaseReport = await fetchPurchaseReportByCompanyIdAction({
                         companyId,
                         filter,
                         year,
                         month
                     });
 
-                    if (purchasesData[companyId]) {
-                        purchasesData[companyId] = [...purchasesData[companyId], ...newPurchases];
+                    if (purchaseReportsData[companyId]) {
+                        purchaseReportsData[companyId] = [...purchaseReportsData[companyId], ...newPurchaseReport];
                     } else {
-                        purchasesData[companyId] = [...newPurchases];
+                        purchaseReportsData[companyId] = [...newPurchaseReport];
                     }
 
-                    setPurchases(purchasesData);
-                    if (newPurchases.length < loadLimit) {
+                    setPurchaseReport(purchaseReportsData);
+                    if (newPurchaseReport.length < loadLimit) {
                         setLoadMoreData(false);
                     }
                 } catch (e) {
                     console.log(e);
                     alert("e");
                 }
-                setFetchingPurchases(false);
+                setFetchingPurchaseReport(false);
             }
         },
-        [fetchingPurchases, purchases, year, month],
+        [fetchingPurchaseReport, purchaseReports, year, month],
     );
 
     return (
-        <PurchasesContext.Provider
+        <PurchaseReportContext.Provider
             value={{
-                purchases,
+                purchaseReports,
                 initialLoading,
                 loadMoreData,
-                setupPurchasesData,
-                fetchingPurchases,
-                fetchPurchases,
+                setupPurchaseReportData,
+                fetchingPurchaseReport,
+                fetchPurchaseReport,
                 createPurchase,
                 getPurchase,
                 year,
@@ -270,8 +268,8 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
             }}
         >
             {children}
-        </PurchasesContext.Provider>
+        </PurchaseReportContext.Provider>
     );
 };
 
-export { PurchasesProvider, usePurchases };
+export { PurchaseReportProvider, usePurchaseReport };

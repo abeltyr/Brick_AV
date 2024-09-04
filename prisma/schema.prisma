@@ -418,6 +418,8 @@ model Purchase {
   company   Company @relation(fields: [companyId], references: [id])
   vendorId  String
   vendor    Vendor  @relation(fields: [vendorId], references: [id])
+  vendorTin String?
+  vendorVat String?
 
   date             DateTime
   MRCNumber        String?
@@ -456,6 +458,7 @@ model Purchase {
   purchaseType  PurchaseType
   productType   ProductType
   unit          ProductUnit
+  description   String       @db.Text()
 
   month         Int
   year          Int

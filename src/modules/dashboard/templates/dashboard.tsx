@@ -8,17 +8,33 @@ import { usePurchases } from '@/lib/context/purchase';
 import { useEffect } from 'react';
 import { Skeleton } from '@/modules/ui/skeleton';
 import { PurchaseOverview } from '../components/purchaseOverviews';
+import { toEthiopian } from '@/lib/utils/calendar';
+
 
 export default function DashboardTemplate() {
 
-    const { purchases, getPurchase, initialLoading } = usePurchases()
+    const { purchases, getPurchase, initialLoading, month, year } = usePurchases()
     const { currentCompany } = useAuth();
-
 
     useEffect(() => {
         if (currentCompany) {
-            if (!purchases[currentCompany.companyId])
-                getPurchase({ companyId: currentCompany.companyId })
+            if (!purchases[currentCompany.companyId]) {
+
+                const georgiaYear = new Date();
+                const ethiopiaYear = toEthiopian({
+                    date: 1,
+                    month: georgiaYear.getMonth() + 1,
+                    year: georgiaYear.getFullYear()
+                });
+
+                let monthData = month;
+                let yearData = year;
+                // if (ethiopiaYear) {
+                //     monthData = ethiopiaYear?.month;
+                //     yearData = ethiopiaYear?.year;
+                // }
+                getPurchase({ companyId: currentCompany.companyId, monthData, yearData })
+            }
         }
     }, [currentCompany, getPurchase, purchases])
 
@@ -40,19 +56,7 @@ export default function DashboardTemplate() {
                         <PurchaseOverview companyId={currentCompany.companyId} /> :
                         <PurchaseEmptyState />
                 }
-
             </div>
         </main>
     );
 }
-
-
-
-{/* <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3"> */ }
-{/* <div className="xl:col-span-2">
-    <SalesOverview />
-    <PurchaseSection />
-</div>
-<PurchaseOverview /> */}
-
-// </div>

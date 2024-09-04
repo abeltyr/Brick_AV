@@ -51,12 +51,10 @@ const formSchema = z.object({
     invoiceNumber: z.string(),
     MRCNumber: z.string().optional(),
     VatReceiptNumber: z.string().optional(),
-
     purchaseType: zPurchaseInputType,
     type: zProductInputType,
     unit: zProductInputUnit,
-    averagePrice: z.instanceof(Decimal),
-
+    description: z.string(),
     purchaseProducts: z.array(z.object({
         productId: z.string(),
         name: z.string(),
@@ -105,7 +103,6 @@ export const AddPurchaseSection = () => {
         defaultValues: {
             MRCNumber: "psadas",
             VatReceiptNumber: "asdas asd",
-            averagePrice: 4000,
             date: new Date(),
             invoiceNumber: "00001",
             purchaseProducts
@@ -119,7 +116,6 @@ export const AddPurchaseSection = () => {
                     quantity: 9,
                     unitPrice: new Decimal(4000)
                 }],
-
             purchaseType: "taxableLocalCapitalAssets",
             type: "Good",
             unit: "PC",
@@ -242,6 +238,7 @@ export const AddPurchaseSection = () => {
                             purchaseType: values.purchaseType,
                             unit: values.unit,
                             vendorId: values.vendorId,
+                            description: values.description,
                         }
                     })
                     console.log(purchase)

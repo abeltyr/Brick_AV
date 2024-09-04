@@ -153,22 +153,18 @@ export default function PurchaseDeclarationAdjustmentForm({ form }: { form: any 
                         <div className="flex-1">
                             <FormField
                                 control={form.control}
-                                name="averagePrice"
+                                name="description"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className='text-sm'>
                                             <LanguageTranslator>
-                                                Average Price
+                                                Purchase Description
                                             </LanguageTranslator>
                                         </FormLabel>
                                         <FormControl>
                                             <Input   {...field}
-                                                type="number"
+                                                type="text"
                                                 step="0.01"
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    field.onChange(value === "" ? "" : new Decimal(value));
-                                                }}
                                                 className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0 ring-0 text-sm font-light placeholder:text-neutral-400' />
                                         </FormControl>
                                         <FormMessage />

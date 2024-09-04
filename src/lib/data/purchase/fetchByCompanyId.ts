@@ -10,14 +10,22 @@ const prisma = getPrisma();
 export const fetchPurchasesByCompanyIdAction = async ({
   companyId,
   filter,
+  year,
+  month,
 }: {
   companyId: string;
   filter: Filter;
+  year: number;
+  month: number;
 }): Promise<Purchase[]> => {
   let limit = limitSetter({ limit: filter.limit });
   let orderBy: Prisma.SortOrder = filter && filter.before ? "asc" : "desc";
 
-  let where: Prisma.PurchaseWhereInput = { companyId };
+  let where: Prisma.PurchaseWhereInput = {
+    companyId,
+    year,
+    month,
+  };
 
   let cursor = filter && filter.before ? filter.before : filter.after;
 

@@ -1,9 +1,13 @@
+import { useAuth } from '@/lib/context/auth/user';
+import { useExportPurchase } from '@/lib/context/purchaseExport';
 import { CalendarDateRangePicker } from '@/modules/common/components/dateRange';
 import { LanguageTranslator } from '@/modules/language/components';
 import { Button } from '@/modules/ui/button';
 import React from 'react'
 
 export const DashboardNav = () => {
+    const { fetchPurchaseCSV } = useExportPurchase();
+    const { currentCompany } = useAuth();
 
     return (
         <div className="flex items-center justify-between space-y-2">
@@ -19,7 +23,15 @@ export const DashboardNav = () => {
             </div>
             <div className="flex items-center space-x-2">
                 <CalendarDateRangePicker />
-                <Button>Export</Button>
+                <Button onClick={() => {
+                    console.log("currentCompany", currentCompany)
+                    if (currentCompany)
+                        fetchPurchaseCSV({
+                            companyId: currentCompany.companyId,
+                            year: 2016,
+                            month: 12,
+                        })
+                }}>Export</Button>
             </div>
         </div>
     )

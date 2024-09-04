@@ -10,6 +10,8 @@ import {
   PurchaseType,
 } from "@prisma/client";
 import { toEthiopian } from "@/lib/utils/calendar";
+import { findVendorByIdAction } from "../vendor/fetchById";
+import { VendorType } from "@/types/vendor";
 const prisma = getPrisma();
 
 export const createPurchaseAction = async (data: {
@@ -22,6 +24,7 @@ export const createPurchaseAction = async (data: {
   MRCNumber?: string;
   VatReceiptNumber?: string;
   invoiceNumber?: string;
+  description: string;
   purchaseProducts: {
     productId: string;
     type: ProductType;
@@ -39,6 +42,9 @@ export const createPurchaseAction = async (data: {
     month: new Date(data.date).getMonth() + 1,
     year: new Date(data.date).getFullYear(),
   });
+  const vendor = (await findVendorByIdAction(data.vendorId)) as VendorType;
+  if (!vendor) throw new Error("Vendor is no setup");
+
   if (!ethioDate) throw new Error("date is wrong");
   let month = ethioDate?.month >= 12 ? ethioDate?.month : 12;
   let year = ethioDate?.year;
@@ -198,6 +204,13 @@ export const createPurchaseAction = async (data: {
   const beforeVat = taxableAmount.plus(nonTaxableAmount);
 
   const averagePrice = beforeVat.dividedBy(totalQuantity);
+  let vendorTin = null;
+  let vendorVat = null;
+
+  if (vendor.profile) {
+    vendorTin = vendor.profile.tinNumber;
+    vendorVat = vendor.profile.vatNumber;
+  }
 
   const purchase = await prisma.purchase.create({
     data: {
@@ -205,6 +218,10 @@ export const createPurchaseAction = async (data: {
       vendorId: data.vendorId,
       VatReceiptNumber: data.VatReceiptNumber,
       MRCNumber: data.MRCNumber,
+      description: data.description,
+      vendorTin,
+
+      vendorVat,
 
       localPurchaseCapitalAssets,
       vatOnLocalPurchaseCapitalAssets,
@@ -225,9 +242,8 @@ export const createPurchaseAction = async (data: {
       nonTaxableAmount,
       totalVat,
       grossAmount,
-
-      month,
       year,
+      month,
       totalQuantity: totalQuantity,
       averagePrice: averagePrice,
       productType: data.productType,
