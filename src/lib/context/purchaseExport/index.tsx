@@ -3,6 +3,8 @@
 import { exportGebiwochPurchaseCSV } from '@/lib/data/purchase/export';
 import React, { useState } from 'react';
 import { useContext } from 'react';
+import { BaseDirectory, writeTextFile } from '@tauri-apps/plugin-fs';
+import { save } from '@tauri-apps/plugin-dialog';
 
 const initialValues: {
     purchaseCSV: { [id: string]: string };
@@ -50,6 +52,46 @@ const ExportPurchaseProvider: React.FC<Props> = ({ children }) => {
             document.body.appendChild(a)
             a.click()
             window.URL.revokeObjectURL(url)
+            const filePath = 'users.csv';
+
+            try {
+
+                // Open a file dialog for the user to choose where to save the file
+                const filePath = await save({
+                    filters: [{
+                        name: 'CSV File',
+                        extensions: ['csv']
+                    }],
+                    defaultPath: 'data.csv'
+                });
+
+                // If the user cancels the save dialog, filePath will be null
+                if (filePath === null) {
+                    console.log('File save cancelled');
+                    return;
+                }
+
+                // Write the CSV content to the selected file
+                await writeTextFile(filePath, result.data, {
+                    baseDir: BaseDirectory.AppConfig,
+                });
+                console.log('File saved successfully at:', filePath);
+
+                // const arrayBuffer = await blob.arrayBuffer();
+                // const contents = new Uint8Array(arrayBuffer);
+                // // await writeFile({
+                // //     path: filePath,
+                // //     contents: new Uint8Array(blob as )
+                // //   });
+
+                // await writeFile('config', contents, {
+                //     baseDir: BaseDirectory.AppConfig,
+                // });
+            } catch (e) {
+                console.log(e);
+                console.log('File not saved at:', filePath, e);
+            }
+
         } else {
             alert('Failed to generate CSV')
         }
