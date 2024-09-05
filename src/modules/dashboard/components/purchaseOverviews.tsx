@@ -17,6 +17,7 @@ import {
 } from "@/modules/ui/table"
 import Decimal from 'decimal.js';
 import { Badge } from '@/modules/ui/badge';
+import Link from 'next/link';
 
 
 export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
@@ -41,16 +42,15 @@ export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
                     </CardDescription>
                 </div>
                 <div className='flex gap-2'>
-                    <Button className="ml-auto gap-2 "
-                        variant={"secondary"}
-                    >
-                        <Eye className='w-4 h-4' />
-                        View All
-                    </Button>
-                    <Button className="ml-auto gap-2 text-white">
-                        <CirclePlus className='w-4 h-4' />
-                        Add Purchase
-                    </Button>
+
+                    <Link href="/purchases">
+                        <Button className="ml-auto gap-2 "
+                            variant={"secondary"}
+                        >
+                            <Eye className='w-4 h-4' />
+                            View All
+                        </Button>
+                    </Link>
                 </div>
             </CardHeader>
             <CardContent className="grid gap-8" >
@@ -58,16 +58,16 @@ export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Vendor</TableHead>
+                            <TableHead className="hidden md:table-cell text-center">Date</TableHead>
                             <TableHead className="hidden md:table-cell text-center">Purchase Date</TableHead>
+                            <TableHead className="hidden md:table-cell text-center">nonTaxableAmount</TableHead>
                             <TableHead className="hidden md:table-cell text-center">Before Vat</TableHead>
                             <TableHead className="table-cell text-center">Vat Amount</TableHead>
                             <TableHead className="table-cell text-center">grossAmount</TableHead>
-                            <TableHead className="hidden md:table-cell text-center">nonTaxableAmount</TableHead>
-                            <TableHead className="hidden md:table-cell text-center">Inventory</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {purchases[companyId] && purchases[companyId].slice(0, 20).map((purchase, index) => {
+                        {purchases[companyId] && purchases[companyId].slice(0, 10).map((purchase, index) => {
                             let companyName = "---";
                             let tinNumber = "---";
                             let beforeVat = new Decimal(0);
@@ -107,9 +107,6 @@ export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
                                 key={index}
                                 className="bg-accent">
                                 <TableCell>
-                                    <div className="font-medium">
-
-                                    </div>
                                     <div className="flex items-center gap-4">
                                         <Avatar className="hidden h-9 w-9 sm:flex bg-primary text-white">
                                             <AvatarFallback className='bg-primary text-white'>{companyName.slice(0, 1)}</AvatarFallback>
@@ -127,13 +124,20 @@ export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
                                         </div>
                                     </div>
                                 </TableCell>
-
                                 <TableCell className="hidden md:table-cell text-center ">
                                     {purchase && purchase.createdAt ? `${purchase.createdAt.toLocaleDateString('en-GB', {
                                         day: '2-digit',
                                         month: '2-digit',
                                         year: 'numeric',
                                     })}` : "---"}
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell text-center">
+                                    <Badge>
+                                        {purchase && purchase.productType ? `${purchase.productType}` : "---"}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell className="hidden md:table-cell text-center ">
+                                    {purchase && purchase.purchaseType ? `${purchase.purchaseType}` : "---"}
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-center">
                                     {`${beforeVat}`}
@@ -144,14 +148,7 @@ export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
                                 <TableCell className="table-cell text-center">
                                     {purchase && purchase.grossAmount ? `${purchase.grossAmount}` : "---"}
                                 </TableCell>
-                                <TableCell className="hidden sm:table-cell text-center">
-                                    <Badge>
-                                        {purchase && purchase.productType ? `${purchase.productType}` : "---"}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="hidden md:table-cell text-center ">
-                                    {purchase && purchase.purchaseType ? `${purchase.purchaseType}` : "---"}
-                                </TableCell>
+
 
                             </TableRow>
                         })}

@@ -3,15 +3,18 @@
 import { createPurchaseAction } from '@/lib/data/purchase/create';
 import { fetchPurchasesByCompanyIdAction } from '@/lib/data/purchase/fetchByCompanyId';
 import { filter, Filter, loadLimit } from '@/types/shared';
-import { PurchaseType } from '@/types/purchase';
+import { PurchaseReportType, PurchaseType } from '@/types/purchase';
 import React, { useCallback, useContext, useState } from "react";
 import Decimal from 'decimal.js';
 import { ProductUnit } from '@prisma/client';
 import { ProductInputType, PurchaseInputType } from '@/types/product'
 import { toEthiopian, } from '@/lib/utils/calendar';
+import { fetchPurchaseReportAction } from '@/lib/data/purchaseReport/fetchByCompanyId';
+import { boolean } from 'zod';
 
 const initialValues: {
     purchases: { [id: string]: PurchaseType[] };
+    purchasesReport: { [id: string]: PurchaseReportType[] };
     loadMoreData: boolean;
     setupPurchasesData: ({ dataPurchases, companyId }: { dataPurchases: PurchaseType[], companyId: string }) => void;
     fetchPurchases: ({ companyId }: { companyId: string }) => void;
@@ -49,8 +52,15 @@ const initialValues: {
     updateYear: (value: number) => void
     month: number,
     updateMonth: (value: number) => void
+    getPurchaseReport: ({ companyId }: {
+        companyId: string,
+        yearData: number,
+        monthData: number,
+    }) => void;
+    fetchingPurchaseReport: boolean
 } = {
     purchases: {},
+    purchasesReport: {},
     loadMoreData: true,
     setupPurchasesData: ({ }: { dataPurchases: PurchaseType[], companyId: string }) => { },
     fetchPurchases: ({ }: { companyId: string }) => { },
@@ -86,7 +96,13 @@ const initialValues: {
     year: 2016,
     updateYear: (value: number) => { },
     month: 12,
-    updateMonth: (value: number) => { }
+    updateMonth: (value: number) => { },
+    getPurchaseReport: ({ companyId }: {
+        companyId: string,
+        yearData: number,
+        monthData: number,
+    }) => { },
+    fetchingPurchaseReport: true
 };
 
 type Props = {
@@ -104,12 +120,45 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
         month: georgiaYear.getMonth() + 1,
         year: georgiaYear.getFullYear()
     });
+
     const [purchases, setPurchases] = useState<{ [id: string]: PurchaseType[] }>({});
     const [loadMoreData, setLoadMoreData] = useState<boolean>(true);
     const [fetchingPurchases, setFetchingPurchases] = useState<boolean>(false);
     const [initialLoading, setInitialLoading] = useState<boolean>(true);
     const [year, setYear] = useState<number>(ethiopiaYear ? ethiopiaYear.year : 2016);
     const [month, setMonth] = useState<number>(ethiopiaYear ? ethiopiaYear.month : 12);
+
+
+
+    const [purchasesReport, setPurchasesReport] = useState<{ [id: string]: PurchaseReportType[] }>({});
+    const [fetchingPurchaseReport, setFetchingPurchaseReport] = useState<boolean>(false);
+
+    const getPurchaseReport = useCallback(
+        async ({ companyId, yearData, monthData }: {
+            companyId: string,
+            yearData: number,
+            monthData: number,
+        }) => {
+            setFetchingPurchaseReport(true);
+            try {
+                const purchaseReport = await fetchPurchaseReportAction({
+                    companyId,
+                    year: yearData,
+                    month: monthData
+                });
+                console.log("newPurchases", purchaseReport)
+                const purchasesData = { ...purchasesReport };
+                purchasesData[`${companyId}_${yearData}_${monthData}`] = [...purchaseReport];
+
+                setPurchasesReport(purchasesData);
+            } catch (e) {
+                console.log(e);
+            }
+            setFetchingPurchaseReport(false);
+        },
+        [purchasesReport],
+    );
+
 
 
     const updateYear = (value: number) => {
@@ -266,7 +315,10 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                 year,
                 month,
                 updateMonth,
-                updateYear
+                updateYear,
+                getPurchaseReport,
+                purchasesReport,
+                fetchingPurchaseReport
             }}
         >
             {children}

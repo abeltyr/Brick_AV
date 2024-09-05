@@ -1,5 +1,14 @@
-import { ProductType, Purchase, PurchaseProduct } from "@prisma/client";
+import {
+  ProductType,
+  Purchase,
+  PurchaseProduct,
+  PurchaseReport,
+} from "@prisma/client";
 import { VendorType } from "./vendor";
+
+export type PurchaseReportType = PurchaseReport & {
+  Purchase?: PurchaseType;
+};
 
 export type PurchaseType = Purchase & {
   PurchaseProduct?: PurchaseProductType;
