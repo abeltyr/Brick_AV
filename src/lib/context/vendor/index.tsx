@@ -29,7 +29,7 @@ const initialValues: {
         houseNumber?: string;
         description?: string;
         companyId: string;
-    }) => void,
+    }) => Promise<VendorType | null>,
     searchVendor: ({ companyId, keyTerm }: { companyId: string, keyTerm: string }) => Promise<VendorType[]>
 } = {
     vendors: {},
@@ -39,7 +39,7 @@ const initialValues: {
     getVendor: ({ }: { companyId: string }) => { },
     fetchingVendors: true,
     initialLoading: true,
-    createVendor: ({ }: {
+    createVendor: async ({ }: {
         name?: string;
         tinNumber: string;
         companyName?: string;
@@ -52,7 +52,7 @@ const initialValues: {
         houseNumber?: string;
         description?: string;
         companyId: string;
-    }) => { },
+    }): Promise<VendorType | null> => { return null },
     searchVendor: async ({ companyId, keyTerm }: { companyId: string, keyTerm: string }): Promise<VendorType[]> => { return [] }
 };
 
@@ -104,7 +104,7 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
         houseNumber?: string;
         description?: string;
         companyId: string;
-    }) => {
+    }): Promise<VendorType | null> => {
 
         try {
             const vendorsData = { ...vendors }
@@ -168,21 +168,23 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
             if (!fetchingVendors) {
                 setFetchingVendors(true);
                 try {
+                    const vendorsData = { ...vendors };
                     const filter: Filter = {
                         limit: loadLimit,
                     }
 
-                    if (vendors[companyId] && vendors[companyId].length > 0) {
+                    if (vendorsData[companyId] && vendorsData[companyId].length > 0) {
                         filter.after = vendors[companyId][vendors[companyId].length - 1].id
                     }
-                    const vendorsData = { ...vendors };
+                    console.log(`${filter.after}, filter.after`, vendorsData, vendorsData[companyId])
+
                     const newVendors = await fetchVendorsByCompanyIdAction({
                         companyId,
                         filter
                     });
 
                     if (vendorsData[companyId])
-                        vendorsData[companyId] = [...newVendors, ...vendorsData[companyId]]
+                        vendorsData[companyId] = [...vendorsData[companyId], ...newVendors]
                     else {
                         vendorsData[companyId] = [...newVendors]
                     }

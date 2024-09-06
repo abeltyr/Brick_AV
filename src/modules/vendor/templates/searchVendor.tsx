@@ -1,28 +1,18 @@
 "use client"
 
-import AddSVG from '@/assets/icons/add'
-import { useState } from 'react'
 import { DrawerSheetHeader } from '@/modules/common/components/drawer/header'
-import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
-import { useDrawerManager } from '@/lib/context/drawer/drawer'
+import { VendorListing } from '../components/search'
+import { VendorType } from '@/types/vendor'
 
 
-export const SearchVendorSection = () => {
-
-    const { setAddVendorDrawer } = useDrawerManager();
-    const [isLoading, setIsLoading] = useState<boolean>(false)
-
+export const SearchVendorSection = ({ updateVendor }: { updateVendor: (vendor: VendorType) => void }) => {
 
     return (
-        <div className='w-full h-full overflow-y-auto'>
-            <DrawerSheetHeader title={"Vendors Listing"} />
-            <div className='h-20' />
-            <DrawerSheetFooter
-                isLoading={isLoading}
-                createSVG={<AddSVG />}
-            />
+        <div className='w-full h-full overflow-y-hidden'>
+            <DrawerSheetHeader title={"Vendors"} description='Search the vendor this purchase is made from. if it is a new vendor you can create it here.' />
+            <div className='flex-1 relative w-full h-full overflow-hidden'>
+                <VendorListing updateVendor={updateVendor} />
+            </div>
         </div>
-
-
     )
 }
