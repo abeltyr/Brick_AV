@@ -9,9 +9,11 @@ const prisma = getPrisma();
 export const fetchVendorsByCompanyIdAction = async ({
   companyId,
   filter,
+  keyTerm,
 }: {
   companyId: string;
   filter: Filter;
+  keyTerm?: string;
 }): Promise<Vendor[]> => {
   let limit = limitSetter({ limit: filter.limit });
   let orderBy: Prisma.SortOrder = filter && filter.before ? "asc" : "desc";
@@ -28,6 +30,33 @@ export const fetchVendorsByCompanyIdAction = async ({
       id: cursor,
     };
     skip = 1;
+  }
+
+  if (keyTerm) {
+    where = {
+      profile: {
+        OR: [
+          {
+            name: {
+              contains: keyTerm,
+              mode: "insensitive",
+            },
+          },
+          {
+            companyLegalName: {
+              contains: keyTerm,
+              mode: "insensitive",
+            },
+          },
+          {
+            companyLegalName: {
+              contains: keyTerm,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+    };
   }
 
   return await prisma.vendor.findMany({

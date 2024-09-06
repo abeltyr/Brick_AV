@@ -7,16 +7,22 @@ import { Button } from '@/modules/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/modules/ui/sheet'
 import React from 'react'
 import { AddVendorSection } from '../templates/addVendor'
-import { Separator } from '@/modules/ui/separator'
-import { AddVendorHeader } from './addVendor/header'
+import { useDrawerManager } from '@/lib/context/drawer/drawer'
 
 
 
 export const VendorHeader = () => {
+
+    const { addVendorDrawer, setAddVendorDrawer } = useDrawerManager()
+
     return (
         <section className='w-full flex justify-between items-center'>
             <HeaderTextComponent title='Vendor' description='Description text of Vendor.' />
-            <Sheet>
+            <Sheet
+                open={addVendorDrawer}
+                onOpenChange={setAddVendorDrawer}
+                modal={addVendorDrawer}
+            >
                 <SheetTrigger asChild>
                     <Button className='flex gap-2 p-x4 py-2'
                         onClick={() => { }}

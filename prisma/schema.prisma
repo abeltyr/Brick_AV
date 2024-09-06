@@ -424,6 +424,7 @@ model Purchase {
   date             DateTime
   MRCNumber        String?
   VatReceiptNumber String?
+  invoiceNumber    String?
 
   localPurchaseCapitalAssets      Decimal @default(0)
   vatOnLocalPurchaseCapitalAssets Decimal @default(0)
@@ -460,9 +461,8 @@ model Purchase {
   unit          ProductUnit
   description   String       @db.Text()
 
-  month         Int
-  year          Int
-  invoiceNumber String?
+  month Int
+  year  Int
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt

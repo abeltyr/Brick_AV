@@ -12,33 +12,13 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/lib/context/auth/user'
 import { usePurchases } from '@/lib/context/purchase'
 import Decimal from 'decimal.js'
-import { Button } from '@/modules/ui/button'
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/modules/ui/card"
-import { Input } from "@/modules/ui/input"
-import { Label } from "@/modules/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/modules/ui/select'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/modules/ui/table'
-import { Textarea } from "@/modules/ui/textarea"
-import { ToggleGroup } from '@/modules/ui/toggle-group'
-import { ToggleGroupItem } from '@radix-ui/react-toggle-group'
-import { ChevronLeft, PlusCircle } from 'lucide-react'
 import { zProductInputType, zProductInputUnit, zPurchaseInputType } from '@/types/product'
 import PurchaseDetailForm from '../components/add/purchaseDetailForm'
 import PurchaseDeclarationAdjustmentForm from '../components/add/purchaseDeclarationAdjustmentForm'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/modules/ui/breadcrumb'
-import Link from 'next/link'
-import { Badge } from '@/modules/ui/badge'
-import { Separator } from '@/modules/ui/separator'
 import { AddPurchaseHeader } from '../components/add/header'
 import PurchaseProductsForm from '../components/add/purchaseProductsForm'
 import TotalPurchaseData from '../components/add/total'
+import PurchaseVendorForm from '../components/add/purchaseVendorForm'
 
 // import PurchaseTypeForm from '../components/add/purchaseTypeForm'
 // import PurchaseDetailForm from '../components/add/purchaseDetailForm'
@@ -72,26 +52,10 @@ const formSchema = z.object({
 
 export const AddPurchaseSection = () => {
 
-    const [localPurchaseCapitalAssets, setLocalPurchaseCapitalAssets] = useState<Decimal>(new Decimal(0));
-    const [vatOnLocalPurchaseCapitalAssets, setVatOnLocalPurchaseCapitalAssets] = useState<Decimal>(new Decimal(0));
-    const [importedCapitalAssets, setImportedCapitalAssets] = useState<Decimal>(new Decimal(0));
-    const [vatOnImportedCapitalAssets, setVatOnImportedCapitalAssets] = useState<Decimal>(new Decimal(0));
-    const [totalCapitalAssets, setTotalCapitalAssets] = useState<Decimal>(new Decimal(0));
-    const [vatOnTotalAssets, setVatOnTotalAssets] = useState<Decimal>(new Decimal(0));
-    const [localPurchaseInputs, setLocalPurchaseInputs] = useState<Decimal>(new Decimal(0));
-    const [vatOnLocalPurchaseInputs, setVatOnLocalPurchaseInputs] = useState<Decimal>(new Decimal(0));
-    const [importedInputs, setImportedInputs] = useState<Decimal>(new Decimal(0));
-    const [vatOnImportedInputs, setVatOnImportedInputs] = useState<Decimal>(new Decimal(0));
-    const [generalExpenseInputs, setGeneralExpenseInputs] = useState<Decimal>(new Decimal(0));
-    const [vatOnGeneralExpenseInputs, setVatOnGeneralExpenseInputs] = useState<Decimal>(new Decimal(0));
-    const [purchaseWithNoVat, setPurchaseWithNoVat] = useState<Decimal>(new Decimal(0));
-    const [totalNonCapitalInputs, setTotalNonCapitalInputs] = useState<Decimal>(new Decimal(0));
-    const [vatOnTotalInputs, setVatOnTotalInputs] = useState<Decimal>(new Decimal(0));
     const [taxableAmount, setTaxableAmount] = useState<Decimal>(new Decimal(0));
     const [nonTaxableAmount, setNonTaxableAmount] = useState<Decimal>(new Decimal(0));
     const [totalVat, setTotalVat] = useState<Decimal>(new Decimal(0));
     const [grossAmount, setGrossAmount] = useState<Decimal>(new Decimal(0));
-    const [totalQuantity, setTotalQuantity] = useState<number>(0);
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
@@ -183,8 +147,6 @@ export const AddPurchaseSection = () => {
                 newProductGood += product.type === "Good" ? 1 : 0;
                 newProductService += product.type === "Service" ? 1 : 0;
                 newUnits[product.unit] = (newUnits[product.unit] || 0) + 1;
-
-                // form.setValue(`purchaseProducts.${index}.totalValue`, newTotalValue);
             });
 
             const newTotalCapitalAssets = newLocalPurchaseCapitalAssets.plus(newImportedCapitalAssets);
@@ -197,26 +159,10 @@ export const AddPurchaseSection = () => {
             const newGrossAmount = newTaxableAmount.plus(newNonTaxableAmount).plus(newTotalVat);
 
             // Update all state values
-            setLocalPurchaseCapitalAssets(newLocalPurchaseCapitalAssets);
-            setVatOnLocalPurchaseCapitalAssets(newVatOnLocalPurchaseCapitalAssets);
-            setImportedCapitalAssets(newImportedCapitalAssets);
-            setVatOnImportedCapitalAssets(newVatOnImportedCapitalAssets);
-            setTotalCapitalAssets(newTotalCapitalAssets);
-            setVatOnTotalAssets(newVatOnTotalAssets);
-            setLocalPurchaseInputs(newLocalPurchaseInputs);
-            setVatOnLocalPurchaseInputs(newVatOnLocalPurchaseInputs);
-            setImportedInputs(newImportedInputs);
-            setVatOnImportedInputs(newVatOnImportedInputs);
-            setGeneralExpenseInputs(newGeneralExpenseInputs);
-            setVatOnGeneralExpenseInputs(newVatOnGeneralExpenseInputs);
-            setPurchaseWithNoVat(newPurchaseWithNoVat);
-            setTotalNonCapitalInputs(newTotalNonCapitalInputs);
-            setVatOnTotalInputs(newVatOnTotalInputs);
             setTaxableAmount(newTaxableAmount);
             setNonTaxableAmount(newNonTaxableAmount);
             setTotalVat(newTotalVat);
             setGrossAmount(newGrossAmount);
-            setTotalQuantity(newTotalQuantity)
         }
         // You can add more state updates here for totalQuantity, productGood, productService, and units if needed
 
@@ -269,12 +215,13 @@ export const AddPurchaseSection = () => {
                         <div className='h-[8vh]' />
                         <div className='flex gap-6 flex-wrap xl:flex-nowrap'>
                             <div className='w-full   xl:w-[75%]  flex-1 flex flex-col gap-6'>
+                                <PurchaseVendorForm form={form} />
                                 <PurchaseDetailForm form={form} />
                                 <PurchaseProductsForm form={form} />
                                 <PurchaseDeclarationAdjustmentForm form={form} />
                             </div>
                             <div className='w-full xl:w-[25%]  flex flex-col gap-6 relative h-full'>
-                                <div className=' right-6' >
+                                <div className='relative xl:fixed xl:w-[25%] right-6' >
                                     <TotalPurchaseData
                                         grossAmount={grossAmount}
                                         nonTaxableAmount={nonTaxableAmount}

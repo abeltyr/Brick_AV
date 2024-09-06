@@ -40,7 +40,7 @@ export default function PurchasesTableList({ companyId }: { companyId: string })
                         variant={"secondary"}
                         className='flex gap-2 p-x4 py-2'
                         onClick={() => {
-                            if (currentCompany) getPurchase({ companyId: currentCompany?.companyId });
+                            // if (currentCompany) getPurchase({ companyId: currentCompany.companyId });
                         }}
                     >
                         {/* <AddSVG /> */}

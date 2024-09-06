@@ -30,6 +30,7 @@ const initialValues: {
         description?: string;
         companyId: string;
     }) => void,
+    searchVendor: ({ companyId, keyTerm }: { companyId: string, keyTerm: string }) => Promise<VendorType[]>
 } = {
     vendors: {},
     loadMoreData: true,
@@ -51,7 +52,8 @@ const initialValues: {
         houseNumber?: string;
         description?: string;
         companyId: string;
-    }) => { }
+    }) => { },
+    searchVendor: async ({ companyId, keyTerm }: { companyId: string, keyTerm: string }): Promise<VendorType[]> => { return [] }
 };
 
 type Props = {
@@ -200,6 +202,18 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
         [vendors, fetchingVendors],
     );
 
+    const searchVendor = useCallback(
+        async ({ companyId, keyTerm }: { companyId: string, keyTerm: string }): Promise<VendorType[]> => {
+            const newVendors = await fetchVendorsByCompanyIdAction({
+                companyId,
+                keyTerm,
+                filter
+            });
+            return newVendors
+        },
+        [],
+    );
+
 
     return (
         <VendorsContext.Provider
@@ -211,7 +225,8 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
                 fetchingVendors,
                 fetchVendors,
                 createVendor,
-                getVendor
+                getVendor,
+                searchVendor
             }}
         >
             {children}

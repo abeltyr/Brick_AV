@@ -41,25 +41,6 @@ export default function PurchaseDetailForm({ form }: { form: any }) {
             </CardHeader>
             <CardContent>
                 <div className="grid gap-6">
-                    <div className="gap-3">
-                        <FormField
-                            control={form.control}
-                            name="vendorId"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className='text-sm'>
-                                        <LanguageTranslator>
-                                            vendorId
-                                        </LanguageTranslator></FormLabel>
-                                    <FormControl>
-                                        <Input type="text" placeholder="vendorId" {...field} className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0
-                      ring-0 text-sm font-light placeholder:text-neutral-400' />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
                     <div className="gap-3 flex">
                         <div className='flex-1'>
                             <FormField

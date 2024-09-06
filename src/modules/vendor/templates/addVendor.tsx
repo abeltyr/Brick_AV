@@ -1,57 +1,32 @@
 "use client"
 
-import { AddVendorHeader } from '../components/addVendor/header'
-import { Button } from '@/modules/ui/button'
 import AddSVG from '@/assets/icons/add'
-import { LanguageTranslator } from '@/modules/language/components'
-import LoadingSVG from '@/assets/icons/loading'
 import ProfileForm from '../components/addVendor/profile'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import * as SheetPrimitive from "@radix-ui/react-dialog"
-
-import {
-    Form,
-} from "@/modules/ui/form"
+import { Form } from "@/modules/ui/form"
 import { useToast } from '@/modules/ui/use-toast'
 import { useState } from 'react'
 import { useAuth } from '@/lib/context/auth/user'
 import { useVendors } from '@/lib/context/vendor'
 import AddressForm from '../components/addVendor/address'
-
-
-
-const formSchema = z.object({
-    tinNumber: z.string().min(10, {
-        message: "Please Provide a valid TIN number. ",
-    }),
-    name: z.string().optional(),
-    companyName: z.string().optional(),
-    vatNumber: z.string().optional(),
-    email: z.string().email({
-        message: "Please provided a valid email.",
-    }).optional(),
-    phoneNumber: z.string().optional(),
-    region: z.string().optional(),
-    city: z.string().optional(),
-    woreda: z.string().optional(),
-    houseNumber: z.string().optional(),
-    description: z.string().optional(),
-})
-
-
+import { DrawerSheetHeader } from '@/modules/common/components/drawer/header'
+import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
+import { useDrawerManager } from '@/lib/context/drawer/drawer'
+import { vendorFormSchema } from '@/lib/form/vendor'
 
 
 export const AddVendorSection = () => {
 
+    const { setAddVendorDrawer } = useDrawerManager();
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
 
     const { currentCompany } = useAuth();
     const { createVendor } = useVendors();
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof vendorFormSchema>>({
+        resolver: zodResolver(vendorFormSchema),
         defaultValues: {
             tinNumber: "0090866119",
             vatNumber: "0090866119",
@@ -67,8 +42,7 @@ export const AddVendorSection = () => {
         },
     })
 
-
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (values: z.infer<typeof vendorFormSchema>) => {
         if (!isLoading) {
             setIsLoading(true)
             try {
@@ -77,8 +51,15 @@ export const AddVendorSection = () => {
                         ...values,
                         companyId: currentCompany.companyId
                     })
-                    /// TODO:Close the side bar
-                    // SheetPrimitive.Close;
+                    setAddVendorDrawer(false);
+                    toast({
+                        title: "Vendor Created",
+                        description: (
+                            <div className="mt-2 w-full rounded-md p-4 bg-green-300 text-foreground font-medium text-sm">
+                                New Vendor has been added to your company data set.
+                            </div>
+                        ),
+                    })
                 }
             } catch (e) {
                 console.log(e)
@@ -95,9 +76,10 @@ export const AddVendorSection = () => {
         }
     }
 
+
     return (
         <div className='w-full h-full overflow-y-auto'>
-            <AddVendorHeader />
+            <DrawerSheetHeader title={"Add Vendor"} />
             <div className='h-20' />
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full">
@@ -105,44 +87,10 @@ export const AddVendorSection = () => {
                         <ProfileForm form={form} />
                         <AddressForm form={form} />
                     </div>
-                    <div className='left-0 right-0 px-6 bottom-0 py-3 absolute flex justify-end gap-6 bg-background/90'>
-
-                        <SheetPrimitive.Close className="rounded-full transition-colors text-foreground/70 duration-300 hover:text-foreground">
-                            <Button className='flex gap-2 p-x4 py-2'
-                                variant={"secondary"}
-                            >
-                                <AddSVG />
-                                <LanguageTranslator>
-                                    Cancel
-                                </LanguageTranslator>
-                            </Button>
-                        </SheetPrimitive.Close>
-
-                        <Button
-                            disabled={isLoading}
-                            className='flex gap-2 p-x4 py-2'
-                            onClick={() => {
-
-                            }}
-                        >
-                            {isLoading ? (
-                                <div className='h-5 w-5 animate-spin'>
-                                    <LoadingSVG />
-                                </div>
-                            ) : <AddSVG />}
-
-
-                            {isLoading ? (
-                                <LanguageTranslator>
-                                    Creating
-                                </LanguageTranslator>
-                            ) : <LanguageTranslator>
-                                Create
-                            </LanguageTranslator>}
-
-
-                        </Button>
-                    </div>
+                    <DrawerSheetFooter
+                        isLoading={isLoading}
+                        createSVG={<AddSVG />}
+                    />
                 </form>
             </Form>
         </div>
