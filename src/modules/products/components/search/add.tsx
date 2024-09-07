@@ -4,27 +4,28 @@ import AddSVG from '@/assets/icons/add'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import {
-    Form,
-} from "@/modules/ui/form"
+import { Form } from "@/modules/ui/form"
 import { useToast } from '@/modules/ui/use-toast'
 import { useState } from 'react'
 import { useAuth } from '@/lib/context/auth/user'
 import { useProducts } from '@/lib/context/product'
-import Decimal from 'decimal.js'
-import ProductTypeForm from '../components/add/productTypeForm'
-import ProductDetailForm from '../components/add/productDetailForm'
-import { productFormSchema } from '@/lib/form/product'
-import { useDrawerManager } from '@/lib/context/drawer/drawer'
-import { DrawerSheetHeader } from '@/modules/common/components/drawer/header'
 import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
+import { useDrawerManager } from '@/lib/context/drawer/drawer'
+import { productFormSchema } from '@/lib/form/product'
+import { ProductType } from '@/types/product'
+import { Decimal } from 'decimal.js'
+import ProductDetailForm from '@/modules/products/components/add/productDetailForm'
+import ProductTypeForm from '@/modules/products/components/add/productTypeForm'
 
 
+export const DrawerAddProductSection = ({
+    setIsAddingProduct, updateProduct
+}: {
+    setIsAddingProduct: (value: boolean) => void
+    updateProduct: (product: ProductType[]) => void
+}) => {
 
-
-export const AddProductSection = () => {
-
-    const { setAddProductDrawer } = useDrawerManager();
+    const { setPurchaseProductListingDrawer } = useDrawerManager();
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
 
@@ -41,7 +42,6 @@ export const AddProductSection = () => {
         },
     })
 
-
     const onSubmit = async (values: z.infer<typeof productFormSchema>) => {
         if (!isLoading) {
             setIsLoading(true)
@@ -56,13 +56,15 @@ export const AddProductSection = () => {
                         type: values.type,
                         companyId: currentCompany.companyId
                     })
+                    if (product)
+                        updateProduct([product]);
 
-                    setAddProductDrawer(false);
+                    setPurchaseProductListingDrawer(false);
                     toast({
                         title: "Product Created",
                         description: (
                             <div className="mt-2 w-full rounded-md p-4 bg-green-300 text-foreground font-medium text-sm">
-                                New Product has been added to your inventory data set.
+                                New Product has been added to your company data set.
                             </div>
                         ),
                     })
@@ -70,10 +72,10 @@ export const AddProductSection = () => {
             } catch (e) {
                 console.log(e)
                 toast({
-                    title: "Error Creating Product",
+                    title: "Error Signing In",
                     description: (
                         <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred during the creating product process. Please try again. If the issue persists, please contact us here.
+                            An error occurred during the sign-up process. Please try again. If the issue persists, please wait a moment before attempting to sign up again.
                         </div>
                     ),
                 })
@@ -82,23 +84,25 @@ export const AddProductSection = () => {
         }
     }
 
+
     return (
-        <div className='w-full h-full overflow-y-auto'>
-            <DrawerSheetHeader title={"Add Product"} />
-            <div className='h-20' />
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full">
-                    <div className='flex flex-col p-4 pb-20 flex-1 relative w-full h-full  gap-6'>
-                        <ProductDetailForm form={form} />
-                        <ProductTypeForm form={form} />
-                    </div>
-                    <DrawerSheetFooter
-                        isLoading={isLoading}
-                        createSVG={<AddSVG />}
-                    />
-                </form>
-            </Form>
-        </div>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full h-full relative pb-20" >
+                <div className='flex flex-col pb-20 flex-1 relative w-full h-full gap-6 overflow-y-auto p-6'>
+                    <ProductDetailForm form={form} />
+                    <ProductTypeForm form={form} />
+                </div>
+
+                <DrawerSheetFooter
+                    isLoading={isLoading}
+                    createSVG={<AddSVG />}
+                    closeFunction={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                        event.preventDefault();
+                        setIsAddingProduct(false)
+                    }}
+                />
+            </form>
+        </Form>
 
 
     )

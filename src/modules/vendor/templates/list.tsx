@@ -6,9 +6,6 @@ import { VendorEmptyState } from '@/modules/empty/templates/vendor'
 import { useVendors } from '@/lib/context/vendor'
 import { useAuth } from '@/lib/context/auth/user'
 import VendorsTableList from '../components/table'
-import { VendorType } from '@/types/vendor'
-import { filter } from '@/types/shared'
-import { fetchVendorsByCompanyIdAction } from '@/lib/data/vendor/fetchByCompanyId'
 import { Skeleton } from '@/modules/ui/skeleton'
 
 export const VendorListTempo = () => {
@@ -29,7 +26,6 @@ export const VendorListTempo = () => {
         <main className='screen-parent'>
             <div className='min-h-[92dvh] w-full screen-padding flex flex-col gap-8 pt-10'>
                 <VendorHeader />
-
                 {initialLoading ?
                     <div className='w-full h-full'>
                         <Skeleton className='w-full h-[12.5%] rounded-md' />

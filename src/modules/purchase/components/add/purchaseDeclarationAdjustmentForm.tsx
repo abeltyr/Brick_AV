@@ -20,18 +20,23 @@ import { productInputType, productInputUnit, purchaseInputType } from '@/types/p
 import Decimal from 'decimal.js'
 
 
-export default function PurchaseDeclarationAdjustmentForm({ form }: { form: any }) {
+
+export default function PurchaseDeclarationAdjustmentForm({ form, beforeTax, totalQuantity }: {
+    form: any,
+    totalQuantity: number,
+    beforeTax: Decimal
+}) {
     return (
-        <Card>
+        <Card className=''>
             <CardHeader>
                 <CardTitle>
                     <LanguageTranslator>
-                        Purchase Type form
+                        Purchase Gebiwoch adjustment
                     </LanguageTranslator>
                 </CardTitle>
                 <CardDescription>
                     <LanguageTranslator>
-                        Provided the needed Purchase Detail
+                        This is the data that will be setup on the gebiwoch csv export data
                     </LanguageTranslator>
                 </CardDescription>
             </CardHeader>
@@ -163,6 +168,56 @@ export default function PurchaseDeclarationAdjustmentForm({ form }: { form: any 
                                         </FormLabel>
                                         <FormControl>
                                             <Input   {...field}
+                                                type="text"
+                                                step="0.01"
+                                                className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0 ring-0 text-sm font-light placeholder:text-neutral-400' />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    <div className=" gap-3 flex justify-between">
+
+                        <div className="flex-1">
+                            <FormField
+                                name="totalQuantity"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className='text-sm'>
+                                            <LanguageTranslator>
+                                                Quantity
+                                            </LanguageTranslator>
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                value={totalQuantity}
+                                                readOnly
+                                                type="text"
+                                                step="0.01"
+                                                className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0 ring-0 text-sm font-light placeholder:text-neutral-400' />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <FormField
+                                name="unitPrice"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className='text-sm'>
+                                            <LanguageTranslator>
+                                                Unit Price
+                                            </LanguageTranslator>
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                value={beforeTax.toString()}
+                                                readOnly
                                                 type="text"
                                                 step="0.01"
                                                 className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0 ring-0 text-sm font-light placeholder:text-neutral-400' />

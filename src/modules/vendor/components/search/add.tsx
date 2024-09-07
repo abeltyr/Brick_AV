@@ -12,8 +12,8 @@ import { useVendors } from '@/lib/context/vendor'
 import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
 import { useDrawerManager } from '@/lib/context/drawer/drawer'
 import { vendorFormSchema } from '@/lib/form/vendor'
-import ProfileForm from '../addVendor/profile'
-import AddressForm from '../addVendor/address'
+import ProfileForm from '@/modules/vendor/components/addForm/profile'
+import AddressForm from '@/modules/vendor/components/addForm/address'
 import { VendorType } from '@/types/vendor'
 
 

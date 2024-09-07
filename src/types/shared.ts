@@ -10,7 +10,7 @@ export type PageListIndexType = {
   name: string;
 };
 
-export const loadLimit = 100;
+export const loadLimit = 75;
 
 export const filter: Filter = {
   limit: loadLimit,

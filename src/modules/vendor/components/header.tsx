@@ -6,7 +6,7 @@ import { LanguageTranslator } from '@/modules/language/components'
 import { Button } from '@/modules/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/modules/ui/sheet'
 import React from 'react'
-import { AddVendorSection } from '../templates/addVendor'
+import { AddVendorSection } from '../templates/add'
 import { useDrawerManager } from '@/lib/context/drawer/drawer'
 
 

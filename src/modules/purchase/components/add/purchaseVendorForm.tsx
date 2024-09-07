@@ -10,9 +10,8 @@ import {
 } from "@/modules/ui/card"
 import { Sheet, SheetContent, SheetTrigger } from '@/modules/ui/sheet'
 import { VendorType } from '@/types/vendor'
-import { useEffect, useState } from 'react'
-import { useFieldArray, useWatch } from 'react-hook-form'
-import { SearchVendorSection } from '@/modules/vendor/templates/searchVendor'
+import { useState } from 'react'
+import { SearchVendorSection } from '@/modules/vendor/templates/search'
 import { Trash2 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/modules/ui/avatar'
 import { Label } from '@/modules/ui/label'
@@ -24,17 +23,7 @@ import { useDrawerManager } from '@/lib/context/drawer/drawer'
 export default function PurchaseVendorForm({ form }: { form: any }) {
 
     const [vendor, setVendor] = useState<VendorType | null>()
-
-
-    const { fields, append, remove, } = useFieldArray({
-        control: form.control,
-        name: "vendorId",
-    });
-
-
     const { purchaseVendorListingDrawer, setPurchaseVendorListingDrawer } = useDrawerManager()
-
-
 
     if (!vendor)
         return (
@@ -44,20 +33,22 @@ export default function PurchaseVendorForm({ form }: { form: any }) {
                     onOpenChange={setPurchaseVendorListingDrawer}
                 >
                     <SheetTrigger asChild>
-                        <Card className='bg-transparent  border-dashed border-[1px] pt-6'>
+                        <Card className='bg-transparent  border-dashed border-[1px] pt-6 cursor-pointer'>
                             <CardContent className=''>
-                                <div className='w-full flex flex-col gap-2'>
-                                    <CardTitle>
-                                        <LanguageTranslator>
-                                            Select a vendor
-                                        </LanguageTranslator>
-                                    </CardTitle>
-                                    <CardDescription>
-                                        <LanguageTranslator>
-                                            Select A vendor or create a vendor
-                                        </LanguageTranslator>
-                                    </CardDescription>
-                                    <Button className='w-[200px] mt-3'>
+                                <div className='w-full flex justify-between items-center gap-2'>
+                                    <div className='flex flex-col gap-2'>
+                                        <CardTitle>
+                                            <LanguageTranslator>
+                                                Select a vendor
+                                            </LanguageTranslator>
+                                        </CardTitle>
+                                        <CardDescription>
+                                            <LanguageTranslator>
+                                                Select A vendor or create a vendor
+                                            </LanguageTranslator>
+                                        </CardDescription>
+                                    </div>
+                                    <Button >
                                         Select
                                     </Button>
                                 </div>
@@ -69,7 +60,7 @@ export default function PurchaseVendorForm({ form }: { form: any }) {
                         <SearchVendorSection
                             updateVendor={(vendor: VendorType) => {
                                 if (vendor) {
-                                    append(vendor.id);
+                                    form.setValue("vendorId", vendor.id)
                                     setVendor(vendor)
                                 }
                             }}
@@ -105,7 +96,7 @@ export default function PurchaseVendorForm({ form }: { form: any }) {
                             aria-label="Remove card"
                             onClick={(e) => {
                                 e.preventDefault();
-                                remove()
+                                form.setValue("vendorId", "")
                                 setVendor(null)
                             }}
                         >

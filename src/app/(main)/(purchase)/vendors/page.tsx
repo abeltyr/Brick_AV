@@ -1,4 +1,4 @@
-import { VendorListTempo } from '@/modules/vendor/templates/listPage';
+import { VendorListTempo } from '@/modules/vendor/templates/list';
 
 export default function Withholding() {
   return (

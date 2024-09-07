@@ -1,7 +1,7 @@
 "use client"
 
 import AddSVG from '@/assets/icons/add'
-import ProfileForm from '../components/addVendor/profile'
+import ProfileForm from '../components/addForm/profile'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -10,7 +10,7 @@ import { useToast } from '@/modules/ui/use-toast'
 import { useState } from 'react'
 import { useAuth } from '@/lib/context/auth/user'
 import { useVendors } from '@/lib/context/vendor'
-import AddressForm from '../components/addVendor/address'
+import AddressForm from '../components/addForm/address'
 import { DrawerSheetHeader } from '@/modules/common/components/drawer/header'
 import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
 import { useDrawerManager } from '@/lib/context/drawer/drawer'

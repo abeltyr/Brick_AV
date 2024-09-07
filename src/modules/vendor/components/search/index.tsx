@@ -3,8 +3,6 @@
 import { useState } from "react"
 import { VendorDrawerTable } from './listing'
 import { DrawerAddVendorSection } from './add'
-import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
-import AddSVG from '@/assets/icons/add'
 import { VendorType } from '@/types/vendor'
 
 

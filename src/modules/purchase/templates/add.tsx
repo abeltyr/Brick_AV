@@ -52,10 +52,12 @@ const formSchema = z.object({
 
 export const AddPurchaseSection = () => {
 
+    const [totalQuantity, setTotalQuantity] = useState<number>(0);
     const [taxableAmount, setTaxableAmount] = useState<Decimal>(new Decimal(0));
     const [nonTaxableAmount, setNonTaxableAmount] = useState<Decimal>(new Decimal(0));
     const [totalVat, setTotalVat] = useState<Decimal>(new Decimal(0));
     const [grossAmount, setGrossAmount] = useState<Decimal>(new Decimal(0));
+    const [beforeTax, setBeforeTax] = useState<Decimal>(new Decimal(0));
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
@@ -65,8 +67,9 @@ export const AddPurchaseSection = () => {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            MRCNumber: "psadas",
-            VatReceiptNumber: "asdas asd",
+            description: "Pola",
+            MRCNumber: "MR21092190",
+            VatReceiptNumber: "FC0019210",
             date: new Date(),
             invoiceNumber: "00001",
             purchaseProducts
@@ -84,10 +87,8 @@ export const AddPurchaseSection = () => {
             type: "Good",
             unit: "PC",
             vendorId: "005a59a1-0e71-4b33-a2a0-c5118e802aa3"
-
         },
     })
-
 
     const watchedProducts = useWatch({
         control: form.control,
@@ -112,6 +113,7 @@ export const AddPurchaseSection = () => {
         let newProductGood = 0;
         let newProductService = 0;
         let newUnits: Record<string, number> = {};
+
 
         if (watchedProducts) {
             watchedProducts.forEach((product, index) => {
@@ -158,17 +160,27 @@ export const AddPurchaseSection = () => {
             const newTotalVat = newVatOnTotalAssets.plus(newVatOnTotalInputs);
             const newGrossAmount = newTaxableAmount.plus(newNonTaxableAmount).plus(newTotalVat);
 
+            const beforeTaxData = newTaxableAmount.plus(newNonTaxableAmount)
             // Update all state values
             setTaxableAmount(newTaxableAmount);
             setNonTaxableAmount(newNonTaxableAmount);
             setTotalVat(newTotalVat);
             setGrossAmount(newGrossAmount);
+
+            if (watchedProducts.length === 1) {
+                setTotalQuantity(watchedProducts[0].quantity)
+                setBeforeTax(watchedProducts[0].unitPrice)
+            } else {
+                setTotalQuantity(1)
+                setBeforeTax(beforeTaxData)
+            }
         }
         // You can add more state updates here for totalQuantity, productGood, productService, and units if needed
 
     }, [watchedProducts]);
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        console.log(values, "values")
         if (!isLoading) {
             setIsLoading(true)
             try {
@@ -214,11 +226,16 @@ export const AddPurchaseSection = () => {
                         <AddPurchaseHeader />
                         <div className='h-[8vh]' />
                         <div className='flex gap-6 flex-wrap xl:flex-nowrap'>
-                            <div className='w-full   xl:w-[75%]  flex-1 flex flex-col gap-6'>
+                            <div className='w-full   xl:w-[75%]  flex-1 flex flex-col gap-6 pb-20 '>
                                 <PurchaseVendorForm form={form} />
                                 <PurchaseDetailForm form={form} />
                                 <PurchaseProductsForm form={form} />
-                                <PurchaseDeclarationAdjustmentForm form={form} />
+                                <PurchaseDeclarationAdjustmentForm
+                                    form={form}
+                                    totalQuantity={totalQuantity}
+                                    beforeTax={beforeTax}
+                                />
+
                             </div>
                             <div className='w-full xl:w-[25%]  flex flex-col gap-6 relative h-full'>
                                 <div className='relative xl:fixed xl:w-[25%] right-6' >

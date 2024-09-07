@@ -24,7 +24,7 @@ const initialValues: {
         purchaseType: PurchaseType;
         type: ProductInputType,
         companyId: string;
-    }) => void;
+    }) => Promise<ProductType | null>;
 } = {
     products: {},
     loadMoreData: true,
@@ -33,7 +33,7 @@ const initialValues: {
     getProduct: ({ }: { companyId: string }) => { },
     fetchingProducts: true,
     initialLoading: true,
-    createProduct: ({ }: {
+    createProduct: async ({ }: {
         name: string;
         description?: string;
         unit: ProductUnit,
@@ -41,7 +41,7 @@ const initialValues: {
         purchaseType: PurchaseType;
         type: ProductInputType,
         companyId: string;
-    }) => { },
+    }): Promise<ProductType | null> => { return null },
 };
 
 type Props = {
@@ -79,7 +79,7 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
         purchaseType: PurchaseType;
         type: ProductInputType,
         companyId: string;
-    }) => {
+    }): Promise<ProductType | null> => {
         try {
             const productsData = { ...products };
             const newProduct = await createProductAction({
