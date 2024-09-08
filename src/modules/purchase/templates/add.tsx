@@ -12,42 +12,13 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/lib/context/auth/user'
 import { usePurchases } from '@/lib/context/purchase'
 import Decimal from 'decimal.js'
-import { zProductInputType, zProductInputUnit, zPurchaseInputType } from '@/types/product'
 import PurchaseDetailForm from '../components/add/purchaseDetailForm'
 import PurchaseDeclarationAdjustmentForm from '../components/add/purchaseDeclarationAdjustmentForm'
 import { AddPurchaseHeader } from '../components/add/header'
 import PurchaseProductsForm from '../components/add/purchaseProductsForm'
 import TotalPurchaseData from '../components/add/total'
 import PurchaseVendorForm from '../components/add/purchaseVendorForm'
-
-// import PurchaseTypeForm from '../components/add/purchaseTypeForm'
-// import PurchaseDetailForm from '../components/add/purchaseDetailForm'
-
-
-
-const formSchema = z.object({
-    vendorId: z.string(),
-    date: z.date(),
-    invoiceNumber: z.string(),
-    MRCNumber: z.string().optional(),
-    VatReceiptNumber: z.string().optional(),
-    purchaseType: zPurchaseInputType,
-    type: zProductInputType,
-    unit: zProductInputUnit,
-    description: z.string(),
-    purchaseProducts: z.array(z.object({
-        productId: z.string(),
-        name: z.string(),
-        purchaseType: zPurchaseInputType,
-        type: zProductInputType,
-        unit: zProductInputUnit,
-        unitPrice: z.instanceof(Decimal),
-        quantity: z.number(),
-    })),
-})
-
-
-
+import { purchaseFormSchema } from '@/lib/form/purchase'
 
 
 export const AddPurchaseSection = () => {
@@ -58,35 +29,28 @@ export const AddPurchaseSection = () => {
     const [totalVat, setTotalVat] = useState<Decimal>(new Decimal(0));
     const [grossAmount, setGrossAmount] = useState<Decimal>(new Decimal(0));
     const [beforeTax, setBeforeTax] = useState<Decimal>(new Decimal(0));
+    const [importedGoodSummaryAmount, setImportedGoodSummaryAmount] = useState<Decimal>(new Decimal(0));
+    const [importedGoodWithholding, setImportedGoodWithholding] = useState<Decimal>(new Decimal(0));
+    const [localGoodSummaryAmount, setLocalGoodSummaryAmount] = useState<Decimal>(new Decimal(0));
+    const [localGoodWithholding, setLocalGoodWithholding] = useState<Decimal>(new Decimal(0));
+    const [serviceSummaryAmount, setServiceSummaryAmount] = useState<Decimal>(new Decimal(0));
+    const [serviceWithholding, setServiceWithholding] = useState<Decimal>(new Decimal(0));
+    const [withholding, setWithholding] = useState<Decimal>(new Decimal(0));
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
 
     const { currentCompany } = useAuth();
     const { createPurchase } = usePurchases();
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof purchaseFormSchema>>({
+        resolver: zodResolver(purchaseFormSchema),
         defaultValues: {
-            description: "Pola",
             MRCNumber: "MR21092190",
             VatReceiptNumber: "FC0019210",
             date: new Date(),
             invoiceNumber: "00001",
-            purchaseProducts
-                : [{
-                    name: "Pen",
-                    productId: "0ad5577b-6941-4490-9555-548b0a133e80",
-                    purchaseType:
-                        "taxableLocalCapitalAssets",
-                    type: "Good",
-                    unit: "PC",
-                    quantity: 9,
-                    unitPrice: new Decimal(4000)
-                }],
-            purchaseType: "taxableLocalCapitalAssets",
-            type: "Good",
-            unit: "PC",
-            vendorId: "005a59a1-0e71-4b33-a2a0-c5118e802aa3"
+            withholdingNumber: "00001",
+            purchaseProducts: [],
         },
     })
 
@@ -97,7 +61,13 @@ export const AddPurchaseSection = () => {
 
     useEffect(() => {
         const VAT_RATE = new Decimal('0.15'); // 15% VAT rate
+        const importedWithholdingRate = new Decimal('0.03'); // 3% Withholding rate
+        const localWithholdingRate = new Decimal('0.02'); // 2% Withholding rate
 
+
+        let newLocalGoodSummaryAmount = new Decimal(0);
+        let newImportedGoodSummaryAmount = new Decimal(0);
+        let newServiceSummaryAmount = new Decimal(0);
         let newLocalPurchaseCapitalAssets = new Decimal(0);
         let newVatOnLocalPurchaseCapitalAssets = new Decimal(0);
         let newImportedCapitalAssets = new Decimal(0);
@@ -110,9 +80,6 @@ export const AddPurchaseSection = () => {
         let newVatOnGeneralExpenseInputs = new Decimal(0);
         let newPurchaseWithNoVat = new Decimal(0);
         let newTotalQuantity = 0;
-        let newProductGood = 0;
-        let newProductService = 0;
-        let newUnits: Record<string, number> = {};
 
 
         if (watchedProducts) {
@@ -120,35 +87,54 @@ export const AddPurchaseSection = () => {
                 const totalValue = new Decimal(product.unitPrice || 0).times(product.quantity || 0);
                 const vat = totalValue.times(VAT_RATE);
 
+
+                if (product.type === "Service")
+                    newServiceSummaryAmount = newServiceSummaryAmount.plus(totalValue)
+
                 switch (product.purchaseType) {
                     case "taxableLocalCapitalAssets":
                         newLocalPurchaseCapitalAssets = newLocalPurchaseCapitalAssets.plus(totalValue);
                         newVatOnLocalPurchaseCapitalAssets = newVatOnLocalPurchaseCapitalAssets.plus(vat);
+                        if (product.type === "Good") {
+                            newLocalGoodSummaryAmount = newLocalGoodSummaryAmount.plus(totalValue)
+                        }
                         break;
                     case "taxableImportedCapitalAssets":
                         newImportedCapitalAssets = newImportedCapitalAssets.plus(totalValue);
                         newVatOnImportedCapitalAssets = newVatOnImportedCapitalAssets.plus(vat);
+                        if (product.type === "Good") {
+                            newImportedGoodSummaryAmount = newImportedGoodSummaryAmount.plus(totalValue)
+                        }
                         break;
                     case "taxableLocalInputs":
                         newLocalPurchaseInputs = newLocalPurchaseInputs.plus(totalValue);
                         newVatOnLocalPurchaseInputs = newVatOnLocalPurchaseInputs.plus(vat);
+                        if (product.type === "Good") {
+                            newLocalGoodSummaryAmount = newLocalGoodSummaryAmount.plus(totalValue)
+                        }
                         break;
                     case "taxableImportedInputs":
                         newImportedInputs = newImportedInputs.plus(totalValue);
                         newVatOnImportedInputs = newVatOnImportedInputs.plus(vat);
+                        if (product.type === "Good") {
+                            newImportedGoodSummaryAmount = newImportedGoodSummaryAmount.plus(totalValue)
+                        }
                         break;
                     case "taxableGeneralExpenseInputs":
                         newGeneralExpenseInputs = newGeneralExpenseInputs.plus(totalValue);
                         newVatOnGeneralExpenseInputs = newVatOnGeneralExpenseInputs.plus(vat);
+                        if (product.type === "Good") {
+                            newLocalGoodSummaryAmount = newLocalGoodSummaryAmount.plus(totalValue)
+                        }
                         break;
                     case "taxExemptedPurchase":
                         newPurchaseWithNoVat = newPurchaseWithNoVat.plus(totalValue);
+                        if (product.type === "Good") {
+                            newLocalGoodSummaryAmount = newLocalGoodSummaryAmount.plus(totalValue)
+                        }
                         break;
                 }
                 newTotalQuantity += product.quantity;
-                newProductGood += product.type === "Good" ? 1 : 0;
-                newProductService += product.type === "Service" ? 1 : 0;
-                newUnits[product.unit] = (newUnits[product.unit] || 0) + 1;
             });
 
             const newTotalCapitalAssets = newLocalPurchaseCapitalAssets.plus(newImportedCapitalAssets);
@@ -161,26 +147,56 @@ export const AddPurchaseSection = () => {
             const newGrossAmount = newTaxableAmount.plus(newNonTaxableAmount).plus(newTotalVat);
 
             const beforeTaxData = newTaxableAmount.plus(newNonTaxableAmount)
+
+
+
+            let newImportedGoodWithholding = new Decimal(0);
+            let newLocalGoodWithholding = new Decimal(0);
+            let newServiceWithholding = new Decimal(0);
+
+            if (newLocalGoodSummaryAmount.greaterThan(10000)) {
+                newLocalGoodWithholding = newLocalGoodSummaryAmount.times(localWithholdingRate);
+            }
+
+            if (newImportedGoodSummaryAmount.greaterThan(10000)) {
+                newImportedGoodWithholding = newImportedGoodSummaryAmount.times(importedWithholdingRate);
+            }
+
+            if (newServiceSummaryAmount.greaterThan(3000)) {
+                newServiceWithholding = newServiceSummaryAmount.times(localWithholdingRate);
+            }
+
+
+
+            const withholding = newServiceWithholding.plus(newLocalGoodWithholding).plus(newImportedGoodWithholding)
+            setServiceWithholding(newServiceWithholding)
+            setLocalGoodWithholding(newLocalGoodWithholding)
+            setImportedGoodWithholding(newImportedGoodWithholding)
+            setWithholding(withholding)
+
+            setLocalGoodSummaryAmount(newLocalGoodSummaryAmount)
+            setImportedGoodSummaryAmount(newImportedGoodSummaryAmount)
+            setServiceSummaryAmount(newServiceSummaryAmount)
+
             // Update all state values
             setTaxableAmount(newTaxableAmount);
             setNonTaxableAmount(newNonTaxableAmount);
             setTotalVat(newTotalVat);
-            setGrossAmount(newGrossAmount);
+            setGrossAmount(newGrossAmount.minus(withholding));
+
 
             if (watchedProducts.length === 1) {
                 setTotalQuantity(watchedProducts[0].quantity)
-                setBeforeTax(watchedProducts[0].unitPrice)
+                setBeforeTax(new Decimal(watchedProducts[0].unitPrice))
             } else {
                 setTotalQuantity(1)
                 setBeforeTax(beforeTaxData)
             }
         }
-        // You can add more state updates here for totalQuantity, productGood, productService, and units if needed
 
     }, [watchedProducts]);
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        console.log(values, "values")
+    const onSubmit = async (values: z.infer<typeof purchaseFormSchema>) => {
         if (!isLoading) {
             setIsLoading(true)
             try {
@@ -199,17 +215,21 @@ export const AddPurchaseSection = () => {
                             description: values.description,
                         }
                     })
-                    console.log(purchase)
-                    /// TODO:Close the side bar
-                    // SheetPrimitive.Close;
+                    toast({
+                        title: "Purchase Created",
+                        description: (
+                            <div className="mt-2 w-full rounded-md p-4 bg-green-300 text-foreground font-medium text-sm">
+                                Your purchase has been added to your bill data set.
+                            </div>
+                        ),
+                    })
                 }
             } catch (e) {
-                console.log("errro", e)
                 toast({
                     title: "Error Creating Purchase",
                     description: (
                         <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred during the creating purchase process. Please try again. If the issue persists, please contact us here.
+                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue persists, please contact us here.
                         </div>
                     ),
                 })
@@ -222,11 +242,15 @@ export const AddPurchaseSection = () => {
         <div className='screen-parent'>
             <div className='w-full h-full overflow-y-auto  screen-padding  relative'>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full ">
-                        <AddPurchaseHeader />
+                    <form className="space-y-2 w-full ">
+                        <AddPurchaseHeader
+                            actionFunction={() => {
+                                form.handleSubmit(onSubmit)()
+                            }}
+                        />
                         <div className='h-[8vh]' />
-                        <div className='flex gap-6 flex-wrap xl:flex-nowrap'>
-                            <div className='w-full   xl:w-[75%]  flex-1 flex flex-col gap-6 pb-20 '>
+                        <div className='flex  flex-wrap xl:flex-nowrap'>
+                            <div className='w-full  xl:min-w-[73%] pr-2  flex-1 flex flex-col gap-6 pb-20 '>
                                 <PurchaseVendorForm form={form} />
                                 <PurchaseDetailForm form={form} />
                                 <PurchaseProductsForm form={form} />
@@ -237,14 +261,22 @@ export const AddPurchaseSection = () => {
                                 />
 
                             </div>
-                            <div className='w-full xl:w-[25%]  flex flex-col gap-6 relative h-full'>
-                                <div className='relative xl:fixed xl:w-[25%] right-6' >
+                            <div className='w-full xl:flex-1 xl:min-w-[27%] flex flex-col gap-6 relative h-full'>
+                                {/* <div className='relative xl:fixed xl:w-[25%] right-6 h-full' > */}
+                                <div className='relative  h-full' >
                                     <TotalPurchaseData
                                         grossAmount={grossAmount}
                                         nonTaxableAmount={nonTaxableAmount}
                                         purchaseProducts={watchedProducts}
                                         taxableAmount={taxableAmount}
                                         totalVat={totalVat}
+                                        importedGoodSummaryAmount={importedGoodSummaryAmount}
+                                        importedGoodWithholding={importedGoodWithholding}
+                                        localGoodSummaryAmount={localGoodSummaryAmount}
+                                        localGoodWithholding={localGoodWithholding}
+                                        serviceSummaryAmount={serviceSummaryAmount}
+                                        serviceWithholding={serviceWithholding}
+                                        withholding={withholding}
                                     />
                                 </div>
                             </div>

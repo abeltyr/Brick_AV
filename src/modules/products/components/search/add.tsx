@@ -38,7 +38,8 @@ export const DrawerAddProductSection = ({
             purchaseType: "taxableLocalCapitalAssets",
             type: "Service",
             unit: "LIT",
-            "unitPrice": "4200",
+            "unitPrice": 4200,
+            "productCode": "EX0001"
         },
     })
 
@@ -51,7 +52,7 @@ export const DrawerAddProductSection = ({
                         name: values.name,
                         description: values.description,
                         unit: values.unit,
-                        unitPrice: new Decimal(values.unitPrice),
+                        unitPrice: values.unitPrice,
                         purchaseType: values.purchaseType,
                         type: values.type,
                         companyId: currentCompany.companyId
@@ -75,7 +76,7 @@ export const DrawerAddProductSection = ({
                     title: "Error Signing In",
                     description: (
                         <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred during the sign-up process. Please try again. If the issue persists, please wait a moment before attempting to sign up again.
+                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue persists, please contact us here.
                         </div>
                     ),
                 })

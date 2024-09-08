@@ -9,6 +9,11 @@ import {
 } from "@prisma/client";
 import Decimal from "decimal.js";
 const prisma = getPrisma();
+import { v4 } from "uuid";
+
+function generate8CharUUID() {
+  return v4().replace(/-/g, "").slice(0, 8); // Remove dashes and take the first 8 characters
+}
 
 export const createProductAction = async (data: {
   companyId: string;
@@ -18,9 +23,10 @@ export const createProductAction = async (data: {
   purchaseType: PurchaseType;
   active?: boolean;
   purchase?: boolean;
-  unitPrice: Decimal;
+  unitPrice: number;
   unit: ProductUnit;
 }): Promise<Product> => {
+  const productCode = generate8CharUUID();
   return await prisma.product.create({
     data: {
       name: data.name,
@@ -30,6 +36,7 @@ export const createProductAction = async (data: {
       active: true,
       purchase: data.purchase,
       companyId: data.companyId,
+      productCode: `${data.name.slice(0, 2).toUpperCase()}-${productCode}`,
       ProductPrice: {
         create: {
           unit: data.unit,

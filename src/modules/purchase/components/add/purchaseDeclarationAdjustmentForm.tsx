@@ -1,4 +1,5 @@
 
+import { purchaseFormSchema } from '@/lib/form/purchase'
 import { LanguageTranslator } from '@/modules/language/components'
 import {
     Card,
@@ -18,11 +19,13 @@ import {
 } from "@/modules/ui/select"
 import { productInputType, productInputUnit, purchaseInputType } from '@/types/product'
 import Decimal from 'decimal.js'
+import { UseFormReturn } from 'react-hook-form'
+import { z } from 'zod'
 
 
 
 export default function PurchaseDeclarationAdjustmentForm({ form, beforeTax, totalQuantity }: {
-    form: any,
+    form: UseFormReturn<z.infer<typeof purchaseFormSchema>>
     totalQuantity: number,
     beforeTax: Decimal
 }) {

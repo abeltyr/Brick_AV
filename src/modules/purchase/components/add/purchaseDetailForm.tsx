@@ -22,9 +22,12 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/modules/ui/popover"
+import { purchaseFormSchema } from '@/lib/form/purchase'
+import { UseFormReturn } from 'react-hook-form'
+import { z } from 'zod'
 
 
-export default function PurchaseDetailForm({ form }: { form: any }) {
+export default function PurchaseDetailForm({ form }: { form: UseFormReturn<z.infer<typeof purchaseFormSchema>> }) {
     return (
         <Card>
             <CardHeader>
@@ -41,25 +44,6 @@ export default function PurchaseDetailForm({ form }: { form: any }) {
             </CardHeader>
             <CardContent>
                 <div className="grid gap-6">
-                    {/* <div className="gap-3">
-                        <FormField
-                            control={form.control}
-                            name="vendorId"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className='text-sm'>
-                                        <LanguageTranslator>
-                                            vendorId
-                                        </LanguageTranslator></FormLabel>
-                                    <FormControl>
-                                        <Input type="text" placeholder="vendorId" {...field} className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0
-                      ring-0 text-sm font-light placeholder:text-neutral-400' />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div> */}
                     <div className="gap-3 flex">
                         <div className='flex-1'>
                             <FormField
@@ -121,6 +105,26 @@ export default function PurchaseDetailForm({ form }: { form: any }) {
                                 )}
                             />
                         </div>
+                        <div className='flex-1'>
+                            <FormField
+                                control={form.control}
+                                name="withholdingNumber"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className='text-sm'>
+                                            <LanguageTranslator>
+                                                Withholding Receipt Number
+                                            </LanguageTranslator>
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input type="text" placeholder="1" {...field} className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0
+                      ring-0 text-sm font-light placeholder:text-neutral-400' />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                     </div>
                     <div className="gap-3 flex">
                         <div className='flex-1'>
@@ -163,6 +167,7 @@ export default function PurchaseDetailForm({ form }: { form: any }) {
                         </div>
                     </div>
                 </div>
+
             </CardContent>
         </Card>
     )

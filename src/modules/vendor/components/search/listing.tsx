@@ -59,27 +59,6 @@ export const VendorDrawerTable = ({
         }
     }, [currentCompany, searchVendor])
 
-    useEffect(() => {
-        if (searchTerm && currentVendors) {
-            const localResults = currentVendors.filter((vendor) => {
-                console.log("vendor?.profile", vendor?.profile)
-                return (
-                    vendor?.profile?.tinNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    vendor?.profile?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    vendor?.profile?.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    vendor?.profile?.vatNumber?.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-            }
-            )
-            if (localResults.length === 0) {
-                searchVendors(searchTerm)
-            } else {
-                setCurrentVendors(localResults)
-            }
-        } else if (currentCompany)
-            setCurrentVendors(vendors[currentCompany.companyId])
-
-    }, [searchTerm])
 
 
     return (
@@ -90,7 +69,21 @@ export const VendorDrawerTable = ({
                     placeholder="Search Vendors..."
                     value={searchTerm}
                     onChange={(e) => {
-                        setSearchTerm(e.target.value)
+                        const searchWord = e.target.value;
+                        setSearchTerm(searchWord)
+                        if (searchWord.length > 0 && currentVendors) {
+                            const localResults = currentVendors.filter((vendor) => {
+                                return (
+                                    vendor?.profile?.tinNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                    vendor?.profile?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                    vendor?.profile?.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                    vendor?.profile?.vatNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+                                )
+                            }
+                            )
+                            setCurrentVendors(localResults)
+                        } else if (currentCompany)
+                            setCurrentVendors(vendors[currentCompany.companyId])
                     }}
                     className="min-w-64 pr-8 flex-1 px-4 py-3 focus:ring-0 focus:outline-none focus:border-0
                       ring-0 text-sm font-light placeholder:text-neutral-400"
@@ -100,8 +93,8 @@ export const VendorDrawerTable = ({
                     Add Vendor
                 </Button>
             </div>
-            <Card className="flex flex-col flex-1 relative w-full h-full gap-6 overflow-y-auto pb-10" >
-                <CardContent >
+            <Card className="flex flex-col flex-1 relative w-full h-full gap-6 overflow-y-auto " >
+                <CardContent className='p-0' >
                     <Table >
                         <TableHeader >
                             <TableRow>
@@ -159,9 +152,9 @@ export const VendorDrawerTable = ({
                         </TableBody>
                     </Table>
                 </CardContent>
-                <CardFooter>
+                {loadMoreData && <CardFooter>
                     <div className='w-full flex justify-center'>
-                        {loadMoreData && <div className='w-full flex justify-center'>
+                        <div className='w-full flex justify-center'>
                             <Button
                                 disabled={fetchingVendors}
                                 variant={"outline"}
@@ -176,9 +169,9 @@ export const VendorDrawerTable = ({
                                 </div>}
                                 Load More
                             </Button>
-                        </div>}
+                        </div>
                     </div>
-                </CardFooter>
+                </CardFooter>}
             </Card>
             <DrawerSheetFooter
                 isLoading={false}

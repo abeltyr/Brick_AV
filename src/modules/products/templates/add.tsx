@@ -73,7 +73,7 @@ export const AddProductSection = () => {
                     title: "Error Creating Product",
                     description: (
                         <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred during the creating product process. Please try again. If the issue persists, please contact us here.
+                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue persists, please contact us here.
                         </div>
                     ),
                 })

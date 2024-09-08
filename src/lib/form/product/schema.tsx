@@ -5,11 +5,9 @@ export const productFormSchema = z.object({
     purchaseType: zPurchaseInputType,
     type: zProductInputType,
     unit: zProductInputUnit,
-    unitPrice: z.union([
-        z.string().transform(x => x.replace(/[^0-9.-]+/g, '')),
-        z.number(),
-    ]),
-    name: z.string().min(3, {
+    productCode: z.string(),
+    unitPrice: z.number(),
+    name: z.string().min(1, {
         message: "A valid name with at least three words is needed",
     }),
     description: z.string().optional(),

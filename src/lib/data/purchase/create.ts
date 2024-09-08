@@ -30,7 +30,7 @@ export const createPurchaseAction = async (data: {
     type: ProductType;
     purchaseType: PurchaseType;
     unit: ProductUnit;
-    unitPrice: Decimal;
+    unitPrice: number;
     quantity: number;
   }[];
 }): Promise<{
@@ -49,10 +49,6 @@ export const createPurchaseAction = async (data: {
   let month = ethioDate?.month >= 12 ? ethioDate?.month : 12;
   let year = ethioDate?.year;
   if (!month || !year) throw new Error("date is not setup right");
-  console.log({
-    month,
-    year,
-  });
 
   let localPurchaseCapitalAssets: Decimal = new Decimal(0);
   let vatOnLocalPurchaseCapitalAssets: Decimal = new Decimal(0);
@@ -184,17 +180,6 @@ export const createPurchaseAction = async (data: {
   // sum up the tax and gross amount
   let taxableAmount: Decimal = totalCapitalAssets.plus(totalNonCapitalInputs);
   let nonTaxableAmount: Decimal = purchaseWithNoVat;
-  console.log("vatOnTotalAssets", {
-    vatOnTotalAssets,
-    vatOnLocalPurchaseInputs,
-    vatOnImportedInputs,
-    vatOnGeneralExpenseInputs,
-  });
-  console.log("vatOnTotalInputs", {
-    vatOnTotalInputs,
-    vatOnLocalPurchaseCapitalAssets,
-    vatOnImportedCapitalAssets,
-  });
 
   let totalVat: Decimal = vatOnTotalAssets.plus(vatOnTotalInputs);
   let grossAmount: Decimal = taxableAmount
@@ -417,7 +402,6 @@ export const createPurchaseAction = async (data: {
     });
   }
 
-  console.log({ purchase, purchaseReport });
   return {
     purchase,
     purchaseReport,

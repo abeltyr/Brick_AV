@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
-export const AddPurchaseHeader = () => {
+export const AddPurchaseHeader = ({ actionFunction }: { actionFunction: Function }) => {
 
     const { back } = useRouter();
     return (
@@ -14,7 +14,6 @@ export const AddPurchaseHeader = () => {
             <div className='screen-padding py-3'>
                 <div className="flex items-center gap-4">
                     <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => {
-
                         back();
                     }}>
                         <ChevronLeft className="h-4 w-4" />
@@ -34,7 +33,10 @@ export const AddPurchaseHeader = () => {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="hidden items-center gap-2 md:ml-auto md:flex">
-                        <Button size="sm" > Save Purchase</Button>
+                        <Button size="sm" onClick={(e) => {
+                            e.preventDefault();
+                            actionFunction()
+                        }}> Save Purchase</Button>
                     </div>
                 </div>
             </div>

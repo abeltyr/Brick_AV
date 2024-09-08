@@ -42,7 +42,7 @@ const initialValues: {
                 type: ProductInputType;
                 purchaseType: PurchaseInputType;
                 unit: ProductUnit;
-                unitPrice: Decimal;
+                unitPrice: number;
                 quantity: number;
             }[];
 
@@ -87,7 +87,7 @@ const initialValues: {
                 type: ProductInputType;
                 purchaseType: PurchaseInputType;
                 unit: ProductUnit;
-                unitPrice: Decimal;
+                unitPrice: number;
                 quantity: number;
             }[];
 
@@ -146,7 +146,6 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                     year: yearData,
                     month: monthData
                 });
-                console.log("newPurchases", purchaseReport)
                 const purchasesData = { ...purchasesReport };
                 purchasesData[`${companyId}_${yearData}_${monthData}`] = [...purchaseReport];
 
@@ -201,7 +200,7 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                 type: ProductInputType;
                 purchaseType: PurchaseInputType;
                 unit: ProductUnit;
-                unitPrice: Decimal;
+                unitPrice: number;
                 quantity: number;
             }[];
         }
@@ -244,7 +243,6 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                     year: yearData,
                     month: monthData
                 });
-                console.log("newPurchases", newPurchases)
                 const purchasesData = { ...purchases };
                 purchasesData[companyId] = [...newPurchases];
                 if (newPurchases.length < loadLimit) {

@@ -64,7 +64,7 @@ export function UserLoginAuthForm({ className, ...props }: UserLoginAuthFormProp
                     title: "Error Signing In",
                     description: (
                         <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred during the sign-up process. Please try again. If the issue persists, please wait a moment before attempting to sign up again.
+                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue persists, please contact us here.
                         </div>
                     ),
                 })

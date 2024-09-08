@@ -32,7 +32,6 @@ export const DashboardNav = () => {
                     variant={"secondary"}
                     className='text-foreground gap-1 flex items-center'
                     onClick={() => {
-                        console.log("currentCompany", currentCompany)
                         if (currentCompany)
                             fetchPurchaseCSV({
                                 companyId: currentCompany.companyId,

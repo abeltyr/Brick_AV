@@ -3,9 +3,7 @@ import AddSVG from '@/assets/icons/add'
 import { HeaderTextComponent } from '@/modules/common/components/headerText'
 import { LanguageTranslator } from '@/modules/language/components'
 import { Button } from '@/modules/ui/button'
-import { Sheet, SheetContent, SheetTrigger } from '@/modules/ui/sheet'
 import React from 'react'
-import { AddPurchaseSection } from '../templates/add'
 import Link from 'next/link'
 
 
@@ -21,7 +19,6 @@ export const PurchaseHeader = () => {
                         Add Purchase
                     </LanguageTranslator>
                 </Button>
-
             </Link>
         </section>
     )

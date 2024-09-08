@@ -68,7 +68,6 @@ export default function ProductsTableList({ companyId }: { companyId: string }) 
                     </TableHeader>
                     <TableBody>
                         {products[companyId] && products[companyId].map((product, index) => {
-                            console.log("Inventory", product.Inventory)
                             return <TableRow
                                 key={index}
                                 className="bg-accent">

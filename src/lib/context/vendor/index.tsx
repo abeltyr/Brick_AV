@@ -176,7 +176,6 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
                     if (vendorsData[companyId] && vendorsData[companyId].length > 0) {
                         filter.after = vendors[companyId][vendors[companyId].length - 1].id
                     }
-                    console.log(`${filter.after}, filter.after`, vendorsData, vendorsData[companyId])
 
                     const newVendors = await fetchVendorsByCompanyIdAction({
                         companyId,

@@ -20,7 +20,7 @@ const initialValues: {
         name: string;
         description?: string;
         unit: ProductUnit,
-        unitPrice: Decimal;
+        unitPrice: number;
         purchaseType: PurchaseType;
         type: ProductInputType,
         companyId: string;
@@ -37,7 +37,7 @@ const initialValues: {
         name: string;
         description?: string;
         unit: ProductUnit,
-        unitPrice: Decimal;
+        unitPrice: number;
         purchaseType: PurchaseType;
         type: ProductInputType,
         companyId: string;
@@ -75,7 +75,7 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
         name: string;
         description?: string;
         unit: ProductUnit,
-        unitPrice: Decimal;
+        unitPrice: number;
         purchaseType: PurchaseType;
         type: ProductInputType,
         companyId: string;
@@ -107,7 +107,6 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
                     companyId,
                     filter,
                 });
-                console.log("newProducts", newProducts)
                 const productsData = { ...products };
                 productsData[companyId] = [...newProducts];
                 if (newProducts.length < loadLimit) {

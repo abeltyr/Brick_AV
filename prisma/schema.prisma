@@ -346,6 +346,7 @@ model Product {
   companyId       String
   company         Company           @relation(fields: [companyId], references: [id])
   name            String
+  productCode     String
   description     String?           @db.Text()
   type            ProductType       @default(Good)
   purchaseType    PurchaseType
@@ -359,6 +360,7 @@ model Product {
   Inventory       Inventory?
   ProductPrice    ProductPrice?
 
+  @@unique([companyId, productCode])
   @@index([companyId], type: Hash)
 }
 

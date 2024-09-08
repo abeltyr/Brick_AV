@@ -160,7 +160,16 @@ export default function ProductTypeForm({ form }: { form: any }) {
                                             </LanguageTranslator>
                                         </FormLabel>
                                         <FormControl>
-                                            <Input type="number" placeholder="2000" {...field} className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0 ring-0 text-sm font-light placeholder:text-neutral-400' />
+                                            <Input
+                                                placeholder="2000"
+                                                {...field}
+                                                type="number"
+                                                step="1"
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    field.onChange(value === "" ? undefined : Number(value));
+                                                }}
+                                                className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0 ring-0 text-sm font-light placeholder:text-neutral-400' />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
