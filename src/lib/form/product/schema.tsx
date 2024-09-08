@@ -6,8 +6,8 @@ export const productFormSchema = z.object({
     type: zProductInputType,
     unit: zProductInputUnit,
     unitPrice: z.number(),
-    name: z.string().min(1, {
-        message: "A valid name with at least three words is needed",
+    name: z.string().min(2, {
+        message: "A valid name with at least two words is needed",
     }),
     description: z.string().optional(),
 })

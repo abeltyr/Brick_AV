@@ -265,18 +265,18 @@ export const AddPurchaseSection = () => {
                                 {/* <div className='relative xl:fixed xl:w-[25%] right-6 h-full' > */}
                                 <div className='relative  h-full' >
                                     <TotalPurchaseData
-                                        grossAmount={grossAmount}
-                                        nonTaxableAmount={nonTaxableAmount}
+                                        grossAmount={grossAmount.toNumber()}
+                                        nonTaxableAmount={nonTaxableAmount.toNumber()}
                                         purchaseProducts={watchedProducts}
-                                        taxableAmount={taxableAmount}
-                                        totalVat={totalVat}
-                                        importedGoodSummaryAmount={importedGoodSummaryAmount}
-                                        importedGoodWithholding={importedGoodWithholding}
-                                        localGoodSummaryAmount={localGoodSummaryAmount}
-                                        localGoodWithholding={localGoodWithholding}
-                                        serviceSummaryAmount={serviceSummaryAmount}
-                                        serviceWithholding={serviceWithholding}
-                                        withholding={withholding}
+                                        taxableAmount={taxableAmount.toNumber()}
+                                        totalVat={totalVat.toNumber()}
+                                        importedGoodSummaryAmount={importedGoodSummaryAmount.toNumber()}
+                                        importedGoodWithholding={importedGoodWithholding.toNumber()}
+                                        localGoodSummaryAmount={localGoodSummaryAmount.toNumber()}
+                                        localGoodWithholding={localGoodWithholding.toNumber()}
+                                        serviceSummaryAmount={serviceSummaryAmount.toNumber()}
+                                        serviceWithholding={serviceWithholding.toNumber()}
+                                        withholding={withholding.toNumber()}
                                     />
                                 </div>
                             </div>

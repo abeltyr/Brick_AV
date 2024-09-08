@@ -7,7 +7,6 @@ import {
     CardTitle,
 } from "@/modules/ui/card"
 import { Separator } from "@/modules/ui/separator"
-import { zProductInputType, zProductInputUnit, zPurchaseInputType } from '@/types/product'
 import Decimal from 'decimal.js'
 import { z } from 'zod'
 import {
@@ -40,17 +39,17 @@ export default function TotalPurchaseData({
     withholding
 }: {
     purchaseProducts: ProductArrayType,
-    taxableAmount: Decimal,
-    nonTaxableAmount: Decimal,
-    totalVat: Decimal,
-    grossAmount: Decimal,
-    importedGoodSummaryAmount: Decimal,
-    importedGoodWithholding: Decimal,
-    localGoodSummaryAmount: Decimal,
-    localGoodWithholding: Decimal,
-    serviceSummaryAmount: Decimal,
-    serviceWithholding: Decimal,
-    withholding: Decimal,
+    taxableAmount: number,
+    nonTaxableAmount: number,
+    totalVat: number,
+    grossAmount: number,
+    importedGoodSummaryAmount: number,
+    importedGoodWithholding: number,
+    localGoodSummaryAmount: number,
+    localGoodWithholding: number,
+    serviceSummaryAmount: number,
+    serviceWithholding: number,
+    withholding: number,
 
 }) {
     return (
@@ -80,7 +79,7 @@ export default function TotalPurchaseData({
                                 <span className="text-muted-foreground">Taxable Amount</span>
                                 <span>ETB {`${taxableAmount}`}</span>
                             </li>
-                            {nonTaxableAmount.greaterThan(0) && <li className="flex items-center justify-between">
+                            {new Decimal(nonTaxableAmount).greaterThan(0) && <li className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Non Taxable Amount</span>
                                 <span>ETB {`${nonTaxableAmount}`}</span>
                             </li>}
@@ -88,7 +87,7 @@ export default function TotalPurchaseData({
                                 <span className="text-muted-foreground">15% Vat</span>
                                 <span>ETB {`${totalVat}`}</span>
                             </li>
-                            {withholding && withholding.greaterThan(0) && <li className="flex items-center justify-between">
+                            {withholding && new Decimal(withholding).greaterThan(0) && <li className="flex items-center justify-between">
                                 <span className="text-muted-foreground">WithHolding</span>
                                 <span>ETB -{`${withholding}`}</span>
                             </li>}

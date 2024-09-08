@@ -415,18 +415,20 @@ model Vendor {
 
 // Invoices or sales
 model Purchase {
-  id        String  @id @default(uuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
-  vendorId  String
-  vendor    Vendor  @relation(fields: [vendorId], references: [id])
-  vendorTin String?
-  vendorVat String?
+  id         String  @id @default(uuid())
+  companyId  String
+  company    Company @relation(fields: [companyId], references: [id])
+  vendorId   String
+  vendor     Vendor  @relation(fields: [vendorId], references: [id])
+  vendorTin  String?
+  vendorVat  String?
+  vendorName String?
 
-  date             DateTime
-  MRCNumber        String?
-  VatReceiptNumber String?
-  invoiceNumber    String?
+  date              DateTime
+  MRCNumber         String?
+  VatReceiptNumber  String?
+  invoiceNumber     String?
+  withholdingNumber String?
 
   localPurchaseCapitalAssets      Decimal @default(0)
   vatOnLocalPurchaseCapitalAssets Decimal @default(0)
@@ -451,9 +453,19 @@ model Purchase {
   totalNonCapitalInputs Decimal @default(0)
   vatOnTotalInputs      Decimal @default(0)
 
+  localGoodSummaryAmount Decimal @default(0)
+  localGoodWithholding   Decimal @default(0)
+
+  importedGoodSummaryAmount Decimal @default(0)
+  importedGoodWithholding   Decimal @default(0)
+
+  serviceSummaryAmount Decimal @default(0)
+  serviceWithholding   Decimal @default(0)
+
   taxableAmount    Decimal
   nonTaxableAmount Decimal
   totalVat         Decimal
+  withholding      Decimal
   grossAmount      Decimal
 
   totalQuantity Decimal      @default(0)
@@ -541,9 +553,19 @@ model PurchaseReport {
   taxAdjustmentsCreditNote      Decimal @default(0)
   vatOnTaxAdjustmentsCreditNote Decimal @default(0)
 
+  localGoodSummaryAmount Decimal @default(0)
+  localGoodWithholding   Decimal @default(0)
+
+  importedGoodSummaryAmount Decimal @default(0)
+  importedGoodWithholding   Decimal @default(0)
+
+  serviceSummaryAmount Decimal @default(0)
+  serviceWithholding   Decimal @default(0)
+
   taxableAmount    Decimal
   nonTaxableAmount Decimal
   totalVat         Decimal
+  withholding      Decimal
   grossAmount      Decimal
 
   month             Int

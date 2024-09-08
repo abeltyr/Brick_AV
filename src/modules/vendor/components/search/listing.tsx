@@ -25,45 +25,33 @@ export const VendorDrawerTable = ({
 
     const [searchTerm, setSearchTerm] = useState("")
     const [currentVendors, setCurrentVendors] = useState<VendorType[] | null>()
+    const [finalVendors, setFinalVendors] = useState<VendorType[] | null>()
 
     useEffect(() => {
-        if (currentCompany) {
+        if (currentCompany && currentCompany.companyId) {
+            if (vendors[currentCompany.companyId]) {
+                setFinalVendors(vendors[currentCompany.companyId])
+            }
+        }
+    }, [currentCompany, vendors])
+
+    useEffect(() => {
+        if (currentCompany && currentCompany.companyId) {
             if (!vendors[currentCompany.companyId])
                 getVendor({ companyId: currentCompany.companyId })
+
+            if (vendors[currentCompany.companyId]) {
+                const data = vendors[currentCompany.companyId]
+                setCurrentVendors(data)
+            }
         }
     }, [currentCompany, getVendor, vendors])
 
-    useEffect(() => {
-        if (currentCompany && currentCompany.companyId && vendors[currentCompany.companyId] && !searchTerm) {
-            const data = vendors[currentCompany.companyId]
-            setCurrentVendors(data)
-        }
-
-    }, [vendors, currentCompany, searchTerm])
-
-    const [loading, setLoading] = useState(initialLoading)
-
-
-    const [isLoading, setIsLoading] = useState(false)
     const [selectedVendor, setSelectedVendor] = useState<VendorType | null>(null)
-
-    const searchVendors = useCallback(async (term: string) => {
-        if (currentCompany) {
-            setIsLoading(true)
-            const results = await searchVendor({
-                companyId: currentCompany?.companyId,
-                keyTerm: term
-            })
-            setCurrentVendors(results)
-            setIsLoading(false)
-        }
-    }, [currentCompany, searchVendor])
-
-
 
     return (
 
-        <div className='space-y-2 w-full h-full relative pb-20 p-6'>
+        <div className='space-y-4 w-full h-full relative pb-16 p-6 flex flex-col'>
             <div className="flex justify-between items-center gap-4">
                 <Input
                     placeholder="Search Vendors..."
@@ -71,16 +59,15 @@ export const VendorDrawerTable = ({
                     onChange={(e) => {
                         const searchWord = e.target.value;
                         setSearchTerm(searchWord)
-                        if (searchWord.length > 0 && currentVendors) {
-                            const localResults = currentVendors.filter((vendor) => {
+                        if (searchWord.length > 0 && finalVendors) {
+                            const localResults = finalVendors.filter((vendor) => {
                                 return (
                                     vendor?.profile?.tinNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                     vendor?.profile?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                     vendor?.profile?.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                     vendor?.profile?.vatNumber?.toLowerCase().includes(searchTerm.toLowerCase())
                                 )
-                            }
-                            )
+                            })
                             setCurrentVendors(localResults)
                         } else if (currentCompany)
                             setCurrentVendors(vendors[currentCompany.companyId])
@@ -93,86 +80,85 @@ export const VendorDrawerTable = ({
                     Add Vendor
                 </Button>
             </div>
-            <Card className="flex flex-col flex-1 relative w-full h-full gap-6 overflow-y-auto " >
-                <CardContent className='p-0' >
-                    <Table >
-                        <TableHeader >
-                            <TableRow>
-                                <TableHead className="w-[50px]">Select</TableHead>
-                                <TableHead className=" text-center">Company Name</TableHead>
-                                <TableHead className="hidden sm:table-cell text-center">Seller Name</TableHead>
-                                <TableHead>Tin Number</TableHead>
-                                <TableHead className="hidden md:table-cell text-center">vatNumber</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody >
-                            {
-                                currentVendors && currentVendors.length > 0
-                                    ? (
-                                        currentVendors.map((vendor) => (
-                                            <TableRow key={vendor.id}>
-                                                <TableCell>
-                                                    <Checkbox
-                                                        checked={selectedVendor ? selectedVendor.id === vendor.id : false}
-                                                        onCheckedChange={() => {
-                                                            if (selectedVendor && selectedVendor.id === vendor.id) {
-                                                                setSelectedVendor(null)
-                                                                return
-                                                            }
-                                                            setSelectedVendor(vendor)
+            {currentVendors && currentVendors.length > 0
+                ? (<Card className="flex flex-col flex-1 relative w-full overflow-auto gap-6" >
+                    <CardContent className='p-0' >
+                        <Table >
+                            <TableHeader >
+                                <TableRow>
+                                    <TableHead className="w-[50px]">Select</TableHead>
+                                    <TableHead className=" text-center">Company Name</TableHead>
+                                    <TableHead className="hidden sm:table-cell text-center">Seller Name</TableHead>
+                                    <TableHead>Tin Number</TableHead>
+                                    <TableHead className="hidden md:table-cell text-center">vatNumber</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody >
+                                {
 
-                                                        }}
-                                                    />
-                                                </TableCell>
-                                                <TableCell className="table-cell text-center">
-                                                    {vendor.profile && vendor.profile.companyName ? vendor.profile.companyName : "---"}
-                                                </TableCell>
-                                                <TableCell className="hidden sm:table-cell text-center">
-                                                    {vendor.profile && vendor.profile.name ? vendor.profile.name : "---"}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="font-medium">
-                                                        {vendor.profile && vendor.profile.tinNumber ? vendor.profile.tinNumber : "---"}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="hidden sm:table-cell text-center">
-                                                    {vendor.profile && vendor.profile.vatNumber ? vendor.profile.vatNumber : "---"}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    ) : (
-                                        <TableRow >
-                                            <TableCell colSpan={5} className="text-center">
-                                                <div className='min-h-[600px] flex justify-center items-center'>
-                                                    {loading ? "Searching..." : "No results found"}
+                                    currentVendors.map((vendor) => (
+                                        <TableRow key={vendor.id}>
+                                            <TableCell>
+                                                <Checkbox
+                                                    checked={selectedVendor ? selectedVendor.id === vendor.id : false}
+                                                    onCheckedChange={() => {
+                                                        if (selectedVendor && selectedVendor.id === vendor.id) {
+                                                            setSelectedVendor(null)
+                                                            return
+                                                        }
+                                                        setSelectedVendor(vendor)
+
+                                                    }}
+                                                />
+                                            </TableCell>
+                                            <TableCell className="table-cell text-center">
+                                                {vendor.profile && vendor.profile.companyName ? vendor.profile.companyName : "---"}
+                                            </TableCell>
+                                            <TableCell className="hidden sm:table-cell text-center">
+                                                {vendor.profile && vendor.profile.name ? vendor.profile.name : "---"}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="font-medium">
+                                                    {vendor.profile && vendor.profile.tinNumber ? vendor.profile.tinNumber : "---"}
                                                 </div>
                                             </TableCell>
+                                            <TableCell className="hidden sm:table-cell text-center">
+                                                {vendor.profile && vendor.profile.vatNumber ? vendor.profile.vatNumber : "---"}
+                                            </TableCell>
                                         </TableRow>
-                                    )}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-                {loadMoreData && <CardFooter>
-                    <div className='w-full flex justify-center'>
+                                    ))
+                                }
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                    {loadMoreData && <CardFooter>
                         <div className='w-full flex justify-center'>
-                            <Button
-                                disabled={fetchingVendors}
-                                variant={"outline"}
-                                className='px-5 py-2'
-                                onClick={() => {
-                                    if (currentCompany)
-                                        fetchVendors({ companyId: currentCompany?.companyId });
-                                }}>
+                            <div className='w-full flex justify-center'>
+                                <Button
+                                    disabled={fetchingVendors}
+                                    variant={"outline"}
+                                    className='px-5 py-2'
+                                    onClick={() => {
+                                        if (currentCompany)
+                                            fetchVendors({ companyId: currentCompany?.companyId });
+                                    }}>
 
-                                {fetchingVendors && <div className='animate-spin '>
-                                    <LoadingSVG className="h-5 w-5 stroke-[1]" />
-                                </div>}
-                                Load More
-                            </Button>
+                                    {fetchingVendors && <div className='animate-spin '>
+                                        <LoadingSVG className="h-5 w-5 stroke-[1]" />
+                                    </div>}
+                                    Load More
+                                </Button>
+                            </div>
                         </div>
-                    </div>
-                </CardFooter>}
-            </Card>
+                    </CardFooter>}
+                </Card>) : <Card className='min-h-[600px] w-full flex justify-center items-center'>
+                    {initialLoading ?
+                        <div className='animate-bounce'>
+                            Searching...
+                        </div> :
+                        "No results found"
+                    }
+                </Card>}
             <DrawerSheetFooter
                 isLoading={false}
                 createSVG={<AddSVG />}

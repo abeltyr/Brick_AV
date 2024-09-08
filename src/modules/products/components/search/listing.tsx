@@ -38,7 +38,7 @@ export const ProductDrawerTable = ({
                 setFinalProducts(products[currentCompany.companyId])
             }
         }
-    }, [products])
+    }, [currentCompany, products])
 
     useEffect(() => {
         if (currentCompany && currentCompany.companyId) {

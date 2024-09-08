@@ -46,9 +46,13 @@ export const createPurchaseAction = async (data: {
   if (!vendor) throw new Error("Vendor is no setup");
 
   if (!ethioDate) throw new Error("date is wrong");
-  let month = ethioDate?.month >= 12 ? ethioDate?.month : 12;
+  let month = ethioDate?.month >= 12 ? 12 : ethioDate?.month;
   let year = ethioDate?.year;
   if (!month || !year) throw new Error("date is not setup right");
+
+  let localGoodSummaryAmount = new Decimal(0);
+  let importedGoodSummaryAmount = new Decimal(0);
+  let serviceSummaryAmount = new Decimal(0);
 
   let localPurchaseCapitalAssets: Decimal = new Decimal(0);
   let vatOnLocalPurchaseCapitalAssets: Decimal = new Decimal(0);
@@ -85,7 +89,7 @@ export const createPurchaseAction = async (data: {
     grossAmount: Decimal;
   }[] = [];
 
-  let totalQuantity: number = 0;
+  let totalQuantity: number = 1;
 
   data.purchaseProducts.map(async (product, index) => {
     const VAT_RATE = new Decimal("0.15"); // 15% VAT rate
@@ -95,6 +99,9 @@ export const createPurchaseAction = async (data: {
     );
     const vat = totalValue.times(VAT_RATE);
 
+    if (product.type === "Service")
+      serviceSummaryAmount = serviceSummaryAmount.plus(totalValue);
+
     let grossAmount = totalValue.plus(vat);
     if (product.purchaseType === "taxableLocalCapitalAssets") {
       localPurchaseCapitalAssets = localPurchaseCapitalAssets.plus(
@@ -103,6 +110,8 @@ export const createPurchaseAction = async (data: {
       vatOnLocalPurchaseCapitalAssets = vatOnLocalPurchaseCapitalAssets.plus(
         new Decimal(vat),
       );
+      if (product.type === "Good")
+        localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
     } else if (product.purchaseType === "taxableImportedCapitalAssets") {
       importedCapitalAssets = importedCapitalAssets.plus(
         new Decimal(totalValue),
@@ -110,25 +119,33 @@ export const createPurchaseAction = async (data: {
       vatOnImportedCapitalAssets = vatOnImportedCapitalAssets.plus(
         new Decimal(vat),
       );
+      if (product.type === "Good")
+        importedGoodSummaryAmount = importedGoodSummaryAmount.plus(totalValue);
     } else if (product.purchaseType === "taxableLocalInputs") {
       localPurchaseInputs = localPurchaseInputs.plus(new Decimal(totalValue));
       vatOnLocalPurchaseInputs = vatOnLocalPurchaseInputs.plus(
         new Decimal(vat),
       );
+      if (product.type === "Good")
+        localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
     } else if (product.purchaseType === "taxableImportedInputs") {
       importedInputs = importedInputs.plus(new Decimal(totalValue));
       vatOnImportedInputs = vatOnImportedInputs.plus(new Decimal(vat));
+      if (product.type === "Good")
+        importedGoodSummaryAmount = importedGoodSummaryAmount.plus(totalValue);
     } else if (product.purchaseType === "taxableGeneralExpenseInputs") {
       generalExpenseInputs = generalExpenseInputs.plus(new Decimal(totalValue));
       vatOnGeneralExpenseInputs = vatOnGeneralExpenseInputs.plus(
         new Decimal(vat),
       );
+      if (product.type === "Good")
+        localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
     } else if (product.purchaseType === "taxExemptedPurchase") {
       purchaseWithNoVat = purchaseWithNoVat.plus(new Decimal(totalValue));
       grossAmount = totalValue;
+      if (product.type === "Good")
+        localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
     }
-
-    totalQuantity = totalQuantity + product.quantity;
 
     // create the sum for each case
     purchaseProducts = [
@@ -182,19 +199,53 @@ export const createPurchaseAction = async (data: {
   let nonTaxableAmount: Decimal = purchaseWithNoVat;
 
   let totalVat: Decimal = vatOnTotalAssets.plus(vatOnTotalInputs);
+
+  const importedWithholdingRate = new Decimal("0.03"); // 3% Withholding rate
+  const localWithholdingRate = new Decimal("0.02"); // 2% Withholding rate
+
+  let importedGoodWithholding = new Decimal(0);
+  let localGoodWithholding = new Decimal(0);
+  let serviceWithholding = new Decimal(0);
+
+  if (localGoodSummaryAmount.greaterThan(10000)) {
+    localGoodWithholding = localGoodSummaryAmount.times(localWithholdingRate);
+  }
+
+  if (importedGoodSummaryAmount.greaterThan(10000)) {
+    importedGoodWithholding = importedGoodSummaryAmount.times(
+      importedWithholdingRate,
+    );
+  }
+
+  if (serviceSummaryAmount.greaterThan(3000)) {
+    serviceWithholding = serviceSummaryAmount.times(localWithholdingRate);
+  }
+
+  const withholding = serviceWithholding
+    .plus(localGoodWithholding)
+    .plus(importedGoodWithholding);
+
   let grossAmount: Decimal = taxableAmount
     .plus(nonTaxableAmount)
-    .plus(totalVat);
+    .plus(totalVat)
+    .minus(withholding);
 
   const beforeVat = taxableAmount.plus(nonTaxableAmount);
 
-  const averagePrice = beforeVat.dividedBy(totalQuantity);
+  let averagePrice = beforeVat;
+  if (data.purchaseProducts.length === 1) {
+    totalQuantity = data.purchaseProducts[0].quantity;
+    averagePrice = new Decimal(data.purchaseProducts[0].unitPrice);
+  }
+
   let vendorTin = null;
   let vendorVat = null;
+  let vendorName = null;
 
   if (vendor.profile) {
     vendorTin = vendor.profile.tinNumber;
     vendorVat = vendor.profile.vatNumber;
+    vendorName = vendor.profile.name;
   }
 
   const purchase = await prisma.purchase.create({
@@ -205,7 +256,7 @@ export const createPurchaseAction = async (data: {
       MRCNumber: data.MRCNumber,
       description: data.description,
       vendorTin,
-
+      vendorName,
       vendorVat,
 
       localPurchaseCapitalAssets,
@@ -223,10 +274,22 @@ export const createPurchaseAction = async (data: {
       purchaseWithNoVat,
       totalNonCapitalInputs,
       vatOnTotalInputs,
+
+      importedGoodSummaryAmount,
+      importedGoodWithholding,
+
+      localGoodSummaryAmount,
+      localGoodWithholding,
+
+      serviceSummaryAmount,
+      serviceWithholding,
+
       taxableAmount,
       nonTaxableAmount,
       totalVat,
+      withholding,
       grossAmount,
+
       year,
       month,
       totalQuantity: totalQuantity,
@@ -355,6 +418,28 @@ export const createPurchaseAction = async (data: {
         taxableAmount: sumTaxableAmount,
         nonTaxableAmount: sumNonTaxableAmount,
         totalVat: sumTotalVat,
+
+        importedGoodSummaryAmount: {
+          increment: importedGoodSummaryAmount,
+        },
+        importedGoodWithholding: {
+          increment: importedGoodWithholding,
+        },
+        serviceSummaryAmount: {
+          increment: serviceSummaryAmount,
+        },
+        serviceWithholding: {
+          increment: serviceWithholding,
+        },
+        localGoodSummaryAmount: {
+          increment: localGoodSummaryAmount,
+        },
+        localGoodWithholding: {
+          increment: localGoodWithholding,
+        },
+        withholding: {
+          increment: withholding,
+        },
         grossAmount: sumGrossAmount,
         month: month,
         year: year,
@@ -388,8 +473,20 @@ export const createPurchaseAction = async (data: {
         vatOnTotalInputs,
         taxableAmount,
         nonTaxableAmount,
+
+        importedGoodSummaryAmount,
+        importedGoodWithholding,
+
+        localGoodSummaryAmount,
+        localGoodWithholding,
+
+        serviceSummaryAmount,
+        serviceWithholding,
+
+        withholding,
         totalVat,
         grossAmount,
+
         month: month,
         year: year,
         count: 1,

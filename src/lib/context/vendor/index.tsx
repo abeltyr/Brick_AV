@@ -108,7 +108,7 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
 
         try {
             const vendorsData = { ...vendors }
-
+            console.log("companyId", companyId)
             const newVendor = await createVenderAction({
                 companyId,
                 address: {
@@ -132,6 +132,7 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
             return newVendor;
         }
         catch (e) {
+            console.log(e)
             throw new Error("Error Creating the vendor")
         }
 
