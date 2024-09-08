@@ -39,7 +39,6 @@ export const DrawerAddProductSection = ({
             type: "Service",
             unit: "LIT",
             "unitPrice": 4200,
-            "productCode": "EX0001"
         },
     })
 

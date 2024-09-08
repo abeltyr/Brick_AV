@@ -1,5 +1,4 @@
 import React from 'react'
-import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { LanguageTranslator } from '@/modules/language/components'
 import { Button } from '@/modules/ui/button'
 import LoadingSVG from '@/assets/icons/loading'
@@ -36,8 +35,8 @@ export const DrawerSheetFooter = ({
             <Button
                 disabled={isLoading || disabled}
                 className='flex gap-2 p-x4 py-2'
-                onClick={() => {
-                    if (createFunction) createFunction();
+                onClick={(e) => {
+                    if (createFunction) createFunction(e);
                 }}
             >
                 {isLoading ? (

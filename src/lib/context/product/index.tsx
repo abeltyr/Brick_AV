@@ -6,16 +6,17 @@ import { filter, Filter, loadLimit } from '@/types/shared';
 import { ProductType } from '@/types/product';
 import React, { useCallback, useContext, useState } from "react";
 import { ProductUnit, PurchaseType, ProductType as ProductInputType } from '@prisma/client';
-import Decimal from 'decimal.js';
+import { DateRangeType, RangeType } from '@/types/common';
+import { secondsInADay } from '@/lib/utils/calendar/date';
+
 
 const initialValues: {
     products: { [id: string]: ProductType[] };
     loadMoreData: boolean;
-    setupProductsData: ({ dataProducts, companyId }: { dataProducts: ProductType[], companyId: string }) => void;
-    fetchProducts: ({ companyId }: { companyId: string }) => void;
-    getProduct: ({ companyId }: { companyId: string }) => void;
     fetchingProducts: boolean;
+    priceRange: RangeType;
     initialLoading: boolean;
+    dateRange: DateRangeType;
     createProduct: ({ }: {
         name: string;
         description?: string;
@@ -25,14 +26,20 @@ const initialValues: {
         type: ProductInputType,
         companyId: string;
     }) => Promise<ProductType | null>;
+    fetchProducts: ({ companyId }: { companyId: string }) => void;
+    getProduct: ({ companyId }: { companyId: string }) => void;
+    setPriceRange: (value: RangeType) => void
+    setDateRange: (value: DateRangeType) => void
 } = {
     products: {},
     loadMoreData: true,
-    setupProductsData: ({ }: { dataProducts: ProductType[], companyId: string }) => { },
-    fetchProducts: ({ }: { companyId: string }) => { },
-    getProduct: ({ }: { companyId: string }) => { },
     fetchingProducts: true,
     initialLoading: true,
+    priceRange: {},
+    dateRange: {
+        startDate: new Date(new Date().getTime() - secondsInADay * 1000),
+        endDate: new Date(),
+    },
     createProduct: async ({ }: {
         name: string;
         description?: string;
@@ -42,6 +49,10 @@ const initialValues: {
         type: ProductInputType,
         companyId: string;
     }): Promise<ProductType | null> => { return null },
+    fetchProducts: ({ }: { companyId: string }) => { },
+    getProduct: ({ }: { companyId: string }) => { },
+    setPriceRange: (value: RangeType) => { },
+    setDateRange: (value: DateRangeType) => { }
 };
 
 type Props = {
@@ -57,19 +68,12 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
     const [loadMoreData, setLoadMoreData] = useState<boolean>(true);
     const [fetchingProducts, setFetchingProducts] = useState<boolean>(false);
     const [initialLoading, setInitialLoading] = useState<boolean>(true);
+    const [priceRange, setPriceRange] = useState<RangeType>({});
 
-    const setupProductsData = ({ dataProducts, companyId }: { dataProducts: ProductType[], companyId: string }) => {
-        const productsData = { ...products };
-        productsData[companyId] = dataProducts;
-        setProducts(productsData);
-
-        if (dataProducts.length < loadLimit) {
-            setLoadMoreData(false);
-        } else {
-            setLoadMoreData(true);
-        }
-        setFetchingProducts(false);
-    };
+    const [dateRange, setDateRange] = useState<DateRangeType>({
+        startDate: new Date(new Date().getTime() - secondsInADay * 1000),
+        endDate: new Date(),
+    });
 
     const createProduct = async ({ name, description, unit, type, unitPrice, purchaseType, companyId }: {
         name: string;
@@ -105,7 +109,11 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
             try {
                 const newProducts = await fetchProductsByCompanyIdAction({
                     companyId,
-                    filter,
+                    filter: {
+                        ...filter,
+                        price: priceRange,
+                        dateRange
+                    },
                 });
                 const productsData = { ...products };
                 productsData[companyId] = [...newProducts];
@@ -120,7 +128,7 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
             }
             setInitialLoading(false);
         },
-        [products],
+        [dateRange, priceRange, products],
     );
 
     const fetchProducts = useCallback(
@@ -138,7 +146,11 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
                     const productsData = { ...products };
                     const newProducts = await fetchProductsByCompanyIdAction({
                         companyId,
-                        filter,
+                        filter: {
+                            ...filter,
+                            price: priceRange,
+                            dateRange
+                        },
                     });
 
                     if (productsData[companyId]) {
@@ -158,7 +170,7 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
                 setFetchingProducts(false);
             }
         },
-        [products, fetchingProducts],
+        [fetchingProducts, products, priceRange],
     );
 
     return (
@@ -167,11 +179,14 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
                 products,
                 initialLoading,
                 loadMoreData,
-                setupProductsData,
                 fetchingProducts,
                 fetchProducts,
                 createProduct,
                 getProduct,
+                priceRange,
+                setPriceRange,
+                dateRange,
+                setDateRange
             }}
         >
             {children}

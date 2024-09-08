@@ -1,7 +1,7 @@
 import FileCSV from '@/assets/icons/file';
 import { useAuth } from '@/lib/context/auth/user';
 import { useExportPurchase } from '@/lib/context/purchaseExport';
-import { CalendarDateRangePicker } from '@/modules/common/components/dateRange';
+import { CalendarDateRangePicker } from '@/modules/common/components/dateSelector';
 import { LanguageTranslator } from '@/modules/language/components';
 import { Button } from '@/modules/ui/button';
 import { ArrowUpLeftIcon, ArrowUpRightIcon, CirclePlus, File } from 'lucide-react';

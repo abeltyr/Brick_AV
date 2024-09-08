@@ -11,6 +11,8 @@ import { ProductInputType, PurchaseInputType } from '@/types/product'
 import { toEthiopian, } from '@/lib/utils/calendar';
 import { fetchPurchaseReportAction } from '@/lib/data/purchaseReport/fetchByCompanyId';
 import { boolean } from 'zod';
+import { DateRangeType } from '@/types/common';
+import { secondsInADay } from '@/lib/utils/calendar/date';
 
 const initialValues: {
     purchases: { [id: string]: PurchaseType[] };
@@ -105,6 +107,8 @@ const initialValues: {
     fetchingPurchaseReport: true
 };
 
+
+
 type Props = {
     children?: React.ReactNode;
 };
@@ -128,7 +132,10 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
     const [year, setYear] = useState<number>(ethiopiaYear ? ethiopiaYear.year : 2016);
     const [month, setMonth] = useState<number>(ethiopiaYear ? ethiopiaYear.month : 12);
 
-
+    const [dateRange, setDateRange] = useState<DateRangeType>({
+        startDate: new Date(new Date().getTime() - secondsInADay * 1000),
+        endDate: new Date(),
+    });
 
     const [purchasesReport, setPurchasesReport] = useState<{ [id: string]: PurchaseReportType[] }>({});
     const [fetchingPurchaseReport, setFetchingPurchaseReport] = useState<boolean>(false);

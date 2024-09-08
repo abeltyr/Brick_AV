@@ -11,7 +11,6 @@ import { useToast } from '@/modules/ui/use-toast'
 import { useState } from 'react'
 import { useAuth } from '@/lib/context/auth/user'
 import { useProducts } from '@/lib/context/product'
-import Decimal from 'decimal.js'
 import ProductTypeForm from '../components/add/productTypeForm'
 import ProductDetailForm from '../components/add/productDetailForm'
 import { productFormSchema } from '@/lib/form/product'
@@ -19,11 +18,7 @@ import { useDrawerManager } from '@/lib/context/drawer/drawer'
 import { DrawerSheetHeader } from '@/modules/common/components/drawer/header'
 import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
 
-
-
-
 export const AddProductSection = () => {
-
     const { setAddProductDrawer } = useDrawerManager();
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
@@ -37,7 +32,8 @@ export const AddProductSection = () => {
             purchaseType: "taxableLocalCapitalAssets",
             type: "Service",
             unit: "LIT",
-            "unitPrice": "4200",
+            "unitPrice": 4200
+
         },
     })
 
@@ -51,12 +47,12 @@ export const AddProductSection = () => {
                         name: values.name,
                         description: values.description,
                         unit: values.unit,
-                        unitPrice: new Decimal(values.unitPrice),
+                        unitPrice: values.unitPrice,
                         purchaseType: values.purchaseType,
                         type: values.type,
                         companyId: currentCompany.companyId
                     })
-
+                    console.log("product", product)
                     setAddProductDrawer(false);
                     toast({
                         title: "Product Created",
@@ -88,6 +84,7 @@ export const AddProductSection = () => {
             <div className='h-20' />
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full">
+
                     <div className='flex flex-col p-4 pb-20 flex-1 relative w-full h-full  gap-6'>
                         <ProductDetailForm form={form} />
                         <ProductTypeForm form={form} />
@@ -95,6 +92,12 @@ export const AddProductSection = () => {
                     <DrawerSheetFooter
                         isLoading={isLoading}
                         createSVG={<AddSVG />}
+                        closeFunction={
+                            (event: React.MouseEvent) => {
+                                event.preventDefault();
+                                setAddProductDrawer(false)
+                            }
+                        }
                     />
                 </form>
             </Form>

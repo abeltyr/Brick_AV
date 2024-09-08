@@ -16,11 +16,11 @@ import { Trash2 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/modules/ui/avatar'
 import { Label } from '@/modules/ui/label'
 import { Input } from '@/modules/ui/input'
-import { Separator } from '@/modules/ui/separator'
 import { useDrawerManager } from '@/lib/context/drawer/drawer'
 import { purchaseFormSchema } from '@/lib/form/purchase'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
+import { Separator } from '@/modules/ui/separator'
 
 
 export default function PurchaseVendorForm({ form }: { form: UseFormReturn<z.infer<typeof purchaseFormSchema>> }) {
@@ -37,7 +37,7 @@ export default function PurchaseVendorForm({ form }: { form: UseFormReturn<z.inf
                 >
                     <SheetTrigger asChild>
                         <Card className={`${form.formState.errors.vendorId ? "border-red-400" : ""} bg-transparent  border-dashed border-[1px] pt-6 cursor-pointer`}>
-                            <CardContent className='pb-0'>
+                            <CardContent className={`${form.formState.errors.vendorId ? "pb-5" : "pb-5"}`}>
                                 <div className='w-full flex justify-between items-center gap-2'>
                                     <div className='flex flex-col gap-2'>
                                         <CardTitle>
@@ -51,18 +51,21 @@ export default function PurchaseVendorForm({ form }: { form: UseFormReturn<z.inf
                                             </LanguageTranslator>
                                         </CardDescription>
                                     </div>
-
                                     <div className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2">
                                         Select
                                     </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className='my-0 py-0 pb-2'>
-                                {form.formState.errors.vendorId && <p className='text-red-600 mt-4 text-left'>
-                                    You need to selector create on vendor
-                                </p>
-                                }
-                            </CardFooter>
+                            {form.formState.errors.vendorId &&
+                                <>
+                                    <Separator className='p-0 m-0' />
+                                    <CardFooter className='my-0 py-0 pb-3'>
+                                        <p className='text-red-600 mt-4 text-left'>
+                                            You need to selector create on vendor
+                                        </p>
+                                    </CardFooter>
+                                </>
+                            }
                         </Card>
 
                     </SheetTrigger>
