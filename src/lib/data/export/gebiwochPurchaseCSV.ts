@@ -1,13 +1,11 @@
 "use server";
 
-import { getPrisma } from "@/lib/utils/database";
-import { PurchaseType } from "@prisma/client";
-import { fetchAllPurchases } from "./fetchAllPurchases";
+import { fetchAllPurchases } from "../purchase/fetchAllPurchases";
 import Decimal from "decimal.js";
 import { purchaseTypeConvertor } from "@/lib/form/product/data";
 import { stringify } from "csv-stringify/sync";
 
-type gebiwochReport = {
+type gebiwochPurchaseReport = {
   productType: string;
   calendar: string;
   purchaseType: number;
@@ -25,7 +23,7 @@ type gebiwochReport = {
   grossAmount: string;
 };
 
-export const exportGebiwochPurchaseCSV = async ({
+export const GebiwochPurchaseCSV = async ({
   month,
   year,
   companyId,
@@ -39,98 +37,10 @@ export const exportGebiwochPurchaseCSV = async ({
       companyId,
       year,
       month,
+      filter: {
+        hasVat: true,
+      },
     });
-
-    const customHeaders = [
-      {
-        label: `VAT CATEGORY
- (G=GOODS;S=SERVICES)`,
-        value: "productType",
-      }, // Custom title and changed order
-      {
-        label: `CALENDAR TYPE
-(E=ETHIOPIAN;G=GREGORIAN)`,
-        value: "calendar",
-      }, // Custom title and changed order
-      {
-        label: `Types of purchase.
-1 = Taxable-local Purchase of Capital Assets (Line No. 65)
-2 = Taxable-imported Purchase of Capital Assets (Line No. 75)
-3 = Taxable-local Purchase of Inputs (Line No. 100)
-4 = Taxable-imported Purchase of Inputs (Line No. 110)
-5 = Taxable-general Expense Inputs Purchase (Line No. 120)
-6= Tax Exempted-purchase with no vat or uncollectible inputs (Line no. 85 or Line no. 130) 
-
- (Please type 1 or 2 or 3 or 4 or 5 or 6).This field is mandatory.`,
-        value: "purchaseType",
-      }, // Custom title and changed order
-      {
-        label: `TIN..This field
- is not mandatory.`,
-        value: "vendorTin",
-      },
-      {
-        label: `Seller name (if Seller has no TIN or item is not locally purchased)
-This field is not mandatory.`,
-        value: "sellerName",
-      },
-      {
-        label: `Date of purchase/Customs Declaration No.
- Dispatched Date (Please use  dd/mm/yyyy date format). 
-This field is mandatory.`,
-        value: "date",
-      },
-      {
-        label: `MRC Number..This field is mandatory.`,
-        value: "MRCNumber",
-      },
-      {
-        label: `Vat receipt number/ Customs Declaration Number.This field is mandatory.`,
-        value: "VatReceiptNumber",
-      },
-      {
-        label: `Description.This field is mandatory.`,
-        value: "description",
-      },
-      {
-        label: `Unit of Measure (type ID 2-10).
-2 KG
-3 ML
-4 GM
-5 LIT
-6 MT
-7 PCS
-8 CT
-9 OTHER
-10 PC
-This field is mandatory.`,
-        value: "unit",
-      },
-      {
-        label: `Quantity.
-        Enter number.Don't use comma (,) or Quatation ("")
-        This field is  mandatory.`,
-        value: "totalQuantity",
-      },
-      {
-        label: `Unit Price.
-Enter number only .Don't use comma (,) or Quatation ("")
-This field is  mandatory.`,
-        value: "averagePrice",
-      },
-      {
-        label: `Total value`,
-        value: "totalValue",
-      },
-      {
-        label: `totalVat`,
-        value: "totalVat",
-      },
-      {
-        label: `value after vat`,
-        value: "grossAmount",
-      },
-    ];
 
     const columnTitles: { [key: string]: string } = {
       productType: `VAT CATEGORY
@@ -178,7 +88,7 @@ This field is  mandatory.`,
       grossAmount: `value after vat`,
     };
 
-    let arrayData: gebiwochReport[] = [];
+    let arrayData: gebiwochPurchaseReport[] = [];
 
     for (const purchase of purchases) {
       arrayData = [
@@ -215,8 +125,7 @@ This field is  mandatory.`,
 
     return {
       success: true,
-      data: `${csvData}${csv}
-      `,
+      data: `${csvData}${csv}`,
     };
   } catch (error) {
     console.error("Error generating CSV:", error);

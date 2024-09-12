@@ -74,7 +74,7 @@ export const fetchProductsByCompanyIdAction = async ({
         };
       }
 
-      if (filter.price.min) {
+      if (filter.price.max) {
         let valueDate: Prisma.ProductPriceWhereInput[] = [];
         if (
           where.Inventory &&
@@ -92,7 +92,7 @@ export const fetchProductsByCompanyIdAction = async ({
                   ...valueDate,
                   {
                     unitPrice: {
-                      lte: new Decimal(filter.price.min),
+                      lte: new Decimal(filter.price.max),
                     },
                   },
                 ],

@@ -219,20 +219,19 @@ enum ProductPurchaseType {
 }
 
 model Product {
-  id              String              @id @default(uuid())
-  companyId       String
-  company         Company             @relation(fields: [companyId], references: [id])
-  name            String
-  productCode     String
-  description     String?             @db.Text()
-  type            ProductCategoryType @default(Good)
-  purchaseType    ProductPurchaseType
-  active          Boolean             @default(true)
-  purchase        Boolean             @default(true)
-  createdAt       DateTime            @default(now())
-  deletedAt       DateTime?
-  Inventory       Inventory?
-  PurchaseProduct PurchaseProduct[]
+  id           String              @id @default(uuid())
+  companyId    String
+  company      Company             @relation(fields: [companyId], references: [id])
+  name         String
+  productCode  String
+  description  String?             @db.Text()
+  type         ProductCategoryType @default(Good)
+  purchaseType ProductPurchaseType
+  active       Boolean             @default(true)
+  purchase     Boolean             @default(true)
+  createdAt    DateTime            @default(now())
+  deletedAt    DateTime?
+  Inventory    Inventory?
 
   @@unique([companyId, productCode])
   @@index([companyId], type: Hash)
@@ -240,13 +239,14 @@ model Product {
 }
 
 model Inventory {
-  id           String         @id @default(uuid())
-  productId    String         @unique
-  product      Product        @relation(fields: [productId], references: [id])
-  quantity     Int            @default(0)
-  lastUpdated  DateTime       @default(now()) @updatedAt
-  ProductPrice ProductPrice[]
-  BOM          BOM[]
+  id              String            @id @default(uuid())
+  productId       String            @unique
+  product         Product           @relation(fields: [productId], references: [id])
+  quantity        Int               @default(0)
+  lastUpdated     DateTime          @default(now()) @updatedAt
+  ProductPrice    ProductPrice[]
+  BOM             BOM[]
+  PurchaseProduct PurchaseProduct[]
 
   @@index([productId, quantity])
 }
@@ -354,12 +354,12 @@ model Purchase {
   localGoodSummaryAmount Decimal @default(0)
   localGoodWithholding   Decimal @default(0)
 
-  serviceSummaryAmount   Decimal @default(0)
-  serviceWithholdingRate Int     @default(2)
-  serviceWithholding     Decimal @default(0)
+  serviceSummaryAmount Decimal @default(0)
+  serviceWithholding   Decimal @default(0)
 
   taxableAmount    Decimal
   nonTaxableAmount Decimal
+  totalBeforeVat   Decimal
 
   totalVat    Decimal
   withholding Decimal
@@ -385,30 +385,33 @@ model Purchase {
   // paymentDetailId String?        @unique
   // paymentDetail   PaymentDetail? @relation(fields: [paymentDetailId], references: [id])
 
-  @@index([month, year, companyId])
-  @@index([month, year, vendorId])
+  @@index([date, companyId])
+  @@index([vendorId], type: Hash)
   @@index([purchaseReportId], type: Hash)
+  @@index([grossAmount])
+  @@index([hasVat, hasWithholding])
 }
 
 model PurchaseProduct {
   id           String              @id @default(uuid())
   purchaseId   String
   purchase     Purchase            @relation(fields: [purchaseId], references: [id])
-  productId    String
-  product      Product             @relation(fields: [productId], references: [id])
+  inventoryId  String
+  inventory    Inventory           @relation(fields: [inventoryId], references: [id])
   type         ProductCategoryType
   purchaseType ProductPurchaseType
   unit         ProductUnitType
   unitPrice    Decimal
   quantity     Int
-  totalValue   Decimal
-  vat          Decimal
-  grossAmount  Decimal
+  totalValue   Decimal             @default(0)
+  vat          Decimal             @default(0)
+  withholding  Decimal             @default(0)
+  grossAmount  Decimal             @default(0)
   order        Int                 @default(0)
   //TODO: add to the chart of account link here
 
   @@index([purchaseId], type: Hash)
-  @@index([productId], type: Hash)
+  @@index([inventoryId], type: Hash)
 }
 
 model PurchaseReport {

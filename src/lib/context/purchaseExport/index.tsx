@@ -1,6 +1,6 @@
 'use client'
 
-import { exportGebiwochPurchaseCSV } from '@/lib/data/purchase/export';
+import { GebiwochPurchaseCSV } from '@/lib/data/export/gebiwochReport';
 import React, { useState } from 'react';
 import { useContext } from 'react';
 import { BaseDirectory, writeTextFile } from '@tauri-apps/plugin-fs';
@@ -35,7 +35,7 @@ const ExportPurchaseProvider: React.FC<Props> = ({ children }) => {
     const fetchPurchaseCSV = async ({ year, month, companyId }: { year: number, month: number, companyId: string }) => {
 
         setLoading(true)
-        const result = await exportGebiwochPurchaseCSV({
+        const result = await GebiwochPurchaseCSV({
             companyId,
             month,
             year
