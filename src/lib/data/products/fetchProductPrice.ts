@@ -4,11 +4,11 @@ import { getPrisma } from "@/lib/utils/database";
 import { ProductPrice } from "@prisma/client";
 const prisma = getPrisma();
 
-export const findProductsByProductIdAction = async (
-  productId: string,
+export const findProductPriceAction = async (
+  inventoryId: string,
 ): Promise<ProductPrice[]> => {
   return await prisma.productPrice.findMany({
-    where: { productId },
+    where: { inventoryId },
     orderBy: {
       createdAt: "desc",
     },

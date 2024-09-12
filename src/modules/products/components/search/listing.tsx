@@ -10,7 +10,7 @@ import { Card, CardContent, CardFooter } from '@/modules/ui/card'
 import { Checkbox } from '@/modules/ui/checkbox'
 import { Input } from '@/modules/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/modules/ui/table'
-import { ProductType, purchaseInputType, purchaseTypeConvertor } from '@/types/product'
+import { ProductType, purchaseInputType, purchaseTypeConvertor } from '@/lib/form/product/data'
 import { CirclePlus } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 

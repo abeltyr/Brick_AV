@@ -4,6 +4,7 @@ import { getPrisma } from "@/lib/utils/database";
 import { limitSetter } from "@/lib/utils/limiter";
 import { Filter } from "@/types/shared";
 import { Prisma, Vendor } from "@prisma/client";
+import { vendorIncludeData } from "./common/include";
 const prisma = getPrisma();
 
 export const fetchVendorsByCompanyIdAction = async ({
@@ -34,28 +35,38 @@ export const fetchVendorsByCompanyIdAction = async ({
 
   if (keyTerm) {
     where = {
-      profile: {
-        OR: [
-          {
-            name: {
-              contains: keyTerm,
-              mode: "insensitive",
-            },
+      OR: [
+        {
+          name: {
+            contains: keyTerm,
+            mode: "insensitive",
           },
-          {
-            companyLegalName: {
-              contains: keyTerm,
-              mode: "insensitive",
-            },
+        },
+        {
+          business: {
+            OR: [
+              {
+                managerName: {
+                  contains: keyTerm,
+                  mode: "insensitive",
+                },
+              },
+              {
+                tinNumber: {
+                  contains: keyTerm,
+                  mode: "insensitive",
+                },
+              },
+              {
+                businessName: {
+                  contains: keyTerm,
+                  mode: "insensitive",
+                },
+              },
+            ],
           },
-          {
-            companyLegalName: {
-              contains: keyTerm,
-              mode: "insensitive",
-            },
-          },
-        ],
-      },
+        },
+      ],
     };
   }
 
@@ -67,12 +78,6 @@ export const fetchVendorsByCompanyIdAction = async ({
       createdAt: orderBy,
     },
     skip,
-    include: {
-      profile: {
-        include: {
-          address: true,
-        },
-      },
-    },
+    include: vendorIncludeData,
   });
 };

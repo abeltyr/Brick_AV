@@ -4,7 +4,7 @@ import { getPrisma } from "@/lib/utils/database";
 import { PurchaseType } from "@prisma/client";
 import { fetchAllPurchases } from "./fetchAllPurchases";
 import Decimal from "decimal.js";
-import { purchaseTypeConvertor } from "@/types/product";
+import { purchaseTypeConvertor } from "@/lib/form/product/data";
 import { stringify } from "csv-stringify/sync";
 
 type gebiwochReport = {

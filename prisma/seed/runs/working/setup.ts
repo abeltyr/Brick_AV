@@ -3,27 +3,24 @@ import { PrismaClient } from "@prisma/client";
 export const runSetupSeed = async (prisma: PrismaClient) => {
   const company = await prisma.company.create({
     data: {
-      legalName: "eurka",
       name: "Eurka",
-      structure: "Plc",
-      tin: "123456789",
+      email: "",
+      phoneNumber: "",
     },
   });
   const texlyCompany = await prisma.company.create({
     data: {
-      legalName: "texly",
       name: "texly",
-      structure: "Plc",
-      tin: "1234567891",
+      email: "",
+      phoneNumber: "",
     },
   });
 
   const nivorCompany = await prisma.company.create({
     data: {
-      legalName: "nivor",
       name: "nivor",
-      structure: "Plc",
-      tin: "1a234567891",
+      email: "",
+      phoneNumber: "",
     },
   });
   const user = await prisma.profile.create({

@@ -23,7 +23,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/modules/ui/table"
-import { ProductType } from '@/types/product'
+import { ProductType } from '@/lib/form/product/data'
 
 
 

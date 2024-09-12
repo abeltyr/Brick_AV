@@ -22,7 +22,7 @@ import {
 } from "@/modules/ui/select"
 import { Sheet, SheetContent, SheetTrigger } from '@/modules/ui/sheet'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/modules/ui/table'
-import { productInputType, productInputUnit, ProductType, purchaseInputType, purchaseTypeConvertor } from '@/types/product'
+import { productInputType, productInputUnit, ProductType, purchaseInputType, purchaseTypeConvertor } from '@/lib/form/product/data'
 import Decimal from 'decimal.js'
 import { PlusCircle, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'

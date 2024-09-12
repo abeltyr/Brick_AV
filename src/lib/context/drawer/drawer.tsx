@@ -6,7 +6,7 @@ import { createClient } from '@/lib/utils/supabase/client';
 import { signInWithPasswordAction } from '@/lib/data/account/signIn';
 import { getUserAction, refreshAccountToken } from '@/lib/data/account/fetch';
 import { logoutAction } from '@/lib/data/account/logout';
-import { getMemberCompanyAction } from '@/lib/data/companyMember/fetchMemberCompany';
+import { fetchMemberCompanyAction } from '@/lib/data/companyMember/fetchbyId';
 import { CompanyMemberType } from '@/types/company';
 
 

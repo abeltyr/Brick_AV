@@ -43,30 +43,27 @@ var runSetupSeed = function (prisma) { return __awaiter(void 0, void 0, void 0, 
         switch (_a.label) {
             case 0: return [4 /*yield*/, prisma.company.create({
                     data: {
-                        legalName: "eurka",
                         name: "Eurka",
-                        structure: "Plc",
-                        tin: "123456789",
+                        email: "",
+                        phoneNumber: "",
                     },
                 })];
             case 1:
                 company = _a.sent();
                 return [4 /*yield*/, prisma.company.create({
                         data: {
-                            legalName: "texly",
                             name: "texly",
-                            structure: "Plc",
-                            tin: "1234567891",
+                            email: "",
+                            phoneNumber: "",
                         },
                     })];
             case 2:
                 texlyCompany = _a.sent();
                 return [4 /*yield*/, prisma.company.create({
                         data: {
-                            legalName: "nivor",
                             name: "nivor",
-                            structure: "Plc",
-                            tin: "1a234567891",
+                            email: "",
+                            phoneNumber: "",
                         },
                     })];
             case 3:

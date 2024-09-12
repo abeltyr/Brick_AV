@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { ProductDrawerTable } from './listing'
 import { DrawerAddProductSection } from './add'
-import { ProductType } from '@/types/product'
+import { ProductType } from '@/lib/form/product/data'
 
 
 export const ProductListing = ({ updateProduct }: { updateProduct: (product: ProductType[]) => void }) => {

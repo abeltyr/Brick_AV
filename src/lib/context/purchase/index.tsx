@@ -7,7 +7,7 @@ import { PurchaseReportType, PurchaseType } from '@/types/purchase';
 import React, { useCallback, useContext, useState } from "react";
 import Decimal from 'decimal.js';
 import { ProductUnit } from '@prisma/client';
-import { ProductInputType, PurchaseInputType } from '@/types/product'
+import { ProductInputType, PurchaseInputType } from '@/lib/form/product/data'
 import { toEthiopian, } from '@/lib/utils/calendar';
 import { fetchPurchaseReportAction } from '@/lib/data/purchaseReport/fetchByCompanyId';
 import { boolean } from 'zod';

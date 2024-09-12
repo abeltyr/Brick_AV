@@ -1,4 +1,4 @@
-import { zProductInputType, zProductInputUnit, zPurchaseInputType } from '@/types/product';
+import { zProductInputType, zProductInputUnit, zPurchaseInputType } from '@/lib/form/product/data';
 import { z } from 'zod';
 
 export const purchaseProducts = z.object({

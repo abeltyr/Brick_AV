@@ -1,104 +1,70 @@
-import { Inventory, Product, ProductPrice, PurchaseType } from "@prisma/client";
-import { z } from "zod";
+import {
+  BOM,
+  Inventory,
+  Product,
+  ProductCategoryType,
+  ProductPrice,
+  ProductPurchaseType,
+  ProductUnitType,
+} from "@prisma/client";
 
 export type ProductType = Product & {
-  ProductPrice?: ProductPrice;
-  Inventory?: Inventory;
+  Inventory?: InventoryType;
 };
 
-export const productInputType = ["Good", "Service"];
-
-export const productInputUnit = [
-  "KG",
-  "ML",
-  "GM",
-  "LIT",
-  "MT",
-  "PCS",
-  "CT",
-  "OTHER",
-  "PC",
-];
-
-export const purchaseTypeConvertor = (inputData: PurchaseType) => {
-  let returnValue = 1;
-  switch (inputData) {
-    case "taxableLocalCapitalAssets":
-      returnValue = 1;
-      return 1;
-    case "taxableImportedCapitalAssets":
-      returnValue = 2;
-      return 2;
-    case "taxableLocalInputs":
-      returnValue = 3;
-      return 3;
-    case "taxableImportedInputs":
-      returnValue = 4;
-      return 4;
-    case "taxableGeneralExpenseInputs":
-      returnValue = 5;
-      return 5;
-    case "taxExemptedPurchase":
-      returnValue = 6;
-      return 6;
-  }
+export type InventoryType = Inventory & {
+  ProductPrice?: ProductPriceType[];
+  BOM?: BOMType[];
 };
 
-export const purchaseInputType = [
-  {
-    value: "taxableLocalCapitalAssets",
-    data: "Taxable Local Capital Assets",
-  },
-  {
-    value: "taxableImportedCapitalAssets",
-    data: "Taxable Imported Capital Assets",
-  },
-  {
-    value: "taxableLocalInputs",
-    data: "Taxable Local Inputs",
-  },
-  {
-    value: "taxableImportedInputs",
-    data: "Taxable Imported Inputs",
-  },
-  {
-    value: "taxableGeneralExpenseInputs",
-    data: "Taxable General Expense Inputs",
-  },
-  {
-    value: "taxExemptedPurchase",
-    data: "Tax Exempted Purchase",
-  },
-];
+export type ProductPriceType = ProductPrice & {
+  inventory?: Inventory;
+};
 
-export const zProductInputType = z.enum(["Good", "Service"]);
-export const zProductInputUnit = z.enum([
-  "KG",
-  "ML",
-  "GM",
-  "LIT",
-  "MT",
-  "PCS",
-  "CT",
-  "OTHER",
-  "PC",
-]);
+export type BOMType = BOM & {
+  initialInventory?: Inventory;
+};
 
-export const zPurchaseInputType = z.enum([
-  "taxableLocalCapitalAssets",
-  "taxableImportedCapitalAssets",
-  "taxableLocalInputs",
-  "taxableImportedInputs",
-  "taxableGeneralExpenseInputs",
-  "taxExemptedPurchase",
-]);
+export type ProductInputType = {
+  companyId: string;
+  name: string;
+  description?: string;
+  type?: ProductCategoryType;
+  purchaseType: ProductPurchaseType;
+  active?: boolean;
+  purchase?: boolean;
+  unitPrice: number;
+  unit: ProductUnitType;
+};
 
-export type PurchaseInputType =
-  | "taxableLocalCapitalAssets"
-  | "taxableImportedCapitalAssets"
-  | "taxableLocalInputs"
-  | "taxableImportedInputs"
-  | "taxableGeneralExpenseInputs"
-  | "taxExemptedPurchase";
+export type updateProductInputType = {
+  name: string;
+  description?: string;
+  type?: ProductCategoryType;
+  purchaseType: ProductPurchaseType;
+  active?: boolean;
+  purchase?: boolean;
+};
 
-export type ProductInputType = "Good" | "Service";
+export type updateProductInventoryPriceInputType = {
+  purchase?: boolean;
+  unitPrice: number;
+  unit: ProductUnitType;
+};
+
+export type InventoryInputType = {
+  productId: string;
+  quantity?: number;
+};
+
+export type ProductPriceInputType = {
+  inventoryId: string;
+  unit: ProductUnitType;
+  unitPrice: number;
+};
+
+export type BOMInputType = {
+  finishedProductInventoryId: string;
+  initialInventoryId: string;
+  quantityRequired: number;
+};

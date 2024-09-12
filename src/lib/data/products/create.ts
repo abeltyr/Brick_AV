@@ -1,33 +1,18 @@
 "use server";
 
 import { getPrisma } from "@/lib/utils/database";
-import {
-  Product,
-  ProductType,
-  ProductUnit,
-  PurchaseType,
-} from "@prisma/client";
-import Decimal from "decimal.js";
+import { generate8CharUUID } from "@/lib/utils/idGenerator";
+import { ProductInputType, ProductType } from "@/types/product";
+import { includeData } from "./common/include";
+
 const prisma = getPrisma();
-import { v4 } from "uuid";
 
-function generate8CharUUID() {
-  return v4().replace(/-/g, "").slice(0, 8); // Remove dashes and take the first 8 characters
-}
-
-export const createProductAction = async (data: {
-  companyId: string;
-  name: string;
-  description?: string;
-  type?: ProductType;
-  purchaseType: PurchaseType;
-  active?: boolean;
-  purchase?: boolean;
-  unitPrice: number;
-  unit: ProductUnit;
-}): Promise<Product> => {
+export const createProductAction = async (
+  data: ProductInputType,
+): Promise<ProductType> => {
   const productCode = generate8CharUUID();
-  return await prisma.product.create({
+
+  const product = await prisma.product.create({
     data: {
       name: data.name,
       description: data.description,
@@ -37,26 +22,21 @@ export const createProductAction = async (data: {
       purchase: data.purchase,
       companyId: data.companyId,
       productCode: `${data.name.slice(0, 2).toUpperCase()}-${productCode}`,
-      ProductPrice: {
-        create: {
-          unit: data.unit,
-          unitPrice: data.unitPrice,
-          active: true,
-        },
-      },
       Inventory: {
         create: {
           quantity: 0,
+          ProductPrice: {
+            create: {
+              unit: data.unit,
+              unitPrice: data.unitPrice,
+              active: true,
+            },
+          },
         },
       },
     },
-    include: {
-      ProductPrice: {
-        where: {
-          active: true,
-        },
-      },
-      Inventory: true,
-    },
+    include: includeData,
   });
+
+  return product as ProductType;
 };

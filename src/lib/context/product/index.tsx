@@ -3,7 +3,7 @@
 import { createProductAction } from '@/lib/data/products/create';
 import { fetchProductsByCompanyIdAction } from '@/lib/data/products/fetchByCompanyId';
 import { filter, Filter, loadLimit } from '@/types/shared';
-import { ProductType } from '@/types/product';
+import { ProductType } from '@/lib/form/product/data';
 import React, { useCallback, useContext, useState } from "react";
 import { ProductUnit, PurchaseType, ProductType as ProductInputType } from '@prisma/client';
 import { DateRangeType, RangeType } from '@/types/common';

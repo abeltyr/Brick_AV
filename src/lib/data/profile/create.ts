@@ -1,22 +1,29 @@
 "use server";
 
 import { getPrisma } from "@/lib/utils/database";
-import { AddressInputType, ProfileInputType } from "@/types/general";
+import { ProfileInputType } from "@/types/profile";
 import { Profile } from "@prisma/client";
 const prisma = getPrisma();
 
 export const createProfileAction = async (data: {
   profile: ProfileInputType;
-  address: AddressInputType;
 }): Promise<Profile> => {
+  const address = {
+    create: {
+      ...data.profile.address,
+    },
+  };
+
   return await prisma.profile.create({
     data: {
-      ...data.profile,
-      address: {
-        create: {
-          ...data.address,
-        },
-      },
+      dateBirth: data.profile.dateBirth,
+      email: data.profile.email,
+      gender: data.profile.gender,
+      name: data.profile.name,
+      phoneNumber: data.profile.phoneNumber,
+      preferredName: data.profile.preferredName,
+      tinNumber: data.profile.tinNumber,
+      address,
     },
   });
 };

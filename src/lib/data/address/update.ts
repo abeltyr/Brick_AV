@@ -1,7 +1,7 @@
 "use server";
 
 import { getPrisma } from "@/lib/utils/database";
-import { AddressInputType } from "@/types/general";
+import { AddressInputType } from "@/types/address";
 import { Address } from "@prisma/client";
 
 const prisma = getPrisma();

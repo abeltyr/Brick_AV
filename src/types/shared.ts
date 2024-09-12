@@ -15,3 +15,13 @@ export const loadLimit = 75;
 export const filter: Filter = {
   limit: loadLimit,
 };
+
+export type DateRangeType = {
+  startDate: Date;
+  endDate: Date;
+};
+
+export type RangeType = {
+  min?: number;
+  max?: number;
+};

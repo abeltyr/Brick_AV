@@ -16,7 +16,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/modules/ui/select"
-import { productInputType, productInputUnit, purchaseInputType } from '@/types/product'
+import { productInputType, productInputUnit, purchaseInputType } from '@/lib/form/product/data'
 
 
 export default function ProductTypeForm({ form }: { form: any }) {

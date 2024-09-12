@@ -1,13 +1,12 @@
 "use server";
 import { Decimal } from "decimal.js";
 import { getPrisma } from "@/lib/utils/database";
-import { v4 } from "uuid";
 import {
-  ProductType,
-  ProductUnit,
+  ProductCategoryType,
+  ProductPurchaseType,
+  ProductUnitType,
   Purchase,
   PurchaseReport,
-  PurchaseType,
 } from "@prisma/client";
 import { toEthiopian } from "@/lib/utils/calendar";
 import { findVendorByIdAction } from "../vendor/fetchById";
@@ -18,18 +17,18 @@ export const createPurchaseAction = async (data: {
   companyId: string;
   vendorId: string;
   date: Date;
-  productType: ProductType;
-  purchaseType: PurchaseType;
-  unit: ProductUnit;
+  type: ProductCategoryType;
+  purchaseType: ProductPurchaseType;
+  unit: ProductUnitType;
   MRCNumber?: string;
   VatReceiptNumber?: string;
   invoiceNumber?: string;
   description: string;
   purchaseProducts: {
     productId: string;
-    type: ProductType;
-    purchaseType: PurchaseType;
-    unit: ProductUnit;
+    type: ProductCategoryType;
+    purchaseType: ProductPurchaseType;
+    unit: ProductUnitType;
     unitPrice: number;
     quantity: number;
   }[];
