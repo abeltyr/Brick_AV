@@ -1,6 +1,6 @@
 'use client'
 
-import { GebiwochPurchaseCSV } from '@/lib/data/export/gebiwochReport';
+import { GebiwochPurchaseCSV } from '@/lib/data/export/gebiwochPurchaseCSV';
 import React, { useState } from 'react';
 import { useContext } from 'react';
 import { BaseDirectory, writeTextFile } from '@tauri-apps/plugin-fs';

@@ -42,9 +42,8 @@ model Address {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
 
-  Profile       Profile[]
-  Business      Business[]
-  BusinessTrade BusinessTrade[]
+  Profile  Profile[]
+  Business Business[]
 }
 
 // User profile data 
@@ -128,9 +127,6 @@ model BusinessTrade {
   RenewedFrom    DateTime?
   RenewalDate    DateTime?
   licenseName    String
-
-  addressId String?
-  address   Address? @relation(fields: [addressId], references: [id])
 }
 
 model MRCRegistration {

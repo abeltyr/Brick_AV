@@ -1,29 +1,13 @@
 "use server";
 
 import { getPrisma } from "@/lib/utils/database";
-import { Purchase } from "@prisma/client";
+import { Purchase, PurchaseReport } from "@prisma/client";
 const prisma = getPrisma();
 
-export const findPurchaseByIdAction = async (
+export const findPurchaseReportByIdAction = async (
   id: string,
-): Promise<Purchase | null> => {
-  return await prisma.purchase.findUnique({
+): Promise<PurchaseReport | null> => {
+  return await prisma.purchaseReport.findUnique({
     where: { id },
-    include: {
-      PurchaseProduct: {
-        include: {
-          product: true,
-        },
-      },
-      vendor: {
-        include: {
-          profile: {
-            include: {
-              address: true,
-            },
-          },
-        },
-      },
-    },
   });
 };
