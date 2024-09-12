@@ -1,7 +1,7 @@
 "use server";
 
 import { getPrisma } from "@/lib/utils/database";
-import { PurchaseReport } from "@prisma/client";
+import { PurchaseReportType } from "@/types/purchase";
 
 const prisma = getPrisma();
 
@@ -13,7 +13,7 @@ export const fetchPurchaseReportAction = async ({
   companyId: string;
   year: number;
   month: number;
-}): Promise<PurchaseReport | null> => {
+}): Promise<PurchaseReportType | null> => {
   return await prisma.purchaseReport.findUnique({
     where: {
       month_year_companyId: {

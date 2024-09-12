@@ -6,34 +6,34 @@ import { createClient } from '@/lib/utils/supabase/client';
 import { signInWithPasswordAction } from '@/lib/data/account/signIn';
 import { getUserAction, refreshAccountToken } from '@/lib/data/account/fetch';
 import { logoutAction } from '@/lib/data/account/logout';
-import { fetchMemberCompanyAction } from '@/lib/data/companyMember/fetchbyId';
+import { fetchMemberCompanyAction } from '@/lib/data/companyMember/fetchById';
 import { CompanyMemberType } from '@/types/company';
 
 
 const initialValues: {
     session: Session | null,
     loading: boolean,
+    companies: CompanyMemberType[] | null,
+    companyIndex: number,
+    companyLoading: boolean
+    currentCompany: CompanyMemberType | null,
+    updateCompanyIndex: (index: number) => void,
     login: ({ email, password }: { email: string, password: string }) => void,
     logout: () => void,
     fetchUser: () => void,
     updateUser: ({ }: {}) => void,
-    companies: CompanyMemberType[] | null,
-    companyIndex: number,
-    companyLoading: boolean
-    updateCompanyIndex: (index: number) => void,
-    currentCompany: CompanyMemberType | null
 } = {
     session: null,
     loading: true,
+    companies: null,
+    companyIndex: 0,
+    currentCompany: null,
+    companyLoading: true,
+    updateCompanyIndex: (index: number) => { },
     login: ({ }: { email: string, password: string }) => { },
     logout: () => { },
     fetchUser: () => { },
     updateUser: ({ }: {}) => { },
-    companies: null,
-    companyIndex: 0,
-    companyLoading: true,
-    updateCompanyIndex: (index: number) => { },
-    currentCompany: null
 };
 
 type Props = {
@@ -110,8 +110,6 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
         [],
     );
 
-
-
     const refreshAccountSession = useCallback(
         async () => {
             setLoading(true);
@@ -145,7 +143,6 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [],
     );
-
 
     const fetchCompanies = useCallback(
         async ({ userId, refetch = false }: { userId: string, refetch?: boolean }) => {

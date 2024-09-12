@@ -3,22 +3,17 @@
 import { createPurchaseAction } from '@/lib/data/purchase/create';
 import { fetchPurchasesByCompanyIdAction } from '@/lib/data/purchase/fetchByCompanyId';
 import { filter, Filter, loadLimit } from '@/types/shared';
-import { PurchaseReportType, PurchaseType } from '@/types/purchase';
+import { PurchaseInputType, PurchaseReportType, PurchaseType } from '@/types/purchase';
 import React, { useCallback, useContext, useState } from "react";
-import Decimal from 'decimal.js';
-import { ProductUnit } from '@prisma/client';
-import { ProductInputType, PurchaseInputType } from '@/lib/form/product/data'
 import { toEthiopian, } from '@/lib/utils/calendar';
 import { fetchPurchaseReportAction } from '@/lib/data/purchaseReport/fetchByCompanyId';
-import { boolean } from 'zod';
-import { DateRangeType } from '@/types/common';
+import { DateRangeType } from '@/types/shared';
 import { secondsInADay } from '@/lib/utils/calendar/date';
 
 const initialValues: {
     purchases: { [id: string]: PurchaseType[] };
-    purchasesReport: { [id: string]: PurchaseReportType[] };
+    purchasesReport: { [id: string]: PurchaseReportType };
     loadMoreData: boolean;
-    setupPurchasesData: ({ dataPurchases, companyId }: { dataPurchases: PurchaseType[], companyId: string }) => void;
     fetchPurchases: ({ companyId }: { companyId: string }) => void;
     getPurchase: ({ companyId }: {
         companyId: string,
@@ -27,29 +22,7 @@ const initialValues: {
     }) => void;
     fetchingPurchases: boolean;
     initialLoading: boolean;
-    createPurchase: ({ }: {
-        companyId: string;
-        data: {
-            vendorId: string;
-            date: Date;
-            MRCNumber?: string;
-            VatReceiptNumber?: string;
-            invoiceNumber?: string;
-            productType: ProductInputType;
-            purchaseType: PurchaseInputType;
-            unit: ProductUnit;
-            description: string,
-            purchaseProducts: {
-                productId: string;
-                type: ProductInputType;
-                purchaseType: PurchaseInputType;
-                unit: ProductUnit;
-                unitPrice: number;
-                quantity: number;
-            }[];
-
-        }
-    }) => void;
+    createPurchase: ({ }: PurchaseInputType) => void;
     year: number,
     updateYear: (value: number) => void
     month: number,
@@ -64,7 +37,6 @@ const initialValues: {
     purchases: {},
     purchasesReport: {},
     loadMoreData: true,
-    setupPurchasesData: ({ }: { dataPurchases: PurchaseType[], companyId: string }) => { },
     fetchPurchases: ({ }: { companyId: string }) => { },
     getPurchase: ({ }: {
         companyId: string,
@@ -73,31 +45,10 @@ const initialValues: {
     }) => { },
     fetchingPurchases: true,
     initialLoading: true,
-    createPurchase: ({ }: {
-        companyId: string;
-        data: {
-            vendorId: string;
-            date: Date;
-            MRCNumber?: string;
-            VatReceiptNumber?: string;
-            invoiceNumber?: string;
-            productType: ProductInputType;
-            purchaseType: PurchaseInputType;
-            unit: ProductUnit;
-            purchaseProducts: {
-                productId: string;
-                type: ProductInputType;
-                purchaseType: PurchaseInputType;
-                unit: ProductUnit;
-                unitPrice: number;
-                quantity: number;
-            }[];
-
-        }
-    }) => { },
-    year: 2016,
+    createPurchase: ({ }: PurchaseInputType) => { },
+    year: 2017,
     updateYear: (value: number) => { },
-    month: 12,
+    month: 1,
     updateMonth: (value: number) => { },
     getPurchaseReport: ({ companyId }: {
         companyId: string,
@@ -137,7 +88,7 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
         endDate: new Date(),
     });
 
-    const [purchasesReport, setPurchasesReport] = useState<{ [id: string]: PurchaseReportType[] }>({});
+    const [purchasesReport, setPurchasesReport] = useState<{ [id: string]: PurchaseReportType }>({});
     const [fetchingPurchaseReport, setFetchingPurchaseReport] = useState<boolean>(false);
 
     const getPurchaseReport = useCallback(
@@ -154,7 +105,8 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                     month: monthData
                 });
                 const purchasesData = { ...purchasesReport };
-                purchasesData[`${companyId}_${yearData}_${monthData}`] = [...purchaseReport];
+                if (purchaseReport)
+                    purchasesData[`${companyId}_${yearData}_${monthData}`] = purchaseReport;
 
                 setPurchasesReport(purchasesData);
             } catch (e) {
@@ -176,54 +128,18 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
     }
 
 
-
-    const setupPurchasesData = ({ dataPurchases, companyId }: { dataPurchases: PurchaseType[], companyId: string }) => {
-        const purchasesData = { ...purchases };
-        purchasesData[companyId] = dataPurchases;
-        setPurchases(purchasesData);
-
-        if (dataPurchases.length < loadLimit) {
-            setLoadMoreData(false);
-        } else {
-            setLoadMoreData(true);
-        }
-        setFetchingPurchases(false);
-    };
-
-    const createPurchase = async ({ data, companyId }: {
-        companyId: string;
-        data: {
-            vendorId: string;
-            date: Date;
-            MRCNumber?: string;
-            VatReceiptNumber?: string;
-            invoiceNumber?: string;
-            productType: ProductInputType;
-            purchaseType: PurchaseInputType;
-            unit: ProductUnit;
-            description: string;
-            purchaseProducts: {
-                productId: string;
-                type: ProductInputType;
-                purchaseType: PurchaseInputType;
-                unit: ProductUnit;
-                unitPrice: number;
-                quantity: number;
-            }[];
-        }
-    }) => {
+    const createPurchase = async (data: PurchaseInputType) => {
         try {
             const purchasesData = { ...purchases };
             const newPurchase = await createPurchaseAction({
-                companyId,
                 ...data
             });
             if (newPurchase) {
 
-                if (purchasesData[companyId]) {
-                    purchasesData[companyId] = [newPurchase.purchase, ...purchasesData[companyId]];
+                if (purchasesData[data.companyId]) {
+                    purchasesData[data.companyId] = [newPurchase.purchase, ...purchasesData[data.companyId]];
                 } else {
-                    purchasesData[companyId] = [newPurchase.purchase];
+                    purchasesData[data.companyId] = [newPurchase.purchase];
                 }
                 setPurchases(purchasesData);
 
@@ -312,7 +228,6 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                 purchases,
                 initialLoading,
                 loadMoreData,
-                setupPurchasesData,
                 fetchingPurchases,
                 fetchPurchases,
                 createPurchase,

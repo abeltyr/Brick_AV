@@ -3,11 +3,10 @@
 import { createProductAction } from '@/lib/data/products/create';
 import { fetchProductsByCompanyIdAction } from '@/lib/data/products/fetchByCompanyId';
 import { filter, Filter, loadLimit } from '@/types/shared';
-import { ProductType } from '@/lib/form/product/data';
 import React, { useCallback, useContext, useState } from "react";
-import { ProductUnit, PurchaseType, ProductType as ProductInputType } from '@prisma/client';
-import { DateRangeType, RangeType } from '@/types/common';
+import { DateRangeType, RangeType } from '@/types/shared';
 import { secondsInADay } from '@/lib/utils/calendar/date';
+import { ProductInputType, ProductType } from '@/types/product';
 
 
 const initialValues: {
@@ -17,15 +16,7 @@ const initialValues: {
     priceRange: RangeType;
     initialLoading: boolean;
     dateRange: DateRangeType;
-    createProduct: ({ }: {
-        name: string;
-        description?: string;
-        unit: ProductUnit,
-        unitPrice: number;
-        purchaseType: PurchaseType;
-        type: ProductInputType,
-        companyId: string;
-    }) => Promise<ProductType | null>;
+    createProduct: ({ }: ProductInputType) => Promise<ProductType | null>;
     fetchProducts: ({ companyId }: { companyId: string }) => void;
     getProduct: ({ companyId }: { companyId: string }) => void;
     setPriceRange: (value: RangeType) => void
@@ -40,15 +31,7 @@ const initialValues: {
         startDate: new Date(new Date().getTime() - secondsInADay * 1000),
         endDate: new Date(),
     },
-    createProduct: async ({ }: {
-        name: string;
-        description?: string;
-        unit: ProductUnit,
-        unitPrice: number;
-        purchaseType: PurchaseType;
-        type: ProductInputType,
-        companyId: string;
-    }): Promise<ProductType | null> => { return null },
+    createProduct: async ({ }: ProductInputType): Promise<ProductType | null> => { return null },
     fetchProducts: ({ }: { companyId: string }) => { },
     getProduct: ({ }: { companyId: string }) => { },
     setPriceRange: (value: RangeType) => { },
@@ -75,15 +58,17 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
         endDate: new Date(),
     });
 
-    const createProduct = async ({ name, description, unit, type, unitPrice, purchaseType, companyId }: {
-        name: string;
-        description?: string;
-        unit: ProductUnit,
-        unitPrice: number;
-        purchaseType: PurchaseType;
-        type: ProductInputType,
-        companyId: string;
-    }): Promise<ProductType | null> => {
+    const createProduct = async (
+        {
+            name,
+            description,
+            unit,
+            type,
+            unitPrice,
+            purchaseType,
+            companyId
+        }: ProductInputType
+    ): Promise<ProductType | null> => {
         try {
             const productsData = { ...products };
             const newProduct = await createProductAction({
@@ -170,7 +155,7 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
                 setFetchingProducts(false);
             }
         },
-        [fetchingProducts, products, priceRange],
+        [fetchingProducts, products, priceRange, dateRange],
     );
 
     return (
