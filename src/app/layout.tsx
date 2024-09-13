@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
-import "./globals.css";
 import { ThemeProvider } from '@/lib/context/theme';
 import { AuthProvider } from '@/lib/context/auth/user';
 import { Toaster } from "@/modules/ui/toaster"
-import { DrawerManagerProvider } from '@/lib/context/drawer/drawer';
+import "./globals.css";
 
 const inter = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
@@ -23,9 +22,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <AuthProvider>
-            <DrawerManagerProvider>
-              {children}
-            </DrawerManagerProvider>
+            {children}
           </AuthProvider>
         </ThemeProvider>
         <Toaster />

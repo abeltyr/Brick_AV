@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function AuthenticationPage() {
     return (
         <>
-            <div className="min-w-[320px] max-w-[450px] container relative  h-[800px] flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+            <div className="min-w-[320px] max-w-[450px] container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
                 <Link
                     href="/examples/authentication"
                     className={cn(
@@ -22,7 +22,7 @@ export default function AuthenticationPage() {
                         "absolute right-4 top-4 md:right-8 md:top-8"
                     )}
                 >
-                    Login
+                    Signup
                 </Link>
                 <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
                     <div className="absolute inset-0 bg-zinc-900" />

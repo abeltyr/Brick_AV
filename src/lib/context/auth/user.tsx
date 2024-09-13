@@ -8,6 +8,7 @@ import { getUserAction, refreshAccountToken } from '@/lib/data/account/fetch';
 import { logoutAction } from '@/lib/data/account/logout';
 import { fetchMemberCompanyAction } from '@/lib/data/companyMember/fetchById';
 import { CompanyMemberType } from '@/types/company';
+import LoadingSVG from '@/assets/icons/loading';
 
 
 const initialValues: {
@@ -195,27 +196,31 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     );
 
 
-
-
-    return (
-        <AuthContext.Provider
-            value={{
-                session,
-                fetchUser,
-                login,
-                logout: logout,
-                updateUser: () => { },
-                loading,
-                companyIndex,
-                companies,
-                companyLoading,
-                updateCompanyIndex,
-                currentCompany
-            }}
-        >
-            {children}
-        </AuthContext.Provider>
-    );
+    console.log("session && companyLoading", (session === null && loading) || session && companyLoading)
+    if ((session === null && loading) || session && companyLoading)
+        return <div className='w-screen h-screen flex justify-center items-center text-primary'>
+            <LoadingSVG className='w-20 h-20 animate-spin' />
+        </div>
+    else
+        return (
+            <AuthContext.Provider
+                value={{
+                    session,
+                    fetchUser,
+                    login,
+                    logout: logout,
+                    updateUser: () => { },
+                    loading,
+                    companyIndex,
+                    companies,
+                    companyLoading,
+                    updateCompanyIndex,
+                    currentCompany
+                }}
+            >
+                {children}
+            </AuthContext.Provider>
+        );
 };
 
 export { AuthProvider, useAuth };

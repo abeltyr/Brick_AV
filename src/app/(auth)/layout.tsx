@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { MobileNavBar, NavBar } from '@/modules/layout/components/nav';
 import { getUserAction } from '@/lib/data/account/fetch';
 import AuthenticationPage from '@/modules/account/templates/login/loginTemplate';
+import { AuthProvider } from '@/lib/context/auth/user';
+import { DrawerManagerProvider } from '@/lib/context/drawer/drawer';
 
 
 
@@ -20,14 +21,9 @@ export default async function RootLayout({
 
   if (value)
     return (
-      <div className='flex'>
-        {/* <SideBarSection /> */}
-        <main className='flex-1 '>
-          <NavBar />
-          <div className='min-h-14 h-[8vh] max-h-20' />
-          {children}
-        </main>
-      </div>
+      <DrawerManagerProvider>
+        {children}
+      </DrawerManagerProvider>
     );
   else
     return (
