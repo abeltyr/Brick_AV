@@ -1,15 +1,13 @@
 'use client'
 
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/utils/supabase/client';
-import { signInWithPasswordAction } from '@/lib/data/account/signIn';
 import { getUserAction, refreshAccountToken } from '@/lib/data/account/fetch';
 import { logoutAction } from '@/lib/data/account/logout';
 import { fetchMemberCompanyAction } from '@/lib/data/companyMember/fetchById';
 import { CompanyMemberType } from '@/types/company';
 import LoadingSVG from '@/assets/icons/loading';
-import { signUpAction } from '@/lib/data/account/signUp';
 
 
 const initialValues: {
@@ -20,8 +18,6 @@ const initialValues: {
     companyLoading: boolean
     currentCompany: CompanyMemberType | null,
     updateCompanyIndex: (index: number) => void,
-    login: ({ email, password }: { email: string, password: string }) => void,
-    signup: ({ fullName, email, password }: { fullName: string, email: string, password: string }) => void,
     logout: () => void,
     fetchUser: () => void,
     updateUser: ({ }: {}) => void,
@@ -33,8 +29,6 @@ const initialValues: {
     currentCompany: null,
     companyLoading: true,
     updateCompanyIndex: (index: number) => { },
-    login: ({ }: { email: string, password: string }) => { },
-    signup: ({ fullName, email, password }: { fullName: string, email: string, password: string }) => { },
     logout: () => { },
     fetchUser: () => { },
     updateUser: ({ }: {}) => { },
@@ -57,34 +51,33 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     const [companyIndex, setCompanyIndex] = useState<number>(0)
 
 
-    const dataSetter = async () => {
-        const supabase = createClient();
-        const { data } = await supabase.auth.getSession();
-        setSession(data.session)
-        setLoading(false);
-    }
-
-
     useEffect(() => {
         const supabase = createClient();
+
+        const dataSetter = async () => {
+            const supabase = createClient();
+            const { data } = await supabase.auth.getSession();
+            setSession(data.session)
+            setLoading(false);
+        }
+
         dataSetter();
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (_event, session: Session | null) => {
-            if (session) {
-                const expiresAt = session.expires_at
-                const currentTime = Math.floor(Date.now() / 1000) // convert to Unix timestamp
-                if (expiresAt && expiresAt - currentTime < 300) {
-                    refreshAccountSession();
+
+        const { data: { subscription }, } =
+            supabase.auth.onAuthStateChange(async (_event, session: Session | null) => {
+                if (session) {
+                    const expiresAt = session.expires_at
+                    const currentTime = Math.floor(Date.now() / 1000) // convert to Unix timestamp
+                    if (expiresAt && expiresAt - currentTime < 300) {
+                        refreshAccountSession();
+                    }
                 }
-            }
-            setSession(session)
-            if (session)
-                await fetchCompanies({ userId: session.user.id });
-        })
+                setSession(session)
+                if (session)
+                    await fetchCompanies({ userId: session.user.id });
+            })
 
         return () => subscription.unsubscribe()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
 
@@ -97,40 +90,6 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
         [companies],
     );
 
-    const login = useCallback(
-        async ({ email, password }: { email: string, password: string }) => {
-            try {
-                let user = await signInWithPasswordAction({
-                    email,
-                    password,
-                });
-                return user
-            } catch (e) {
-                console.error(e)
-                throw new Error("error")
-            }
-        },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [],
-    );
-
-    const signup = useCallback(
-        async ({ fullName, email, password }: { fullName: string, email: string, password: string }) => {
-            try {
-                let user = await signUpAction({
-                    name: fullName,
-                    email,
-                    password,
-                });
-                return user
-            } catch (e) {
-                console.error(e)
-                throw new Error("error")
-            }
-        },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [],
-    );
 
     const refreshAccountSession = useCallback(
         async () => {
@@ -144,7 +103,6 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
             }
             setLoading(false);
         },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         [],
     );
 
@@ -162,7 +120,6 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
             }
             setLoading(false);
         },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         [],
     );
 
@@ -200,7 +157,6 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
             }
             setCompanyLoading(false);
         },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         [],
     );
 
@@ -209,6 +165,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
             try {
                 let user = await logoutAction();
                 setSession(null);
+                localStorage.clear();
             } catch (e) {
                 console.error(e)
             }
@@ -217,7 +174,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     );
 
 
-    if ((session === null && loading) || session && companyLoading)
+    if ((loading) || session && companyLoading)
         return <div className='w-screen h-screen flex justify-center items-center text-primary'>
             <LoadingSVG className='w-20 h-20 animate-spin' />
         </div>
@@ -227,8 +184,6 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                 value={{
                     session,
                     fetchUser,
-                    login,
-                    signup,
                     logout: logout,
                     updateUser: () => { },
                     loading,

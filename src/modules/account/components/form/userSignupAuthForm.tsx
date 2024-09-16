@@ -35,9 +35,8 @@ interface UserSignupAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
 export function UserSignupAuthForm({ className, ...props }: UserSignupAuthFormProps) {
     const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-    const { signup } = useAuth();
     const { toast } = useToast()
-    const { updateAuthFlowPage } = useAuthFlow()
+    const { updateAuthFlowPage, signup } = useAuthFlow()
 
 
     const form = useForm<z.infer<typeof signupSchema>>({
@@ -58,7 +57,6 @@ export function UserSignupAuthForm({ className, ...props }: UserSignupAuthFormPr
                     password: values.password
                 });
                 updateAuthFlowPage("VerifyEmail")
-
             } catch (e) {
                 console.log(e)
                 toast({

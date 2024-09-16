@@ -2,7 +2,7 @@
 
 import { useAuthFlow } from '@/lib/context/auth';
 import { SignupTemplatePage, VerifyEmailTemplatePage } from './signup/';
-import { ForgotPasswordTemplatePage, LoginTemplatePage, PasswordResetTemplatePage, ResetPasswordTemplatePage } from './login';
+import { ForgotPasswordTemplatePage, LoginTemplatePage, PasswordUpdatedTemplatePage, ResetPasswordTemplatePage } from './login';
 
 export default function AuthenticationPage() {
     const { authFlowPage } = useAuthFlow()
@@ -19,7 +19,7 @@ export default function AuthenticationPage() {
         case "ResetPassword":
             return <ResetPasswordTemplatePage />
         case "PasswordReset":
-            return <PasswordResetTemplatePage />
+            return <PasswordUpdatedTemplatePage />
         default:
             return <LoginTemplatePage />
     }

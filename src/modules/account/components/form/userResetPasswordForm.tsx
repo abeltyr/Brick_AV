@@ -1,8 +1,7 @@
 "use client"
 
-import * as React from "react"
 
-import { cn } from "@/lib/utils"
+import { cn, COUNTDOWN_DURATION } from "@/lib/utils"
 import { Button } from "@/modules/ui/button"
 import { Input } from "@/modules/ui/input"
 import LoadingSVG from '@/assets/icons/loading'
@@ -19,43 +18,47 @@ import {
 } from "@/modules/ui/form"
 import { useToast } from "@/modules/ui/use-toast"
 import { useAuthFlow } from '@/lib/context/auth'
+import { useEffect, useState } from 'react'
 
-
-
-const formSchema = z.object({
-    email: z.string().email({
-        message: "Please provided a valid email.",
-    }),
-    password: z.string().min(8, {
-        message: "Password must have at least 8 characters.",
-    }),
+const resetPasswordSchema = z.object({
+    code: z.string().length(6, 'Code must be 6 characters long'),
+    password: z.string()
+        .min(8, 'Password must be at least 8 characters')
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+            'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
+    confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
 })
 
+interface UserResetPasswordFormProps extends React.HTMLAttributes<HTMLDivElement> { }
 
-interface UserLoginAuthFormProps extends React.HTMLAttributes<HTMLDivElement> { }
+export function UserResetPasswordForm({ className, ...props }: UserResetPasswordFormProps) {
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
-export function UserLoginAuthForm({ className, ...props }: UserLoginAuthFormProps) {
-    const [isLoading, setIsLoading] = React.useState<boolean>(false)
-
-    const { login } = useAuthFlow();
+    const { updateAuthFlowPage, resetPassword, email } = useAuthFlow();
     const { toast } = useToast()
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-        },
+    const form = useForm<z.infer<typeof resetPasswordSchema>>({
+        resolver: zodResolver(resetPasswordSchema),
+        defaultValues: {},
     })
 
 
-
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
         setIsLoading(true)
         if (!isLoading) {
             try {
-                await login({
-                    email: values.email,
-                    password: values.password
-                });
+                if (email) {
+                    await resetPassword({
+                        email: email,
+                        token: values.code,
+                        password: values.password
+                    });
+
+                    updateAuthFlowPage("PasswordReset")
+                }
             } catch (e) {
                 console.log(e)
                 toast({
@@ -78,15 +81,15 @@ export function UserLoginAuthForm({ className, ...props }: UserLoginAuthFormProp
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full">
                     <FormField
                         control={form.control}
-                        name="email"
+                        name="code"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className='text-sm'>Email</FormLabel>
+                                <FormLabel className='text-sm'>Code</FormLabel>
                                 <FormControl>
                                     <Input
-                                        placeholder="Enter your email"
+                                        id="code"
+                                        placeholder="Enter 6-digit code"
                                         {...field}
-                                        type="email"
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -99,6 +102,23 @@ export function UserLoginAuthForm({ className, ...props }: UserLoginAuthFormProp
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel className='text-sm'>Password</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="Create a password"
+                                        {...field}
+                                        type='password'
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className='text-sm'>Confirm your password</FormLabel>
                                 <FormControl>
                                     <Input
                                         placeholder="Account Password"
@@ -119,7 +139,7 @@ export function UserLoginAuthForm({ className, ...props }: UserLoginAuthFormProp
                                     <LoadingSVG />
                                 </div>
                             )}
-                            Sign In
+                            Change Password
                         </Button>
                     </div>
                 </form>

@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import React, { useEffect, useState } from "react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/modules/ui/button"
@@ -17,45 +17,37 @@ import {
     FormLabel,
     FormMessage,
 } from "@/modules/ui/form"
+import { useAuth } from '@/lib/context/auth/user'
 import { useToast } from "@/modules/ui/use-toast"
 import { useAuthFlow } from '@/lib/context/auth'
 
-
-
-const formSchema = z.object({
-    email: z.string().email({
-        message: "Please provided a valid email.",
-    }),
-    password: z.string().min(8, {
-        message: "Password must have at least 8 characters.",
-    }),
+const resetPasswordSchema = z.object({
+    email: z.string().email('Invalid email address'),
 })
 
 
-interface UserLoginAuthFormProps extends React.HTMLAttributes<HTMLDivElement> { }
 
-export function UserLoginAuthForm({ className, ...props }: UserLoginAuthFormProps) {
-    const [isLoading, setIsLoading] = React.useState<boolean>(false)
+interface UserForgotPasswordFormProps extends React.HTMLAttributes<HTMLDivElement> { }
 
-    const { login } = useAuthFlow();
+export function UserForgotPasswordForm({ className, ...props }: UserForgotPasswordFormProps) {
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+
+    const { updateAuthFlowPage, resetPasswordEmail, setEmail, email, countdown } = useAuthFlow();
     const { toast } = useToast()
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-        },
+    const form = useForm<z.infer<typeof resetPasswordSchema>>({
+        resolver: zodResolver(resetPasswordSchema),
+        defaultValues: { email: email ? email : '' },
     })
 
 
-
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
         setIsLoading(true)
         if (!isLoading) {
             try {
-                await login({
-                    email: values.email,
-                    password: values.password
-                });
+                await resetPasswordEmail(values.email)
+                updateAuthFlowPage("ResetPassword")
+                setEmail(values.email)
             } catch (e) {
                 console.log(e)
                 toast({
@@ -93,33 +85,16 @@ export function UserLoginAuthForm({ className, ...props }: UserLoginAuthFormProp
                             </FormItem>
                         )}
                     />
-                    <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className='text-sm'>Password</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder="Account Password"
-                                        {...field}
-                                        type='password'
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
                     <div className='w-full pt-4'>
                         <Button
-                            disabled={isLoading}
+                            disabled={isLoading || (countdown > 0)}
                             type="submit" variant='default' className='w-full'>
                             {isLoading && (
                                 <div className='mr-2 h-5 w-5 animate-spin'>
                                     <LoadingSVG />
                                 </div>
                             )}
-                            Sign In
+                            Send Code
                         </Button>
                     </div>
                 </form>
