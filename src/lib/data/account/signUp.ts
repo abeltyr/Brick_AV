@@ -19,7 +19,6 @@ export const signUpAction = async ({
     email,
     password,
     options: {
-      emailRedirectTo: `${origin}/auth/callback`,
       data: {
         name,
       },

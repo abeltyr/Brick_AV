@@ -9,6 +9,7 @@ import { logoutAction } from '@/lib/data/account/logout';
 import { fetchMemberCompanyAction } from '@/lib/data/companyMember/fetchById';
 import { CompanyMemberType } from '@/types/company';
 import LoadingSVG from '@/assets/icons/loading';
+import { signUpAction } from '@/lib/data/account/signUp';
 
 
 const initialValues: {
@@ -20,6 +21,7 @@ const initialValues: {
     currentCompany: CompanyMemberType | null,
     updateCompanyIndex: (index: number) => void,
     login: ({ email, password }: { email: string, password: string }) => void,
+    signup: ({ fullName, email, password }: { fullName: string, email: string, password: string }) => void,
     logout: () => void,
     fetchUser: () => void,
     updateUser: ({ }: {}) => void,
@@ -32,6 +34,7 @@ const initialValues: {
     companyLoading: true,
     updateCompanyIndex: (index: number) => { },
     login: ({ }: { email: string, password: string }) => { },
+    signup: ({ fullName, email, password }: { fullName: string, email: string, password: string }) => { },
     logout: () => { },
     fetchUser: () => { },
     updateUser: ({ }: {}) => { },
@@ -98,6 +101,24 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
         async ({ email, password }: { email: string, password: string }) => {
             try {
                 let user = await signInWithPasswordAction({
+                    email,
+                    password,
+                });
+                return user
+            } catch (e) {
+                console.error(e)
+                throw new Error("error")
+            }
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [],
+    );
+
+    const signup = useCallback(
+        async ({ fullName, email, password }: { fullName: string, email: string, password: string }) => {
+            try {
+                let user = await signUpAction({
+                    name: fullName,
                     email,
                     password,
                 });
@@ -196,7 +217,6 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     );
 
 
-    console.log("session && companyLoading", (session === null && loading) || session && companyLoading)
     if ((session === null && loading) || session && companyLoading)
         return <div className='w-screen h-screen flex justify-center items-center text-primary'>
             <LoadingSVG className='w-20 h-20 animate-spin' />
@@ -208,6 +228,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                     session,
                     fetchUser,
                     login,
+                    signup,
                     logout: logout,
                     updateUser: () => { },
                     loading,

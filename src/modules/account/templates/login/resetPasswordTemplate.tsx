@@ -1,36 +1,30 @@
-import { UserLoginAuthForm } from "@/modules/account/components/form"
+import { UserLoginAuthForm } from "@/modules/account/components/form/userLoginAuthForm"
 import { useAuthFlow } from '@/lib/context/auth'
 import { AuthBox } from '@/modules/account/components/box'
+import KeySVG from '@/assets/icons/key'
 
-export const LoginTemplatePage = () => {
+export const ResetPasswordTemplatePage = () => {
     const { updateAuthFlowPage } = useAuthFlow()
 
     return (
         <div className="min-w-[320px] relative min-h-screen flex items-center justify-center ">
             <AuthBox
-                description='Welcome back! Please enter your details.'
+                icon={<KeySVG />}
+                description='Your new password must be different to \n previously used passwords.'
                 form={<UserLoginAuthForm />}
-                title='Log in to your account'
+                title='Set new password?'
                 bottom={
                     <div className="flex flex-col text-center text-sm font-medium gap-3">
                         <p className='text-[#475467]'>
-                            Don’t have an account?{" "}
+                            Remembered your password?{" "}
                             <span className="underline text-primary/80 cursor-pointer select-none hover:text-primary duration-300"
                                 onClick={() => {
-                                    updateAuthFlowPage("Signup")
+                                    updateAuthFlowPage("Login")
                                 }}
                             >
-                                Sign up
+                                Login
                             </span>
                         </p>
-                        <p className="underline text-primary/80 cursor-pointer select-none hover:text-primary duration-300"
-                            onClick={() => {
-                                updateAuthFlowPage("ForgotPassword")
-                            }}
-                        >
-                            Forget Password
-                        </p>
-
                     </div>
                 }
             />

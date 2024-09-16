@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import { ThemeProvider } from '@/lib/context/theme';
 import { AuthProvider } from '@/lib/context/auth/user';
 import { Toaster } from "@/modules/ui/toaster"
 import "./globals.css";
 
-const inter = Plus_Jakarta_Sans({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",

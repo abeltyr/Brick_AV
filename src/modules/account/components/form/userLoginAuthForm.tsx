@@ -13,7 +13,6 @@ import { z } from "zod"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -39,7 +38,7 @@ interface UserLoginAuthFormProps extends React.HTMLAttributes<HTMLDivElement> { 
 export function UserLoginAuthForm({ className, ...props }: UserLoginAuthFormProps) {
     const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-    const { login, session } = useAuth();
+    const { login } = useAuth();
     const { toast } = useToast()
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -85,8 +84,11 @@ export function UserLoginAuthForm({ className, ...props }: UserLoginAuthFormProp
                             <FormItem>
                                 <FormLabel className='text-sm'>Email</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="email@gmail.com" {...field} type="email" className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0
-                      ring-0 text-sm font-light placeholder:text-neutral-400' />
+                                    <Input
+                                        placeholder="Enter your email"
+                                        {...field}
+                                        type="email"
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -99,8 +101,11 @@ export function UserLoginAuthForm({ className, ...props }: UserLoginAuthFormProp
                             <FormItem>
                                 <FormLabel className='text-sm'>Password</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="***" {...field} type='password' className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0
-                      ring-0 text-sm font-light placeholder:text-neutral-400' />
+                                    <Input
+                                        placeholder="Account Password"
+                                        {...field}
+                                        type='password'
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
