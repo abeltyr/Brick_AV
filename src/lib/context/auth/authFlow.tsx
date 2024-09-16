@@ -20,7 +20,6 @@ const initialValues: {
     email: string | null,
     setEmail: (index: string) => void,
 
-    isSending: boolean,
 
     signup: ({ fullName, email, password }: { fullName: string, email: string, password: string }) => void,
     login: ({ email, password }: { email: string, password: string }) => void,
@@ -37,7 +36,6 @@ const initialValues: {
     email: null,
     setEmail: (index: string) => { },
 
-    isSending: false,
 
 
     signup: ({ }: { fullName: string, email: string, password: string }) => { },
@@ -62,7 +60,6 @@ const AuthFlowProvider: React.FC<Props> = ({ children }) => {
 
     const [authFlowPage, setAuthFlowPage] = useState<AuthFlowPages>("Login");
 
-    const [isSending, setIsSending] = useState(true)
     const [email, setEmail] = useState<string | null>(null)
     const [countdown, setCountdown] = useState(0)
 
@@ -84,7 +81,6 @@ const AuthFlowProvider: React.FC<Props> = ({ children }) => {
                 localStorage.removeItem('resetPasswordCountdown')
             }
         }
-        setIsSending(false)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -133,6 +129,7 @@ const AuthFlowProvider: React.FC<Props> = ({ children }) => {
                     email,
                     password,
                 });
+                startCountdown()
                 return user
             } catch (e) {
                 console.error(e)
@@ -192,7 +189,7 @@ const AuthFlowProvider: React.FC<Props> = ({ children }) => {
                     }
                 );
 
-
+                return response;
             } catch (e) {
                 console.error(e)
                 throw new Error("error")
@@ -203,16 +200,13 @@ const AuthFlowProvider: React.FC<Props> = ({ children }) => {
 
     const resetPasswordEmail = async (email: string) => {
         if (countdown <= 0) {
-            setIsSending(true)
             try {
                 const response = await ResetPasswordEmailAction(email);
-                console.log(response);
                 startCountdown()
             } catch (e) {
                 throw new Error(`${e}`)
             }
 
-            setIsSending(false)
         }
     }
 
@@ -230,7 +224,6 @@ const AuthFlowProvider: React.FC<Props> = ({ children }) => {
                 signup,
                 resetPassword,
                 verifyEmail,
-                isSending
             }}
         >
             {children}

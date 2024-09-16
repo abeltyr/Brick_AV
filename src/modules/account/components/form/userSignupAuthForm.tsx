@@ -36,12 +36,13 @@ export function UserSignupAuthForm({ className, ...props }: UserSignupAuthFormPr
     const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
     const { toast } = useToast()
-    const { updateAuthFlowPage, signup } = useAuthFlow()
+    const { updateAuthFlowPage, signup, setEmail, countdown, email } = useAuthFlow()
 
 
     const form = useForm<z.infer<typeof signupSchema>>({
         resolver: zodResolver(signupSchema),
         defaultValues: {
+            email: email ? email : '',
         },
     })
 
@@ -57,6 +58,7 @@ export function UserSignupAuthForm({ className, ...props }: UserSignupAuthFormPr
                     password: values.password
                 });
                 updateAuthFlowPage("VerifyEmail")
+                setEmail(values.email)
             } catch (e) {
                 console.log(e)
                 toast({
@@ -87,7 +89,6 @@ export function UserSignupAuthForm({ className, ...props }: UserSignupAuthFormPr
                                     <Input
                                         placeholder="Enter your full name"
                                         {...field}
-                                        type="email"
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -130,14 +131,14 @@ export function UserSignupAuthForm({ className, ...props }: UserSignupAuthFormPr
                     />
                     <div className='w-full pt-4'>
                         <Button
-                            disabled={isLoading}
+                            disabled={isLoading || (countdown > 0)}
                             type="submit" variant='default' className='w-full'>
                             {isLoading && (
                                 <div className='mr-2 h-5 w-5 animate-spin'>
                                     <LoadingSVG />
                                 </div>
                             )}
-                            Sign In
+                            Sign Up
                         </Button>
                     </div>
                 </form>
