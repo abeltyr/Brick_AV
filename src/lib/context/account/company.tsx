@@ -3,7 +3,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { fetchMemberCompanyAction } from '@/lib/data/companyMember/fetchById';
 import { CompanyMemberType } from '@/types/company';
-import LoadingSVG from '@/assets/icons/loading';
 
 
 const initialValues: {

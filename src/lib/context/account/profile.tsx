@@ -4,7 +4,7 @@ import React, { useCallback, useContext, useState } from "react";
 
 import { ProfileType } from '@/types/profile';
 import { findProfileByIdAction } from '@/lib/data/profile/fetchById';
-import { CompanyType } from '@/types/company';
+import { CompanyMemberType, CompanyType } from '@/types/company';
 
 
 const initialValues: {
@@ -28,8 +28,6 @@ const useProfile = () => useContext(ProfileContext);
 const ProfileProvider: React.FC<Props> = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState<ProfileType | null>(null)
-    const [company, setCompany] = useState<CompanyType | null>(null)
-    const [onboarding, setOnboarding] = useState<boolean>(true)
 
     const fetchProfile = useCallback(
         async (id: string): Promise<ProfileType | null> => {

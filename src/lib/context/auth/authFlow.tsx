@@ -101,13 +101,13 @@ const AuthFlowProvider: React.FC<Props> = ({ children }) => {
         } else {
             localStorage.removeItem('resetPasswordCountdown')
         }
-    }, [countdown, setCountdown])
+    }, [countdown, email, setCountdown])
 
     ///-----------------------------------------------------/////
 
 
 
-    const startCountdown = () => {
+    const startCountdown = useCallback(() => {
         setCountdown(COUNTDOWN_DURATION)
         if (email)
             localStorage.setItem('resetPasswordCountdown', JSON.stringify({
@@ -116,7 +116,7 @@ const AuthFlowProvider: React.FC<Props> = ({ children }) => {
                     date: Date.now().toString()
                 }
             }))
-    }
+    }, [email])
 
 
 
@@ -136,7 +136,7 @@ const AuthFlowProvider: React.FC<Props> = ({ children }) => {
                 throw new Error("error")
             }
         },
-        [],
+        [startCountdown],
     );
 
 

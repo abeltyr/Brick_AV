@@ -18,10 +18,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/modules/ui/avatar';
 import { useAuth } from '@/lib/context/auth/user';
 import Link from 'next/link';
 import { Settings, User } from 'lucide-react';
+import { useProfile } from '@/lib/context/account';
 
 export const AvatarSection = () => {
 
     const { session, logout } = useAuth();
+    const { profile } = useProfile();
 
     return (
         // <DropdownMenu>

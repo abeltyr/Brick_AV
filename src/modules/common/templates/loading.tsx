@@ -1,11 +1,9 @@
 import LoadingSVG from '@/assets/icons/loading'
 
-export default function Loading() {
+export default function LoadingTemplate() {
     return (
-        <div className="flex items-center justify-center w-screen h-full min-h-[80vh] text-ui-fg-base">
-            <div className='w-24 h-24 animate-spin text-white'>
-                <LoadingSVG />
-            </div>
+        <div className='w-screen h-screen flex justify-center items-center text-primary'>
+            <LoadingSVG className='w-20 h-20 animate-spin' />
         </div>
     )
 }

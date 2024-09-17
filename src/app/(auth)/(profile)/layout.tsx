@@ -5,6 +5,9 @@ import { AuthFlowProvider, useAuth } from '@/lib/context/auth';
 import { CompanyProvider, ProfileProvider, useProfile } from '@/lib/context/account';
 import { DrawerManagerProvider } from '@/lib/context/drawer/drawer';
 import { useEffect } from 'react';
+import LoadingTemplate from '@/modules/common/templates/loading';
+import OnboardingPage from '@/modules/account/templates/onboarding';
+import { OnboardingProvider } from '@/lib/context/account/onboarding';
 
 
 export default function RootLayout({
@@ -17,15 +20,18 @@ export default function RootLayout({
   const { session } = useAuth()
 
 
-  const { profile, fetchProfile } = useProfile()
+  const { profile, fetchProfile, loading } = useProfile()
 
-  useEffect(() => {
-    if (session && session.user && session.user.id)
-      fetchProfile(session?.user.id)
+  // useEffect(() => {
+  //   if (session && session.user && session.user.id)
+  //     fetchProfile(session?.user.id)
 
-  }, [fetchProfile, session])
+  // }, [fetchProfile, session])
 
-  if (profile)
+
+  if (loading && !profile) return <LoadingTemplate />
+
+  if (profile && profile.companyMember && profile.companyMember.length > 0)
     return (
       <DrawerManagerProvider>
         {children}
@@ -33,8 +39,8 @@ export default function RootLayout({
     );
   else
     return (
-      <div>
-        No Profile
-      </div>
+      <OnboardingProvider>
+        <OnboardingPage />
+      </OnboardingProvider>
     );
 }

@@ -8,6 +8,7 @@ import { logoutAction } from '@/lib/data/account/logout';
 import { fetchMemberCompanyAction } from '@/lib/data/companyMember/fetchById';
 import { CompanyMemberType } from '@/types/company';
 import LoadingSVG from '@/assets/icons/loading';
+import LoadingTemplate from '@/modules/common/templates/loading';
 
 
 const initialValues: {
@@ -104,9 +105,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
 
 
     if (loading)
-        return <div className='w-screen h-screen flex justify-center items-center text-primary'>
-            <LoadingSVG className='w-20 h-20 animate-spin' />
-        </div>
+        return <LoadingTemplate />
     else
         return (
             <AuthContext.Provider

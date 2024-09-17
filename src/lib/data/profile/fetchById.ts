@@ -11,6 +11,11 @@ export const findProfileByIdAction = async (
     where: { id },
     include: {
       address: true,
+      CompanyMember: {
+        include: {
+          company: true,
+        },
+      },
     },
   });
 };
