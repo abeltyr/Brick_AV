@@ -1,6 +1,6 @@
-import { UserLoginAuthForm } from "@/modules/account/components/form"
+import { UserLoginAuthForm } from "@/modules/auth/components/form"
 import { useAuthFlow } from '@/lib/context/auth'
-import { AuthBox } from '@/modules/account/components/box'
+import { AuthBox } from '@/modules/auth/components/box'
 
 export const LoginTemplatePage = () => {
     const { updateAuthFlowPage } = useAuthFlow()

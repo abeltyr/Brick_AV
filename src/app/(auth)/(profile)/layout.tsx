@@ -3,38 +3,38 @@
 import AuthenticationPage from '@/modules/auth/templates/';
 import { AuthFlowProvider, useAuth } from '@/lib/context/auth';
 import { CompanyProvider, ProfileProvider, useProfile } from '@/lib/context/account';
-import { useEffect } from 'react';
 import { DrawerManagerProvider } from '@/lib/context/drawer/drawer';
+import { useEffect } from 'react';
 
 
-export default function AuthLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
 
+
   const { session } = useAuth()
 
-  const { fetchProfile } = useProfile()
+
+  const { profile, fetchProfile } = useProfile()
 
   useEffect(() => {
-    if (session && session.user && session.user.id) {
+    if (session && session.user && session.user.id)
       fetchProfile(session?.user.id)
-    }
 
   }, [fetchProfile, session])
 
-
-  if (session)
+  if (profile)
     return (
-      <CompanyProvider>
+      <DrawerManagerProvider>
         {children}
-      </CompanyProvider>
+      </DrawerManagerProvider>
     );
   else
     return (
-      <AuthFlowProvider>
-        <AuthenticationPage />
-      </AuthFlowProvider>
+      <div>
+        No Profile
+      </div>
     );
 }

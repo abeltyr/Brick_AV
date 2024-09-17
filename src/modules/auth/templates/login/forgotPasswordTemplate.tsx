@@ -1,6 +1,6 @@
-import { UserForgotPasswordForm } from "@/modules/account/components/form"
+import { UserForgotPasswordForm } from "@/modules/auth/components/form"
 import { useAuthFlow } from '@/lib/context/auth'
-import { AuthBox } from '@/modules/account/components/box'
+import { AuthBox } from '@/modules/auth/components/box'
 import LockSVG from '@/assets/icons/lock'
 import { COUNTDOWN_DURATION } from '@/lib/utils'
 import { Progress } from '@/modules/ui/progress'

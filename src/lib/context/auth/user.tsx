@@ -13,25 +13,13 @@ import LoadingSVG from '@/assets/icons/loading';
 const initialValues: {
     session: Session | null,
     loading: boolean,
-    companies: CompanyMemberType[] | null,
-    companyIndex: number,
-    companyLoading: boolean
-    currentCompany: CompanyMemberType | null,
-    updateCompanyIndex: (index: number) => void,
     logout: () => void,
     fetchUser: () => void,
-    updateUser: ({ }: {}) => void,
 } = {
     session: null,
     loading: true,
-    companies: null,
-    companyIndex: 0,
-    currentCompany: null,
-    companyLoading: true,
-    updateCompanyIndex: (index: number) => { },
     logout: () => { },
     fetchUser: () => { },
-    updateUser: ({ }: {}) => { },
 };
 
 type Props = {
@@ -44,12 +32,48 @@ const useAuth = () => useContext(AuthContext);
 
 const AuthProvider: React.FC<Props> = ({ children }) => {
     const [loading, setLoading] = useState(true);
-    const [companyLoading, setCompanyLoading] = useState(true);
     const [session, setSession] = useState<Session | null>(null)
-    const [companies, setCompanies] = useState<CompanyMemberType[] | null>(null)
-    const [currentCompany, setCurrentCompany] = useState<CompanyMemberType | null>(null)
-    const [companyIndex, setCompanyIndex] = useState<number>(0)
 
+    const fetchUser = useCallback(
+        async () => {
+            setLoading(true);
+            try {
+                await getUserAction();
+            } catch (e) {
+                console.error(e)
+            }
+            setLoading(false);
+        },
+        [],
+    );
+
+    const logout = useCallback(
+        async () => {
+            try {
+                let user = await logoutAction();
+                setSession(null);
+                localStorage.clear();
+            } catch (e) {
+                console.error(e)
+            }
+        },
+        [],
+    );
+
+    const refreshAccountSession = useCallback(
+        async () => {
+            setLoading(true);
+            try {
+                const data = await refreshAccountToken();
+                setSession(data.session);
+            } catch (e) {
+                await logout();
+                setSession(null);
+            }
+            setLoading(false);
+        },
+        [logout],
+    );
 
     useEffect(() => {
         const supabase = createClient();
@@ -73,108 +97,13 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                     }
                 }
                 setSession(session)
-                if (session)
-                    await fetchCompanies({ userId: session.user.id });
             })
 
         return () => subscription.unsubscribe()
-    }, [])
+    }, [refreshAccountSession])
 
 
-
-    const updateCompanyIndex = useCallback(
-        async (index: number) => {
-            setCompanyIndex(index)
-            setCurrentCompany(companies && companies[index])
-        },
-        [companies],
-    );
-
-
-    const refreshAccountSession = useCallback(
-        async () => {
-            setLoading(true);
-            try {
-                const data = await refreshAccountToken();
-                setSession(data.session);
-            } catch (e) {
-                await logout();
-                setSession(null);
-            }
-            setLoading(false);
-        },
-        [],
-    );
-
-    const fetchUser = useCallback(
-        async () => {
-            setLoading(true);
-            try {
-                let value = await getUserAction();
-                if (value) {
-                    await fetchCompanies({ userId: value.user.id, });
-                    return value.user;
-                }
-            } catch (e) {
-                console.error(e)
-            }
-            setLoading(false);
-        },
-        [],
-    );
-
-    const fetchCompanies = useCallback(
-        async ({ userId, refetch = false }: { userId: string, refetch?: boolean }) => {
-            setCompanyLoading(true);
-            let fetchData = true;
-            try {
-                const data = localStorage.getItem("memberData")
-
-                if (data && !refetch) {
-                    const extractData = JSON.parse(data);
-                    const minSinceLastPull = (new Date().getTime() - extractData.date) / 60000;
-                    if (minSinceLastPull < 60) {
-                        setCompanies(extractData.memberData);
-                        setCurrentCompany(extractData.memberData && extractData.memberData[0])
-                        fetchData = false;
-                        console.log("local data");
-                    }
-                }
-
-                if (!companies && fetchData) {
-                    const memberData = await fetchMemberCompanyAction(userId);
-                    localStorage.setItem("memberData", JSON.stringify({
-                        memberData: memberData,
-                        date: new Date().getTime()
-                    }))
-                    setCompanies(memberData);
-                    setCurrentCompany(memberData && memberData[0])
-                    console.log("new Save");
-
-                }
-            } catch (e) {
-                console.error(e)
-            }
-            setCompanyLoading(false);
-        },
-        [],
-    );
-
-    const logout = useCallback(
-        async () => {
-            try {
-                let user = await logoutAction();
-                setSession(null);
-                localStorage.clear();
-            } catch (e) {
-                console.error(e)
-            }
-        },
-        [],
-    );
-
-
-    if ((loading) || session && companyLoading)
+    if (loading)
         return <div className='w-screen h-screen flex justify-center items-center text-primary'>
             <LoadingSVG className='w-20 h-20 animate-spin' />
         </div>
@@ -184,14 +113,8 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                 value={{
                     session,
                     fetchUser,
-                    logout: logout,
-                    updateUser: () => { },
+                    logout,
                     loading,
-                    companyIndex,
-                    companies,
-                    companyLoading,
-                    updateCompanyIndex,
-                    currentCompany
                 }}
             >
                 {children}

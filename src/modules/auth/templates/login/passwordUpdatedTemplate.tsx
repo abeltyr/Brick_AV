@@ -1,4 +1,4 @@
-import { AuthBox } from '@/modules/account/components/box'
+import { AuthBox } from '@/modules/auth/components/box'
 import ShiedCheckSVG from '@/assets/icons/shiedCheck'
 import { Button } from '@/modules/ui/button'
 import { useRouter } from 'next/navigation'

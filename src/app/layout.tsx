@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/lib/context/theme';
 import { AuthProvider } from '@/lib/context/auth/user';
 import { Toaster } from "@/modules/ui/toaster"
 import "./globals.css";
+import { ProfileProvider } from '@/lib/context/account';
 
 const inter = Inter({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"] });
 
@@ -22,7 +23,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <AuthProvider>
-            {children}
+            <ProfileProvider>
+              {children}
+            </ProfileProvider>
           </AuthProvider>
         </ThemeProvider>
         <Toaster />

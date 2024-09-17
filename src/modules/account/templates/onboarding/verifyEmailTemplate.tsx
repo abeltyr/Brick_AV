@@ -4,8 +4,8 @@
 import EmailSVG from '@/assets/icons/email'
 import { useAuthFlow } from '@/lib/context/auth'
 import { COUNTDOWN_DURATION } from '@/lib/utils'
-import { AuthBox } from '@/modules/account/components/box'
-import { UserEmailVerificationForm } from "@/modules/account/components/form"
+import { AuthBox } from '@/modules/auth/components/box'
+import { UserEmailVerificationForm } from "@/modules/auth/components/form"
 import { Progress } from '@/modules/ui/progress'
 
 export const VerifyEmailTemplatePage = () => {

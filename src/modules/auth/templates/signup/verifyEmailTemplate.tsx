@@ -1,22 +1,23 @@
-import { UserResetPasswordForm } from "@/modules/account/components/form"
+
+
+
+import EmailSVG from '@/assets/icons/email'
 import { useAuthFlow } from '@/lib/context/auth'
-import { AuthBox } from '@/modules/account/components/box'
-import KeySVG from '@/assets/icons/key'
 import { COUNTDOWN_DURATION } from '@/lib/utils'
+import { AuthBox } from '@/modules/auth/components/box'
+import { UserEmailVerificationForm } from "@/modules/auth/components/form"
 import { Progress } from '@/modules/ui/progress'
 
-export const ResetPasswordTemplatePage = () => {
-
-
-    const { countdown, updateAuthFlowPage, email } = useAuthFlow();
+export const VerifyEmailTemplatePage = () => {
+    const { updateAuthFlowPage, email, countdown } = useAuthFlow()
 
     return (
         <div className="min-w-[320px] relative min-h-screen flex items-center justify-center ">
             <AuthBox
-                icon={<KeySVG />}
-                description={`Your new password for ${email} must be different from your previously used passwords.`}
-                form={<UserResetPasswordForm />}
-                title='Set new password?'
+                icon={<EmailSVG />}
+                description={`We sent a password reset link to ${email}`}
+                form={<UserEmailVerificationForm />}
+                title='Check your email'
                 bottom={
                     <>
                         {countdown > 0 ? (
@@ -25,7 +26,7 @@ export const ResetPasswordTemplatePage = () => {
                                 <p className="text-sm text-center text-gray-500">
                                     Resend will be available in {countdown} seconds {" "}<span className="underline text-primary/80 cursor-pointer select-none hover:text-primary duration-300"
                                         onClick={() => {
-                                            updateAuthFlowPage("ForgotPassword")
+                                            updateAuthFlowPage("Signup")
                                         }}>
                                         go back
                                     </span>
@@ -37,7 +38,7 @@ export const ResetPasswordTemplatePage = () => {
                                     Didn’t receive the email?{" "}
                                     <span className="underline text-primary/80 cursor-pointer select-none hover:text-primary duration-300"
                                         onClick={() => {
-                                            updateAuthFlowPage("ForgotPassword")
+                                            updateAuthFlowPage("Signup")
                                         }}
                                     >
                                         Click here to resend
