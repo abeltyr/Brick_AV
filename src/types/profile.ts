@@ -5,7 +5,7 @@ import { CompanyMemberType } from "./company";
 
 export type ProfileType = Profile & {
   address?: Address;
-  companyMember?: CompanyMemberType[];
+  CompanyMember?: CompanyMemberType[];
 };
 
 export type ProfileInputType = {

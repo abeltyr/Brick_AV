@@ -69,7 +69,7 @@ const initialValues: {
     ownerProfile: z.infer<typeof profileSchema> | null,
     setOwnerProfile: (ownerProfile: z.infer<typeof profileSchema> | null) => void,
     fetchBusiness: (tinNumber: string) => Promise<BusinessType | null>
-    createUser: ({ ownerAddressData }: { ownerAddressData?: z.infer<typeof addressSchema> }) => Promise<ProfileType | null>
+    createUser: ({ ownerAddressData, userId }: { ownerAddressData?: z.infer<typeof addressSchema>, userId: string }) => Promise<ProfileType | null>
 } = {
     onBoardingId: 0,
     setOnBoardingId: (index: number) => { },
@@ -91,7 +91,7 @@ const initialValues: {
     setOwnerAddress: (ownerAddress) => { },
     ownerProfile: null,
     setOwnerProfile: (ownerProfile) => { },
-    createUser: async ({ ownerAddressData }: { ownerAddressData?: z.infer<typeof addressSchema> }) => { return null },
+    createUser: async ({ ownerAddressData, userId }: { ownerAddressData?: z.infer<typeof addressSchema>, userId: string }) => { return null },
     fetchBusiness: async (tinNumber: string) => { return null }
 };
 
@@ -141,7 +141,7 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
 
 
 
-    const createUser = async ({ ownerAddressData }: { ownerAddressData?: z.infer<typeof addressSchema> }): Promise<ProfileType> => {
+    const createUser = async ({ ownerAddressData, userId }: { ownerAddressData?: z.infer<typeof addressSchema>, userId: string }): Promise<ProfileType> => {
         if (!business) throw new Error("Business has not been setup")
         if (!owner) throw new Error("Role has not been setup")
         if (!address) throw new Error("Address has not been setup")
@@ -182,7 +182,12 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
             phoneNumber: profile.phoneNumber ?? "",
             tinNumber: profile.tinNumber ?? "",
             address: {
-                ...address
+                description: address.description,
+                houseNumber: address.houseNumber,
+                region: address.region,
+                woreda: address.woreda,
+                zone: address.zone,
+                kebele: address.kebele
             }
         }
 
@@ -199,7 +204,9 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
                 },
                 ownerProfile: ownerProfileData,
                 role: owner.role,
+                roleDetail: owner.detail,
                 profile: {
+                    userId,
                     ...profileInputData
                 }
             })

@@ -44,7 +44,7 @@ export const fetchBusinessApi = async (
       zone: null,
       woreda: null,
       kebele: null,
-      HouseNo: null,
+      houseNumber: null,
     };
     // // Iterate through each business trade and create records
     for (const trade of businessData.Businesses.reverse()) {
@@ -65,7 +65,7 @@ export const fetchBusinessApi = async (
           zone: tradeData.AddressInfo.Zone,
           woreda: tradeData.AddressInfo.Woreda,
           kebele: tradeData.AddressInfo.Kebele,
-          HouseNo: tradeData.AddressInfo.HouseNo,
+          houseNumber: tradeData.AddressInfo.HouseNo,
         };
       }
       // Create the business trade record

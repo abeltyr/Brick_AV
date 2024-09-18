@@ -14,6 +14,7 @@ import { GeneralAddressForm, } from '@/modules/common/components/form'
 import { addressSchema } from '@/lib/form/account'
 import { useOnboarding } from '@/lib/context/account/onboarding'
 import { useProfile } from '@/lib/context/account'
+import { useAuth } from '@/lib/context/auth'
 
 
 
@@ -24,7 +25,8 @@ export function OnboardingOwnerAddressForm({ className, ...props }: OnboardingOw
 
     const { toast } = useToast()
 
-    const { setAddress, address, setOnBoardingSubSet, setOnBoardingId, createUser } = useOnboarding();
+    const { session } = useAuth();
+    const { address, createUser } = useOnboarding();
     const { setProfile } = useProfile();
 
 
@@ -42,9 +44,11 @@ export function OnboardingOwnerAddressForm({ className, ...props }: OnboardingOw
             setIsLoading(true)
             try {
 
-                const profileData = await createUser({ ownerAddressData: values });
-                if (profileData)
-                    setProfile(profileData)
+                if (session && session.user && session?.user.id) {
+                    const profileData = await createUser({ userId: session.user.id, ownerAddressData: values });
+                    if (profileData)
+                        setProfile(profileData)
+                }
                 setIsLoading(false)
             } catch (e) {
                 console.log(e)

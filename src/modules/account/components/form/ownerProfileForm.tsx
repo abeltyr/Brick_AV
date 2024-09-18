@@ -16,6 +16,7 @@ import { GeneralProfileForm, GeneralRoleForm } from '@/modules/common/components
 import { ownerSchema, profileSchema } from '@/lib/form/account'
 import { useOnboarding } from '@/lib/context/account/onboarding'
 import { useProfile } from '@/lib/context/account'
+import { useAuth } from '@/lib/context/auth'
 
 
 
@@ -24,6 +25,7 @@ interface OnboardingOwnerFormProps extends React.HTMLAttributes<HTMLDivElement> 
 export function OnboardingOwnerForm({ className, ...props }: OnboardingOwnerFormProps) {
     const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
+    const { session } = useAuth();
     const { toast } = useToast()
 
     const { ownerProfile, owner, setOwner, setOwnerProfile, setOnBoardingSubSet, createUser } = useOnboarding()
@@ -51,9 +53,12 @@ export function OnboardingOwnerForm({ className, ...props }: OnboardingOwnerForm
             if (!isLoading) {
                 setIsLoading(true)
                 try {
-                    const profileData = await createUser({});
-                    if (profileData)
-                        setProfile(profileData)
+                    if (session && session.user && session?.user.id) {
+                        const profileData = await createUser({ userId: session.user.id });
+                        if (profileData)
+                            setProfile(profileData)
+                    }
+
                     setIsLoading(false)
                 } catch (e) {
                     console.log(e)
@@ -98,7 +103,7 @@ export function OnboardingOwnerForm({ className, ...props }: OnboardingOwnerForm
                         <Button
                             onClick={(e) => {
                                 e.preventDefault();
-                                form.handleSubmit(onSubmit)
+                                form.handleSubmit(onSubmit)();
                             }}
                             disabled={isLoading}
                             type="submit" variant='default' >

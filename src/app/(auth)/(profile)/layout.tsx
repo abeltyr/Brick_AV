@@ -31,7 +31,12 @@ export default function RootLayout({
 
   if (loading && !profile) return <LoadingTemplate />
 
-  if (profile && profile.companyMember && profile.companyMember.length > 0)
+
+
+  console.log("profile",
+    profile);
+
+  if (profile && profile.CompanyMember && profile.CompanyMember.length > 0)
     return (
       <DrawerManagerProvider>
         {children}

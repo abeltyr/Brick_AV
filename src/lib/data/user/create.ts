@@ -14,10 +14,12 @@ export const onBoardingAction = async (data: {
   role: string;
   roleDetail?: string;
 }): Promise<ProfileType> => {
+  console.log("data.role ", data.role);
   let roleData: CompanyMemberRole = "Owner";
 
-  if (data.role === "Accountant") roleData = "Accountant";
-  else if (data.role === "Other") roleData = "Other";
+  if (data.role === "accountant") roleData = "Accountant";
+  else if (data.role === "owner") roleData = "Owner";
+  else roleData = "Other";
 
   const companyId = v4();
   let profileData: any[] = [
@@ -40,7 +42,16 @@ export const onBoardingAction = async (data: {
             company: {
               create: {
                 id: companyId,
-                ...data.company,
+                name: data.company.name,
+                managerName: data.company.managerName,
+                email: data.company.email,
+                phoneNumber: data.company.phoneNumber,
+                phoneNumberAlterative: data.company.phoneNumberAlterative,
+                business: {
+                  connect: {
+                    id: data.company.businessId,
+                  },
+                },
               },
             },
             role: roleData,
