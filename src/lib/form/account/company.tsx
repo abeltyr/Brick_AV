@@ -29,8 +29,7 @@ export const companySchema = z.object({
 
 export const ownerSchema = z.object({
     role: z.enum(['owner', 'accountant', 'other']),
-    detail: z.string().optional(),
-    profile: profileSchema.optional(),
+    detail: z.string().optional()
 }).refine((data) => {
     if (data.role === 'other') {
         return data.detail && data.detail.length > 0;
@@ -39,12 +38,4 @@ export const ownerSchema = z.object({
 }, {
     message: "Please provided a role name",
     path: ['detail']
-}).refine((data) => {
-    if (data.role !== 'owner') {
-        return data.profile !== undefined;
-    }
-    return true;
-}, {
-    message: "Need to create the owner profile here",
-    path: ['profile']
-});
+})

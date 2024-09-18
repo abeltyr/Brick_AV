@@ -50,7 +50,7 @@ import { Textarea } from '@/modules/ui/textarea'
 // ];
 
 const regions = [
-    { "value": "addis_ababa", "data": "Addis Ababa (City)" },
+    { "value": "addis_ababa", "data": "Addis Ababa" },
     { "value": "afar_region", "data": "Afar Region" },
     { "value": "amhara_region", "data": "Amhara Region" },
     { "value": "benishangul_gumuz_region", "data": "Benishangul-Gumuz Region" },
@@ -65,7 +65,7 @@ const regions = [
     { "value": "south_west_ethiopia_peoples_region", "data": "South West Ethiopia Peoples' Region" },
     { "value": "tigray_region", "data": "Tigray Region" }
 ];
-export const GeneralAddressForm = ({ form }: { form: UseFormReturn<z.infer<typeof addressSchema>> }) => {
+export const GeneralAddressForm = ({ form, readOnlyValues = [] }: { form: UseFormReturn<z.infer<typeof addressSchema>>, readOnlyValues?: string[] }) => {
     return (
         <div className='flex flex-col gap-5'>
             <div className=" gap-3 flex justify-between">
@@ -117,7 +117,11 @@ export const GeneralAddressForm = ({ form }: { form: UseFormReturn<z.infer<typeo
                                         Zone
                                     </LanguageTranslator></FormLabel>
                                 <FormControl>
-                                    <Input type="text" placeholder="Kolfe Keranio" {...field} />
+                                    <Input
+                                        type="text"
+                                        placeholder="Addis Ababa" {...field}
+                                        disabled={readOnlyValues.includes("zone")}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -137,7 +141,12 @@ export const GeneralAddressForm = ({ form }: { form: UseFormReturn<z.infer<typeo
                                         Woreda
                                     </LanguageTranslator></FormLabel>
                                 <FormControl>
-                                    <Input type="text" placeholder="01" {...field} />
+                                    <Input
+                                        type="text"
+                                        placeholder="Kolfe Keranio"
+                                        {...field}
+                                        disabled={readOnlyValues.includes("zone")}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -155,7 +164,12 @@ export const GeneralAddressForm = ({ form }: { form: UseFormReturn<z.infer<typeo
                                         Kebele
                                     </LanguageTranslator></FormLabel>
                                 <FormControl>
-                                    <Input type="text" placeholder="01" {...field} />
+                                    <Input
+                                        type="text"
+                                        placeholder="01"
+                                        {...field}
+                                        disabled={readOnlyValues.includes("kebele")}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -173,7 +187,12 @@ export const GeneralAddressForm = ({ form }: { form: UseFormReturn<z.infer<typeo
                                         House Number
                                     </LanguageTranslator></FormLabel>
                                 <FormControl>
-                                    <Input type="text" placeholder="New or B-102" {...field} />
+                                    <Input
+                                        type="text"
+                                        placeholder="New or B-102"
+                                        {...field}
+                                        disabled={readOnlyValues.includes("houseNumber")}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -197,6 +216,7 @@ export const GeneralAddressForm = ({ form }: { form: UseFormReturn<z.infer<typeo
                                     id="description"
                                     placeholder="Description of the address area"
                                     className="min-h-32"
+                                    disabled={readOnlyValues.includes("description")}
                                 />
                             </FormControl>
 

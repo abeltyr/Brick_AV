@@ -1,7 +1,8 @@
 export interface AddressInputType {
   region?: string;
-  city?: string;
+  zone?: string;
   woreda?: string;
   houseNumber?: string;
+  kebele?: string;
   description?: string;
 }

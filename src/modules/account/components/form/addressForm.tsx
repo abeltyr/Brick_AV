@@ -14,40 +14,32 @@ import {
 import { useToast } from "@/modules/ui/use-toast"
 import { GeneralAddressForm } from '@/modules/common/components/form'
 import { addressSchema } from '@/lib/form/account'
+import { useOnboarding } from '@/lib/context/account/onboarding'
 
 
 
 interface OnboardingAddressFormProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function OnboardingAddressForm({ className, ...props }: OnboardingAddressFormProps) {
-    const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-    const { toast } = useToast()
+
+    const { setAddress, address, setOnBoardingSubSet, setOnBoardingId } = useOnboarding();
 
     const form = useForm<z.infer<typeof addressSchema>>({
         resolver: zodResolver(addressSchema),
-        defaultValues: {},
+        defaultValues: { ...address },
     })
 
 
 
     const onSubmit = async (values: z.infer<typeof addressSchema>) => {
-        setIsLoading(true)
-        if (!isLoading) {
-            try {
 
-            } catch (e) {
-                console.log(e)
-                toast({
-                    title: "Error Signing up",
-                    description: (
-                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
-                        </div>
-                    ),
-                })
-                setIsLoading(false)
-            }
+        try {
+            setOnBoardingId(1)
+            setAddress(values)
+            setOnBoardingSubSet(0)
+        } catch (e) {
+            console.log(e)
         }
     }
 
@@ -59,13 +51,13 @@ export function OnboardingAddressForm({ className, ...props }: OnboardingAddress
                     <GeneralAddressForm form={form} />
                     <div className='pt-4'>
                         <Button
-                            disabled={isLoading}
+                            // disabled={isLoading}
                             type="submit" variant='default' >
-                            {isLoading && (
+                            {/* {isLoading && (
                                 <div className='mr-2 h-5 w-5 animate-spin'>
                                     <LoadingSVG />
                                 </div>
-                            )}
+                            )} */}
                             Continue
                         </Button>
                     </div>

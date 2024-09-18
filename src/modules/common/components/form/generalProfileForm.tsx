@@ -15,7 +15,7 @@ import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 
 
-export const GeneralProfileForm = ({ form }: { form: UseFormReturn<z.infer<typeof profileSchema>> }) => {
+export const GeneralProfileForm = ({ form, readOnlyValues = [] }: { form: UseFormReturn<z.infer<typeof profileSchema>>, readOnlyValues?: string[] }) => {
     return (
         <div className='flex flex-col gap-5'>
             <FormField
@@ -26,6 +26,7 @@ export const GeneralProfileForm = ({ form }: { form: UseFormReturn<z.infer<typeo
                         <FormLabel className='text-sm'>Full name</FormLabel>
                         <FormControl>
                             <Input
+                                disabled={readOnlyValues.includes("fullName")}
                                 placeholder="Enter your full name"
                                 {...field}
                             />
@@ -45,6 +46,7 @@ export const GeneralProfileForm = ({ form }: { form: UseFormReturn<z.infer<typeo
                                 <FormLabel className='text-sm'>Email</FormLabel>
                                 <FormControl>
                                     <Input
+                                        disabled={readOnlyValues.includes("email")}
                                         placeholder="Enter your email"
                                         {...field}
                                         type="email"
@@ -64,6 +66,7 @@ export const GeneralProfileForm = ({ form }: { form: UseFormReturn<z.infer<typeo
                                 <FormLabel className='text-sm'>Personal Tin number</FormLabel>
                                 <FormControl>
                                     <Input
+                                        disabled={readOnlyValues.includes("tinNumber")}
                                         placeholder="Enter your TIN number"
                                         {...field}
                                     />
@@ -93,6 +96,7 @@ export const GeneralProfileForm = ({ form }: { form: UseFormReturn<z.infer<typeo
                                 </Select>
                                 <Input
                                     {...field}
+                                    disabled={readOnlyValues.includes("phoneNumber")}
                                     placeholder="922998885"
                                     className="flex-1 ml-2"
                                 />

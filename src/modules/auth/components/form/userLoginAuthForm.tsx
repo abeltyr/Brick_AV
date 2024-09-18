@@ -56,6 +56,7 @@ export function UserLoginAuthForm({ className, ...props }: UserLoginAuthFormProp
                     email: values.email,
                     password: values.password
                 });
+                window.location.reload();
             } catch (e) {
                 console.log(e)
                 toast({

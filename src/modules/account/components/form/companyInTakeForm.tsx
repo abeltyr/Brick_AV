@@ -14,29 +14,67 @@ import {
 import { useToast } from "@/modules/ui/use-toast"
 import { GeneralCompanyIntakeForm } from '@/modules/common/components/form'
 import { companyInTakeSchema } from '@/lib/form/account'
+import { useOnboarding } from '@/lib/context/account/onboarding'
+
+import { useState } from 'react'
+
+import { BusinessType } from '@/types/business'
+import { BusinessDetailModal } from '../../../business/components/businessDetailModal'
 
 
 
 interface OnboardingCompanyInTakeFormProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function OnboardingCompanyInTakeForm({ className, ...props }: OnboardingCompanyInTakeFormProps) {
+
     const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
+    const { business, setCompanyIntake, companyIntake, setOnBoardingSubSet, fetchBusiness, setOnBoardingId } = useOnboarding();
+
     const { toast } = useToast()
+
+    const [isOpen, setIsOpen] = useState(false)
+    const [businessFetched, setBusinessFetched] = useState<BusinessType | null>(business)
+
+    const handleClose = () => setIsOpen(false)
+    const handleContinue = () => {
+        console.log('Continuing...')
+        setIsOpen(false)
+        setOnBoardingSubSet(1)
+    }
 
     const form = useForm<z.infer<typeof companyInTakeSchema>>({
         resolver: zodResolver(companyInTakeSchema),
         defaultValues: {
-
+            ...companyIntake
         },
     })
 
 
 
     const onSubmit = async (values: z.infer<typeof companyInTakeSchema>) => {
-        setIsLoading(true)
         if (!isLoading) {
+            setIsLoading(true)
             try {
+
+                setCompanyIntake(values)
+                if (values.isRegistered === "yes" && values.tinNumber) {
+                    if (business && business.tinNumber === values.tinNumber) {
+                        setBusinessFetched(business);
+                        setIsOpen(true)
+                        setIsLoading(false)
+                    } else {
+                        const businessData = await fetchBusiness(values.tinNumber)
+                        setBusinessFetched(businessData);
+                        setIsOpen(true)
+                        setIsLoading(false)
+                    }
+                    return
+                } else {
+                    setOnBoardingId(2)
+                    setOnBoardingSubSet(0)
+                    setIsLoading(false)
+                }
 
             } catch (e) {
                 console.log(e)
@@ -58,7 +96,7 @@ export function OnboardingCompanyInTakeForm({ className, ...props }: OnboardingC
         <div className={cn("grid gap-6", className)} {...props}>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full">
-                    <GeneralCompanyIntakeForm form={form} title='Company Name' />
+                    <GeneralCompanyIntakeForm form={form} title='Company Name' readOnlyValues={[]} />
                     <div className=' pt-4'>
                         <Button
                             disabled={isLoading}
@@ -73,6 +111,42 @@ export function OnboardingCompanyInTakeForm({ className, ...props }: OnboardingC
                     </div>
                 </form>
             </Form>
+            <BusinessDetailModal
+                isOpen={isOpen}
+                setIsOpen={setIsOpen}
+                handleClose={handleClose}
+                handleContinue={handleContinue}
+                businessFetched={businessFetched}
+            />
         </div>
     )
 }
+
+
+
+// const businessDetail = {
+//     tinNumber: '0090866119',
+//     email: 'acme@gmail.com',
+//     website: 'acme@gmail.com',
+//     email2: 'acme.com',
+//     legalCondition: 'Public Enterprise',
+//     registrationNumber: 'MT/AA/5/006147584',
+//     registrationDate: '2/1/12',
+//     businessName: 'acme.com',
+//     capital: 'ETB 100,000,000,000',
+// }
+
+// const businessList = [
+//     {
+//         tradeName: 'ETHIO TELECOM S C',
+//         sections: 'Fixed property subletting/ renting activities',
+//         licenseNo: 'MT/AA/14/669/3872789/2014',
+//         valid: '7/7/2023 - 7/7/2024',
+//     },
+//     {
+//         tradeName: 'eBay',
+//         sections: '18/09/2016 E.C.',
+//         licenseNo: '18/09/2016 E.C.',
+//         valid: '7/7/2023 - 7/7/2024',
+//     },
+// ]

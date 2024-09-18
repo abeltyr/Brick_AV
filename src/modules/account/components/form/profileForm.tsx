@@ -15,47 +15,35 @@ import { useToast } from "@/modules/ui/use-toast"
 import { useAuth, useAuthFlow } from '@/lib/context/auth'
 import { profileSchema } from '@/lib/form/account/profile'
 import { GeneralProfileForm } from '@/modules/common/components/form'
+import { useOnboarding } from '@/lib/context/account/onboarding'
 
 
 
 interface OnboardingProfileFormProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function OnboardingProfileForm({ className, ...props }: OnboardingProfileFormProps) {
-    const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-    const { toast } = useToast()
     const { session } = useAuth()
+
+    const { setProfile, profile, setOnBoardingSubSet } = useOnboarding();
 
 
     const form = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
+            ...profile,
             email: session && session.user && session.user.email ? session.user.email : '',
-            // fullName: session && session.user && session.user. ? session.user.email : '',
+            fullName: session && session.user && session.user.user_metadata ? session.user.user_metadata.name : '',
         },
     })
 
 
-    console.log("session", session);
-
     const onSubmit = async (values: z.infer<typeof profileSchema>) => {
-        setIsLoading(true)
-        if (!isLoading) {
-            try {
-
-
-            } catch (e) {
-                console.log(e)
-                toast({
-                    title: "Error Signing up",
-                    description: (
-                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
-                        </div>
-                    ),
-                })
-                setIsLoading(false)
-            }
+        try {
+            setProfile(values)
+            setOnBoardingSubSet(1);
+        } catch (e) {
+            console.log(e)
         }
     }
 
@@ -64,16 +52,18 @@ export function OnboardingProfileForm({ className, ...props }: OnboardingProfile
         <div className={cn("grid gap-6", className)} {...props}>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full">
-                    <GeneralProfileForm form={form} />
+                    <GeneralProfileForm form={form}
+                        readOnlyValues={["email"]}
+                    />
                     <div className='pt-4'>
                         <Button
-                            disabled={isLoading}
+                            // disabled={isLoading}
                             type="submit" variant='default'>
-                            {isLoading && (
+                            {/* {isLoading && (
                                 <div className='mr-2 h-5 w-5 animate-spin'>
                                     <LoadingSVG />
                                 </div>
-                            )}
+                            )} */}
                             Continue
                         </Button>
                     </div>

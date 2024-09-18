@@ -5,9 +5,6 @@ import { Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/utils/supabase/client';
 import { getUserAction, refreshAccountToken } from '@/lib/data/account/fetch';
 import { logoutAction } from '@/lib/data/account/logout';
-import { fetchMemberCompanyAction } from '@/lib/data/companyMember/fetchById';
-import { CompanyMemberType } from '@/types/company';
-import LoadingSVG from '@/assets/icons/loading';
 import LoadingTemplate from '@/modules/common/templates/loading';
 
 

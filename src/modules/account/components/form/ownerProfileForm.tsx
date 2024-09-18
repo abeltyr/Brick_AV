@@ -14,6 +14,8 @@ import {
 import { useToast } from "@/modules/ui/use-toast"
 import { GeneralProfileForm, GeneralRoleForm } from '@/modules/common/components/form'
 import { ownerSchema, profileSchema } from '@/lib/form/account'
+import { useOnboarding } from '@/lib/context/account/onboarding'
+import { useProfile } from '@/lib/context/account'
 
 
 
@@ -24,10 +26,14 @@ export function OnboardingOwnerForm({ className, ...props }: OnboardingOwnerForm
 
     const { toast } = useToast()
 
+    const { ownerProfile, owner, setOwner, setOwnerProfile, setOnBoardingSubSet, createUser } = useOnboarding()
+    const { setProfile } = useProfile();
+
     const form = useForm<z.infer<typeof ownerSchema>>({
         resolver: zodResolver(ownerSchema),
         defaultValues: {
-            role: "owner"
+            role: "owner",
+            ...owner
         },
     })
 
@@ -35,49 +41,46 @@ export function OnboardingOwnerForm({ className, ...props }: OnboardingOwnerForm
     const profileForm = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
-
+            ...ownerProfile
         },
     })
 
 
     const onSubmit = async (values: z.infer<typeof ownerSchema>) => {
-        setIsLoading(true)
-        if (!isLoading) {
-            try {
-
-            } catch (e) {
-                console.log(e)
-                toast({
-                    title: "Error Signing up",
-                    description: (
-                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
-                        </div>
-                    ),
-                })
-                setIsLoading(false)
+        if (values.role === "owner") {
+            if (!isLoading) {
+                setIsLoading(true)
+                try {
+                    const profileData = await createUser({});
+                    if (profileData)
+                        setProfile(profileData)
+                    setIsLoading(false)
+                } catch (e) {
+                    console.log(e)
+                    toast({
+                        title: "Error Signing up",
+                        description: (
+                            <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
+                                An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
+                            </div>
+                        ),
+                    })
+                    setIsLoading(false)
+                }
             }
+        }
+        else {
+            setOwner({ ...values })
         }
     }
 
     const profileOnSubmit = async (values: z.infer<typeof profileSchema>) => {
-        setIsLoading(true)
-        if (!isLoading) {
-            try {
-
-            } catch (e) {
-                console.log(e)
-                toast({
-                    title: "Error Signing up",
-                    description: (
-                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
-                        </div>
-                    ),
-                })
-                setIsLoading(false)
-            }
+        try {
+            setOwnerProfile({ ...values })
+            setOnBoardingSubSet(1)
+        } catch (e) {
         }
+
     }
 
     const watchedRole = useWatch({
@@ -89,10 +92,14 @@ export function OnboardingOwnerForm({ className, ...props }: OnboardingOwnerForm
     return (
         <div className={cn("grid gap-6", className)} {...props}>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full">
+                <form className="space-y-2 w-full">
                     <GeneralRoleForm form={form} watchedRole={watchedRole} />
                     {watchedRole === "owner" && <div className=' pt-4'>
                         <Button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                form.handleSubmit(onSubmit)
+                            }}
                             disabled={isLoading}
                             type="submit" variant='default' >
                             {isLoading && (
@@ -106,13 +113,17 @@ export function OnboardingOwnerForm({ className, ...props }: OnboardingOwnerForm
                 </form>
             </Form>
             {watchedRole != "owner" &&
-
                 <Form {...profileForm}>
-                    <form onSubmit={profileForm.handleSubmit(profileOnSubmit)} className="space-y-2 w-full">
+                    <form className="space-y-2 w-full">
 
                         <GeneralProfileForm form={profileForm} />
                         <div className='w-full pt-4'>
                             <Button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    form.handleSubmit(onSubmit)();
+                                    profileForm.handleSubmit(profileOnSubmit)();
+                                }}
                                 disabled={isLoading}
                                 type="submit" variant='default' className='w-full'>
                                 {isLoading && (

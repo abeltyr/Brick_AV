@@ -3,18 +3,19 @@
 import React, { useCallback, useContext, useState } from "react";
 
 import { ProfileType } from '@/types/profile';
-import { findProfileByIdAction } from '@/lib/data/profile/fetchById';
-import { CompanyMemberType, CompanyType } from '@/types/company';
+import { findProfileByUserIdAction } from '@/lib/data/profile/fetchByUserId';
 
 
 const initialValues: {
     profile: ProfileType | null,
     loading: boolean,
     fetchProfile: (id: string) => Promise<ProfileType | null>,
+    setProfile: (profile: ProfileType) => void
 } = {
     profile: null,
     loading: true,
-    fetchProfile: async (id: string) => { return null }
+    fetchProfile: async (id: string) => { return null },
+    setProfile: (profile) => { }
 };
 
 type Props = {
@@ -34,10 +35,13 @@ const ProfileProvider: React.FC<Props> = ({ children }) => {
             setLoading(true);
             console.log("data value")
             try {
-                let value = await findProfileByIdAction(id);
+
+                let value = await findProfileByUserIdAction(id);
+                console.log("value", value)
                 setProfile(value)
                 setLoading(false);
                 return value
+
             } catch (e) {
                 console.error(e)
                 setLoading(false);
@@ -52,6 +56,7 @@ const ProfileProvider: React.FC<Props> = ({ children }) => {
         <ProfileContext.Provider
             value={{
                 profile,
+                setProfile,
                 fetchProfile,
                 loading
             }}

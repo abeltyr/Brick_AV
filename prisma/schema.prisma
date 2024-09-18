@@ -50,6 +50,7 @@ model Address {
 
 model Profile {
   id            String    @id @default(uuid())
+  userId        String?   @unique
   name          String?
   preferredName String?
   email         String?
@@ -75,16 +76,18 @@ enum Gender {
 }
 
 model Business {
-  id              String                 @id @default(uuid())
-  tinNumber       String                 @unique
-  legalCondition  BusinessLegalCondition
-  registrationNo  String?
-  dateRegistered  DateTime?
-  businessName    String?
-  businessNameAmh String?
-  paidUpCapital   Float?
-  managerName     String?
-  managerNameEng  String?
+  id                    String                 @id @default(uuid())
+  tinNumber             String                 @unique
+  legalCondition        BusinessLegalCondition
+  registrationNo        String?
+  dateRegistered        DateTime?
+  businessName          String?
+  businessNameAmh       String?
+  paidUpCapital         Float?
+  managerName           String?
+  managerNameEng        String?
+  phoneNumber           String?
+  phoneNumberAlterative String?
 
   // location data
   addressId String?
@@ -120,13 +123,14 @@ model BusinessTrade {
   businessId     String
   business       Business  @relation(fields: [businessId], references: [id])
   dateRegistered DateTime?
-  TradeName      String?
-  TradeNameAmh   String?
-  LicenseNumber  String?
+  tradeName      String?
+  tradeNameAmh   String?
+  licenseName    String
+  licenseCode    String
+  licenseNumber  String?
   RenewedTo      DateTime?
   RenewedFrom    DateTime?
   RenewalDate    DateTime?
-  licenseName    String
 }
 
 model MRCRegistration {
@@ -140,13 +144,12 @@ model MRCRegistration {
 }
 
 model Company {
-  id             String  @id @default(uuid())
-  name           String
-  managerName    String?
-  managerNameEng String?
-  email          String?
-  phoneNumber    String?
-  description    String? @db.Text()
+  id          String  @id @default(uuid())
+  name        String
+  managerName String?
+  email       String?
+  phoneNumber String?
+  description String? @db.Text()
 
   logoId String?
   logo   File?   @relation(fields: [logoId], references: [id])
@@ -166,13 +169,14 @@ model Company {
 }
 
 model CompanyMember {
-  id        String            @id @default(uuid())
-  profileId String
-  profile   Profile           @relation(fields: [profileId], references: [id])
-  companyId String
-  company   Company           @relation(fields: [companyId], references: [id])
-  role      CompanyMemberRole
-  active    Boolean           @default(true)
+  id         String            @id @default(uuid())
+  profileId  String
+  profile    Profile           @relation(fields: [profileId], references: [id])
+  companyId  String
+  company    Company           @relation(fields: [companyId], references: [id])
+  role       CompanyMemberRole
+  roleDetail String?
+  active     Boolean           @default(true)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
@@ -186,6 +190,7 @@ enum CompanyMemberRole {
   Owner
   Accountant
   Auditor
+  Other
 }
 
 enum ProductCategoryType {

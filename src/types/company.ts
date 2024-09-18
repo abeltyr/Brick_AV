@@ -21,9 +21,9 @@ export type CompanyMemberType = CompanyMember & {
 export type CompanyInputType = {
   name: string;
   managerName?: string;
-  managerNameEng?: string;
   email?: string;
   phoneNumber?: string;
+  phoneNumberAlterative?: string;
   description?: string;
   logoId?: string;
   businessId?: string;

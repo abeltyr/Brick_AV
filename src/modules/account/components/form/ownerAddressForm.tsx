@@ -12,6 +12,8 @@ import { Form, } from "@/modules/ui/form"
 import { useToast } from "@/modules/ui/use-toast"
 import { GeneralAddressForm, } from '@/modules/common/components/form'
 import { addressSchema } from '@/lib/form/account'
+import { useOnboarding } from '@/lib/context/account/onboarding'
+import { useProfile } from '@/lib/context/account'
 
 
 
@@ -22,19 +24,28 @@ export function OnboardingOwnerAddressForm({ className, ...props }: OnboardingOw
 
     const { toast } = useToast()
 
+    const { setAddress, address, setOnBoardingSubSet, setOnBoardingId, createUser } = useOnboarding();
+    const { setProfile } = useProfile();
+
+
     const form = useForm<z.infer<typeof addressSchema>>({
         resolver: zodResolver(addressSchema),
         defaultValues: {
-
+            ...address
         },
     })
 
 
     const onSubmit = async (values: z.infer<typeof addressSchema>) => {
-        setIsLoading(true)
+
         if (!isLoading) {
+            setIsLoading(true)
             try {
 
+                const profileData = await createUser({ ownerAddressData: values });
+                if (profileData)
+                    setProfile(profileData)
+                setIsLoading(false)
             } catch (e) {
                 console.log(e)
                 toast({
@@ -66,7 +77,7 @@ export function OnboardingOwnerAddressForm({ className, ...props }: OnboardingOw
                                     <LoadingSVG />
                                 </div>
                             )}
-                            Continue
+                            Get Started
                         </Button>
                     </div>
                 </form>

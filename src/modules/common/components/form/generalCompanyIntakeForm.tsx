@@ -15,7 +15,7 @@ import { Label } from '@/modules/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/modules/ui/radio-group'
 
 
-export const GeneralCompanyIntakeForm = ({ form, title = "Company Name" }: { form: UseFormReturn<z.infer<typeof companyInTakeSchema>>, title?: string }) => {
+export const GeneralCompanyIntakeForm = ({ form, title = "Company Name", readOnlyValues = [] }: { form: UseFormReturn<z.infer<typeof companyInTakeSchema>>, title?: string, readOnlyValues?: string[] }) => {
 
     const watchedRegisteredData = useWatch({
         control: form.control,
@@ -36,7 +36,12 @@ export const GeneralCompanyIntakeForm = ({ form, title = "Company Name" }: { for
                                         {title}
                                     </LanguageTranslator></FormLabel>
                                 <FormControl>
-                                    <Input type="text" placeholder="Eurka Tech" {...field} />
+                                    <Input
+                                        type="text"
+                                        placeholder="Eurka Tech"
+                                        {...field}
+                                        disabled={readOnlyValues.includes("companyName")}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

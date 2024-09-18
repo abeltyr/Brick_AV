@@ -16,37 +16,43 @@ export const OnboardingSideBar = () => {
                     <div key={index} >
                         <Button
                             onClick={() => {
-                                if (index < onBoardingId)
+                                if (index < onBoardingId) {
                                     setOnBoardingId(index)
+
+                                    setOnBoardingSubSet(0)
+                                }
                             }}
                             className={`w-full text-left flex justify-between min-h-9  ${onBoardingId === index ? 'bg-secondary hover:bg-secondary' : 'bg-transparent hover:bg-transparent'} px-4 py-2 rounded`}
                         >
                             <span className={`font-medium text-black text-sm`}>
                                 {index + 1}. {step.title}
                             </span>
-                            {index < onBoardingId && < CheckSVG />}
+                            {index < onBoardingId && <CheckSVG className='text-[#000000]' />}
+
                         </Button>
                         <div className='flex flex-col'>
                             {step.subSteps.map((subStep, subSetIndex) => (
                                 <div key={index}
                                     onClick={() => {
-                                        if (index === onBoardingId && subSetIndex < onBoardingSubSet)
-                                            setOnBoardingSubSet(subSetIndex)
+                                        // if (onBoardingId > index || (onBoardingId === index && onBoardingSubSet > subSetIndex)) {
+                                        setOnBoardingSubSet(subSetIndex)
+                                        setOnBoardingId(index)
+                                        // }
                                     }}
                                     className={`
                                     ml-[32px] mt-1 
                                     text-sm text-foreground 
                                     ${onBoardingId === index && onBoardingSubSet === subSetIndex ? 'font-semibold' : ''}
-                                    ${index === onBoardingId && subSetIndex < onBoardingSubSet ? 'cursor-pointer' : ''}
+                                    ${onBoardingId > index || (onBoardingId === index && onBoardingSubSet > subSetIndex) ? 'cursor-pointer' : ''}
                                     h-7
                                     `}>
-                                    {subStep}
+                                    {subStep.name}
                                 </div>
                             ))}
                         </div>
                     </div>
                 ))}
             </CardContent>
-        </Card>
+        </Card >
     )
 }
