@@ -93,7 +93,7 @@ export const GeneralCompanyIntakeForm = ({ form, title = "Company Name", readOnl
                 name="tinNumber"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel className='text-sm'>Personal Tin number</FormLabel>
+                        <FormLabel className='text-sm'>Company Tin</FormLabel>
                         <FormControl>
                             <Input
                                 placeholder="Enter your TIN number"

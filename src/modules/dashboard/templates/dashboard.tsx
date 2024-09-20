@@ -14,37 +14,37 @@ import { toEthiopian } from '@/lib/utils/calendar';
 export default function DashboardTemplate() {
 
     const { purchases, getPurchase, initialLoading, month, year, getPurchaseReport } = usePurchases()
-    const { currentCompany } = useAuth();
+    // const { currentCompany } = useAuth();
 
-    useEffect(() => {
-        if (currentCompany) {
-            if (!purchases[currentCompany.companyId]) {
+    // useEffect(() => {
+    //     if (currentCompany) {
+    //         if (!purchases[currentCompany.companyId]) {
 
-                const georgiaYear = new Date();
-                const ethiopiaYear = toEthiopian({
-                    date: 1,
-                    month: georgiaYear.getMonth() + 1,
-                    year: georgiaYear.getFullYear()
-                });
+    //             const georgiaYear = new Date();
+    //             const ethiopiaYear = toEthiopian({
+    //                 date: 1,
+    //                 month: georgiaYear.getMonth() + 1,
+    //                 year: georgiaYear.getFullYear()
+    //             });
 
-                let monthData = month;
-                let yearData = year;
-                if (ethiopiaYear) {
-                    monthData = ethiopiaYear?.month;
-                    yearData = ethiopiaYear?.year;
-                } {
-                    getPurchase({ companyId: currentCompany.companyId, monthData, yearData })
-                    getPurchaseReport({ companyId: currentCompany.companyId, monthData, yearData })
-                }
-            }
-        }
-    }, [currentCompany, getPurchase, getPurchaseReport, month, purchases, year])
+    //             let monthData = month;
+    //             let yearData = year;
+    //             if (ethiopiaYear) {
+    //                 monthData = ethiopiaYear?.month;
+    //                 yearData = ethiopiaYear?.year;
+    //             } {
+    //                 getPurchase({ companyId: currentCompany.companyId, monthData, yearData })
+    //                 getPurchaseReport({ companyId: currentCompany.companyId, monthData, yearData })
+    //             }
+    //         }
+    //     }
+    // }, [currentCompany, getPurchase, getPurchaseReport, month, purchases, year])
 
     return (
         <main className='screen-parent'>
             <div className='min-h-[92dvh] w-full screen-padding flex flex-col gap-8 pt-10'>
                 <DashboardNav />
-                {currentCompany && <DetailCard companyId={currentCompany.companyId} />}
+                {/* {currentCompany && <DetailCard companyId={currentCompany.companyId} />}
                 {initialLoading ?
                     <div className='w-full h-full'>
                         <Skeleton className='w-full h-[12.5%] rounded-md' />
@@ -57,7 +57,7 @@ export default function DashboardTemplate() {
                         purchases[currentCompany.companyId].length > 0 ?
                         <PurchaseOverview companyId={currentCompany.companyId} /> :
                         <PurchaseEmptyState />
-                }
+                } */}
             </div>
         </main>
     );

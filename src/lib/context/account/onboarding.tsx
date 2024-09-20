@@ -106,30 +106,41 @@ const useOnboarding = () => useContext(OnboardingContext);
 const OnboardingProvider: React.FC<Props> = ({ children }) => {
     const [onBoardingId, setOnBoardingId] = useState(0);
     const [onBoardingSubSet, setOnBoardingSubSet] = useState(0);
-    const [profile, setProfile] = useState<z.infer<typeof profileSchema> | null>({
-        phoneNumber: "911223989",
-        dateOfBirth: {
-            day: "10",
-            month: "10",
-            year: "2000"
-        },
-        fullName: "",
-        email: "",
-        gender: "male"
-    });
-    const [address, setAddress] = useState<z.infer<typeof addressSchema> | null>({
-        houseNumber: "new",
-        region: "addis_ababa",
-        woreda: "Lideta",
-        zone: "Addis ababa",
-        description: "",
-        kebele: "10"
-    });
-    const [companyIntake, setCompanyIntake] = useState<z.infer<typeof companyInTakeSchema> | null>({
-        companyName: "Ethio Tel",
-        isRegistered: "yes",
-        "tinNumber": "0000030603"
-    });
+    const [profile, setProfile] = useState<z.infer<typeof profileSchema> | null>(
+        //     {
+        //     phoneNumber: "911223989",
+        //     dateOfBirth: {
+        //         day: "10",
+        //         month: "10",
+        //         year: "2000"
+        //     },
+        //     fullName: "",
+        //     email: "",
+        //     gender: "male"
+        // }
+        null
+    );
+    const [address, setAddress] = useState<z.infer<typeof addressSchema> | null>(
+        //     {
+        //     houseNumber: "new",
+        //     region: "addis_ababa",
+        //     woreda: "Lideta",
+        //     zone: "Addis ababa",
+        //     description: "",
+        //     kebele: "10"
+        // }
+
+        null
+    );
+    const [companyIntake, setCompanyIntake] = useState<z.infer<typeof companyInTakeSchema> | null>(
+        //     {
+        //     companyName: "Ethio Tel",
+        //     isRegistered: "yes",
+        //     "tinNumber": "0000030603"
+        // }
+
+        null
+    );
     const [business, setBusiness] = useState<BusinessType | null>(null);
     const [company, setCompany] = useState<z.infer<typeof companySchema> | null>(null);
     const [owner, setOwner] = useState<z.infer<typeof ownerSchema> | null>({

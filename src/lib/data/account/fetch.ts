@@ -6,6 +6,7 @@ export const getUserAction = async () => {
   const supabase = createClient();
   const response = await supabase.auth.getUser();
 
+  console.log("response", response);
   if (response.error) {
     return null;
   }

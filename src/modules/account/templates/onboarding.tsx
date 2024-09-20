@@ -39,7 +39,7 @@ const OnboardingPage = () => {
                             <OnboardingSideBar />
                         </div>
 
-                        <main className="flex-1">
+                        <main className="flex-1 max-w-[672px]">
                             <div className='flex flex-col'>
                                 <h1 className="text-lg font-semiBold">{onboardingState.title}</h1>
                                 <p className="text-gray-500 text-sm">{onboardingState.description}</p>
@@ -48,6 +48,7 @@ const OnboardingPage = () => {
                             <p className='text-lg font-semibold mb-4'>
                                 {onboardingInnerState.name}
                             </p>
+
                             {onboardingInnerState.form}
                         </main>
                     </div>

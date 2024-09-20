@@ -74,6 +74,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     );
 
     useEffect(() => {
+        console.log("refreshAccountSession useEffect")
         const supabase = createClient();
 
         const dataSetter = async () => {

@@ -33,8 +33,7 @@ export default function RootLayout({
 
 
 
-  console.log("profile",
-    profile);
+  console.log("profile", profile);
 
   if (profile && profile.CompanyMember && profile.CompanyMember.length > 0)
     return (

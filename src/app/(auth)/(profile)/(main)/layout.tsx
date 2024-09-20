@@ -17,9 +17,11 @@ export default function RootLayout({
   const { fetchCompanies } = useCompany()
 
   useEffect(() => {
+    console.log("useEffect session")
     if (session && session.user && session.user.id)
       fetchCompanies({ userId: session?.user.id, refetch: false })
-  }, [fetchCompanies, session])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session])
 
 
   return (

@@ -18,7 +18,7 @@ import {
 } from "@/modules/ui/form"
 import { useToast } from "@/modules/ui/use-toast"
 import { useAuthFlow } from '@/lib/context/auth'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 const resetPasswordSchema = z.object({
     code: z.string().length(6, 'Code must be 6 characters long'),

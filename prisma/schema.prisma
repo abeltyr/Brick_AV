@@ -167,6 +167,44 @@ model Company {
   Vendor         Vendor[]
   Purchase       Purchase[]
   PurchaseReport PurchaseReport[]
+  ChartOfAccount ChartOfAccount[]
+}
+
+enum ChartOfAccountsType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+  OTHER
+}
+
+model ChartOfAccountCategory {
+  id          String              @id @default(cuid())
+  type        ChartOfAccountsType
+  name        String
+  description String?             @db.Text()
+
+  ChartOfAccount ChartOfAccount[]
+}
+
+model ChartOfAccount {
+  id                       String                 @id @default(cuid())
+  companyId                String
+  company                  Company                @relation(fields: [companyId], references: [id])
+  chartOfAccountCategoryId String
+  chartOfAccountCategory   ChartOfAccountCategory @relation(fields: [chartOfAccountCategoryId], references: [id])
+
+  name        String
+  code        String
+  description String? @db.Text()
+  balance     Decimal @default(0)
+
+  Inventory       Inventory[]
+  Purchase        Purchase[]
+  PurchaseProduct PurchaseProduct[]
+
+  @@unique([companyId, code])
 }
 
 model CompanyMember {
@@ -241,14 +279,16 @@ model Product {
 }
 
 model Inventory {
-  id              String            @id @default(uuid())
-  productId       String            @unique
-  product         Product           @relation(fields: [productId], references: [id])
-  quantity        Int               @default(0)
-  lastUpdated     DateTime          @default(now()) @updatedAt
-  ProductPrice    ProductPrice[]
-  BOM             BOM[]
-  PurchaseProduct PurchaseProduct[]
+  id               String            @id @default(uuid())
+  productId        String            @unique
+  product          Product           @relation(fields: [productId], references: [id])
+  quantity         Int               @default(0)
+  lastUpdated      DateTime          @default(now()) @updatedAt
+  ProductPrice     ProductPrice[]
+  BOM              BOM[]
+  PurchaseProduct  PurchaseProduct[]
+  chartOfAccountId String
+  chartOfAccount   ChartOfAccount    @relation(fields: [chartOfAccountId], references: [id])
 
   @@index([productId, quantity])
 }
@@ -306,13 +346,16 @@ model Vendor {
 
 // Invoices or sales
 model Purchase {
-  id        String  @id @default(uuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
-  vendorId  String
-  vendor    Vendor  @relation(fields: [vendorId], references: [id])
+  id               String          @id @default(uuid())
+  companyId        String
+  company          Company         @relation(fields: [companyId], references: [id])
+  vendorId         String
+  vendor           Vendor          @relation(fields: [vendorId], references: [id])
+  chartOfAccountId String?
+  chartOfAccount   ChartOfAccount? @relation(fields: [chartOfAccountId], references: [id])
 
   hasVat         Boolean @default(true)
+  hasTOT         Boolean @default(true)
   hasWithholding Boolean @default(true)
 
   date              DateTime
@@ -395,21 +438,23 @@ model Purchase {
 }
 
 model PurchaseProduct {
-  id           String              @id @default(uuid())
-  purchaseId   String
-  purchase     Purchase            @relation(fields: [purchaseId], references: [id])
-  inventoryId  String
-  inventory    Inventory           @relation(fields: [inventoryId], references: [id])
-  type         ProductCategoryType
-  purchaseType ProductPurchaseType
-  unit         ProductUnitType
-  unitPrice    Decimal
-  quantity     Int
-  totalValue   Decimal             @default(0)
-  vat          Decimal             @default(0)
-  withholding  Decimal             @default(0)
-  grossAmount  Decimal             @default(0)
-  order        Int                 @default(0)
+  id               String              @id @default(uuid())
+  purchaseId       String
+  purchase         Purchase            @relation(fields: [purchaseId], references: [id])
+  inventoryId      String
+  inventory        Inventory           @relation(fields: [inventoryId], references: [id])
+  chartOfAccountId String?
+  chartOfAccount   ChartOfAccount?     @relation(fields: [chartOfAccountId], references: [id])
+  type             ProductCategoryType
+  purchaseType     ProductPurchaseType
+  unit             ProductUnitType
+  unitPrice        Decimal
+  quantity         Int
+  totalValue       Decimal             @default(0)
+  vat              Decimal             @default(0)
+  withholding      Decimal             @default(0)
+  grossAmount      Decimal             @default(0)
+  order            Int                 @default(0)
   //TODO: add to the chart of account link here
 
   @@index([purchaseId], type: Hash)

@@ -109,7 +109,7 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [] }: { form: UseFor
 
             <div className="space-y-2">
                 <Label>Gender</Label>
-                <RadioGroup defaultValue="male" className='flex gap-2'>
+                <RadioGroup defaultValue="male" className='flex gap-6'>
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="male" id="male" {...form.register('gender')} />
                         <Label htmlFor="male">Male</Label>
