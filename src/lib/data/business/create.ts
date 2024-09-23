@@ -76,9 +76,15 @@ export const fetchBusinessApi = async (
           tradeName: trade.TradesName,
           tradeNameAmh: trade.TradeNameAmh,
           licenseNumber: trade.LicenceNumber,
-          RenewedTo: new Date(trade.RenewedTo),
-          RenewedFrom: new Date(trade.RenewedFrom),
-          RenewalDate: new Date(trade.RenewalDate),
+          RenewedTo: !isNaN(new Date(trade.RenewedTo).getTime())
+            ? new Date(trade.RenewedTo)
+            : "",
+          RenewedFrom: !isNaN(new Date(trade.RenewedFrom).getTime())
+            ? new Date(trade.RenewedFrom)
+            : "",
+          RenewalDate: !isNaN(new Date(trade.RenewalDate).getTime())
+            ? new Date(trade.RenewalDate)
+            : "",
           licenseName:
             trade.SubGroups.length > 0 ? trade.SubGroups[0].Description : "",
           licenseCode:

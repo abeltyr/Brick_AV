@@ -12,17 +12,11 @@ const prisma = getPrisma();
 export const fetchPurchasesByCompanyIdAction = async ({
   companyId,
   filter,
-  year,
-  month,
 }: {
   companyId: string;
-  year: number;
-  month: number;
   filter: Filter & {
     price?: RangeType;
     dateRange?: DateRangeType;
-    hasVat?: boolean;
-    hasWithholding?: boolean;
     vendorId?: string;
   };
 }): Promise<Purchase[]> => {
@@ -31,8 +25,6 @@ export const fetchPurchasesByCompanyIdAction = async ({
 
   let where: Prisma.PurchaseWhereInput = {
     companyId,
-    year,
-    month,
   };
 
   let cursor = filter && filter.before ? filter.before : filter.after;
@@ -98,17 +90,6 @@ export const fetchPurchasesByCompanyIdAction = async ({
           ],
         };
       }
-    }
-    if (filter.hasVat) {
-      where = {
-        hasVat: filter.hasVat,
-      };
-    }
-
-    if (filter.hasWithholding) {
-      where = {
-        hasWithholding: filter.hasWithholding,
-      };
     }
 
     if (filter.vendorId) {

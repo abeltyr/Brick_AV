@@ -17,23 +17,20 @@ export default function RootLayout({
 }>) {
 
 
-  const { session } = useAuth()
 
 
   const { profile, fetchProfile, loading } = useProfile()
 
-  // useEffect(() => {
-  //   if (session && session.user && session.user.id)
-  //     fetchProfile(session?.user.id)
 
-  // }, [fetchProfile, session])
+  if (loading && !profile)
+    return (
+      <>
+        <p className='text-3xl font-black text-black'>
+          Profile Loading
+        </p>
+        <LoadingTemplate />
+      </>)
 
-
-  if (loading && !profile) return <LoadingTemplate />
-
-
-
-  console.log("profile", profile);
 
   if (profile && profile.CompanyMember && profile.CompanyMember.length > 0)
     return (

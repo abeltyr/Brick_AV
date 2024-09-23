@@ -28,6 +28,7 @@ import {
 } from "@/modules/ui/popover"
 import { useAuth } from '@/lib/context/auth/user'
 import { Skeleton } from "@/modules/ui/skeleton"
+import { useCompany } from '@/lib/context/account'
 
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<typeof PopoverTrigger>
@@ -36,7 +37,9 @@ interface TeamSwitcherProps extends PopoverTriggerProps { }
 
 export default function TeamSwitcher({ className }: TeamSwitcherProps) {
     const [open, setOpen] = React.useState(false)
-    const { companies, updateCompanyIndex, companyIndex, loading } = useAuth()
+    const { } = useAuth()
+
+    const { updateCompanyIndex, companyIndex, loading, companies } = useCompany()
 
 
     if (loading)

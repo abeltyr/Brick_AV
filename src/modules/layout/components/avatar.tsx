@@ -17,7 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/modules/ui/avatar';
 import { useAuth } from '@/lib/context/auth/user';
 import Link from 'next/link';
-import { Settings, User } from 'lucide-react';
+import { LucideBoxes, Settings, User } from 'lucide-react';
 import { useProfile } from '@/lib/context/account';
 
 export const AvatarSection = () => {
@@ -26,23 +26,6 @@ export const AvatarSection = () => {
     const { profile } = useProfile();
 
     return (
-        // <DropdownMenu>
-        //     <DropdownMenuTrigger asChild>
-
-        //     </DropdownMenuTrigger>
-        //     <DropdownMenuContent align="end" className='min-w-[220px]'>
-        //         <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        //         <DropdownMenuSeparator />
-        //         <DropdownMenuItem>Settings</DropdownMenuItem>
-        //         <DropdownMenuItem>Support</DropdownMenuItem>
-        //         <DropdownMenuSeparator />
-        //         <DropdownMenuItem onClick={() => {
-        //             logout();
-        //         }}>Logout</DropdownMenuItem>
-        //     </DropdownMenuContent>
-        // </DropdownMenu>
-
-
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
@@ -86,7 +69,7 @@ export const AvatarSection = () => {
                     </Link>
                     <Link href="/company">
                         <DropdownMenuItem className='cursor-pointer text-sm font-medium text-foreground py-2 flex gap-x-2'>
-                            <User className='w-4 h-4' />
+                            <LucideBoxes className='w-4 h-4' />
                             company
                         </DropdownMenuItem>
                     </Link>

@@ -74,20 +74,25 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     );
 
     useEffect(() => {
-        console.log("refreshAccountSession useEffect")
-        const supabase = createClient();
-
+        console.log("refreshAccountSession dataSetter useEffect")
         const dataSetter = async () => {
             const supabase = createClient();
             const { data } = await supabase.auth.getSession();
             setSession(data.session)
             setLoading(false);
+            console.log("dataSetter", session, loading)
         }
+        dataSetter()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
-        dataSetter();
 
-        const { data: { subscription }, } =
-            supabase.auth.onAuthStateChange(async (_event, session: Session | null) => {
+    useEffect(() => {
+        console.log("subscription useEffect")
+        const supabase = createClient();
+
+        const { data: { subscription }, } = supabase.auth.onAuthStateChange(
+            async (_event, session: Session | null) => {
                 if (session) {
                     const expiresAt = session.expires_at
                     const currentTime = Math.floor(Date.now() / 1000) // convert to Unix timestamp
@@ -96,14 +101,23 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                     }
                 }
                 setSession(session)
-            })
+                setLoading(false);
+            }
+        )
 
         return () => subscription.unsubscribe()
-    }, [refreshAccountSession])
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
 
     if (loading)
-        return <LoadingTemplate />
+        return <>
+            <p className='text-3xl font-black text-black'>
+                Auth Loading
+            </p>
+            <LoadingTemplate />
+        </>
     else
         return (
             <AuthContext.Provider

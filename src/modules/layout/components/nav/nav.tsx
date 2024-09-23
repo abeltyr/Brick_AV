@@ -22,8 +22,8 @@ const navList = [
         icon: <VendorSVG />,
     },
     {
-        name: "Products",
-        href: "/products",
+        name: "Items",
+        href: "/items",
         icon: <ProductSVG />,
     },
     {
@@ -47,6 +47,7 @@ export function MainNav({
             {navList.map((data, index) => {
                 return (
                     <Link
+                        prefetch={true}
                         onClick={() => {
                             setIndexData(index)
                         }}

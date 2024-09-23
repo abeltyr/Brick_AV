@@ -1,9 +1,9 @@
 'use client'
 
 import { NavBar } from '@/modules/layout/components/nav';
-import { useCompany } from '@/lib/context/account';
+import { useCompany, useProfile } from '@/lib/context/account';
 import { useEffect } from 'react';
-import { useAuth } from '@/lib/context/auth';
+import LoadingTemplate from '@/modules/common/templates/loading';
 
 
 export default function RootLayout({
@@ -13,15 +13,27 @@ export default function RootLayout({
 }>) {
 
 
-  const { session } = useAuth()
-  const { fetchCompanies } = useCompany()
+  const { profile } = useProfile()
+  const { fetchCompanies, companies, loading } = useCompany()
 
   useEffect(() => {
-    console.log("useEffect session")
-    if (session && session.user && session.user.id)
-      fetchCompanies({ userId: session?.user.id, refetch: false })
+    console.log("Company useEffect session")
+    if (profile && profile.id)
+      fetchCompanies({ userId: profile.id, refetch: false })
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session])
+  }, [])
+
+
+
+  if (loading && !companies)
+    return (
+      <>
+        <p className='text-3xl font-black text-black'>
+          Company Loading
+        </p>
+        <LoadingTemplate />
+      </>)
 
 
   return (

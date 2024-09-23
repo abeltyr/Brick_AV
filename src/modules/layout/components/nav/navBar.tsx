@@ -21,34 +21,7 @@ export const NavBar = () => {
                     <TeamSwitcher />
                     <MainNav />
                 </div>
-                {/*
-            <div className="ml-auto flex items-center space-x-4">
-              <Search />
-              <UserNav />
-            </div> */}
-                {/* <Breadcrumb className="hidden md:flex">
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                            <Link href="#">Dashboard</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                            <Link href="#">Orders</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Recent Orders</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb> */}
-                {/* <SearchBlock /> */}
                 <AvatarSection />
-
-
             </header>
         </div>
     )

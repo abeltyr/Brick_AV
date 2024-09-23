@@ -3,18 +3,18 @@
 import { DashboardNav } from '@/modules/dashboard/components/nav';
 import { DetailCard } from '@/modules/dashboard/components/detailCard';
 import { PurchaseEmptyState } from '@/modules/empty/templates/purchase';
-import { useAuth } from '@/lib/context/auth/user';
 import { usePurchases } from '@/lib/context/purchase';
 import { useEffect } from 'react';
 import { Skeleton } from '@/modules/ui/skeleton';
 import { PurchaseOverview } from '../components/purchaseOverviews';
-import { toEthiopian } from '@/lib/utils/calendar';
+import { defaultDateRange, usePurchaseReport } from '@/lib/context/purchaseReport';
+import { useCompany } from '@/lib/context/account';
+import { dateNameValue } from '@/types/shared';
 
 
 export default function DashboardTemplate() {
 
-    const { purchases, getPurchase, initialLoading, month, year, getPurchaseReport } = usePurchases()
-    // const { currentCompany } = useAuth();
+    const { currentCompany } = useCompany()
 
     // useEffect(() => {
     //     if (currentCompany) {
@@ -44,8 +44,8 @@ export default function DashboardTemplate() {
         <main className='screen-parent'>
             <div className='min-h-[92dvh] w-full screen-padding flex flex-col gap-8 pt-10'>
                 <DashboardNav />
-                {/* {currentCompany && <DetailCard companyId={currentCompany.companyId} />}
-                {initialLoading ?
+                {currentCompany && <DetailCard companyId={currentCompany.companyId} />}
+                {/* {initialLoading ?
                     <div className='w-full h-full'>
                         <Skeleton className='w-full h-[12.5%] rounded-md' />
                         <div className='w-full py-1' />

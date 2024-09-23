@@ -1,27 +1,8 @@
 import {
-  Purchase,
-  PurchaseProduct,
-  ProductPurchaseType,
   ProductCategoryType,
+  ProductPurchaseType,
   ProductUnitType,
-  PurchaseReport,
 } from "@prisma/client";
-import { ProductType } from "./product";
-import { VendorType } from "./vendor";
-
-export type PurchaseType = Purchase & {
-  PurchaseProduct?: PurchaseProductType[];
-  vendor?: VendorType;
-  purchaseReport?: PurchaseReportType;
-};
-
-export type PurchaseProductType = PurchaseProduct & {
-  product?: ProductType;
-};
-
-export type PurchaseReportType = PurchaseReport & {
-  Purchase?: PurchaseType;
-};
 
 export type PurchaseInputType = {
   companyId: string;

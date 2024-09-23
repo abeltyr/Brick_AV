@@ -176,7 +176,9 @@ model Company {
   GeneralLedger             GeneralLedger[]
   FinancialPeriod           FinancialPeriod[]
   ChartOfAccountTransaction ChartOfAccountTransaction[]
-  PurchaseReport            PurchaseReport[]
+  DailyPurchaseReport       DailyPurchaseReport[]
+  MonthlyPurchaseReport     MonthlyPurchaseReport[]
+  YearPurchaseReport        YearPurchaseReport[]
 }
 
 // Model to track financial periods (e.g., fiscal years)
@@ -247,9 +249,6 @@ model ChartOfAccount {
   VatDetail                 VatDetail[]
   TotDetail                 TotDetail[]
   WithholdingDetail         WithholdingDetail[]
-  VatReportDetail           VatReportDetail[]
-  WithholdingReportDetail   WithholdingReportDetail[]
-  TotReportDetail           TotReportDetail[]
 
   @@unique([companyId, code]) // Unique company-specific code
   @@unique([companyId, name]) // Unique company-specific name
@@ -277,10 +276,10 @@ model ChartOfAccountBalance {
   clearedBalance   Decimal? // Cleared balance (after reconciliation)
   unclearedBalance Decimal? // Uncleared balance (pending reconciliation)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-  createdById String? // User ID or system identifier
-  createdBy   Profile? @relation(fields: [createdById], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  Profile   Profile? @relation(fields: [profileId], references: [id])
+  profileId String?
 }
 
 enum ChartOfAccountTransactionType {
@@ -322,17 +321,14 @@ model ChartOfAccountTransaction {
   metadata      Json? // Flexible metadata
   GeneralLedger GeneralLedger[]
 
-  createdAt               DateTime                  @default(now())
-  createdById             String? // User ID or system identifier
-  createdBy               Profile?                  @relation(fields: [createdById], references: [id])
-  Purchase                Purchase[]
-  VatDetail               VatDetail[]
-  TotDetail               TotDetail[]
-  WithholdingDetail       WithholdingDetail[]
-  VatReportDetail         VatReportDetail[]
-  WithholdingReportDetail WithholdingReportDetail[]
-  TotReportDetail         TotReportDetail[]
-  PurchaseProduct         PurchaseProduct[]
+  createdAt         DateTime            @default(now())
+  createdById       String? // User ID or system identifier
+  createdBy         Profile?            @relation(fields: [createdById], references: [id])
+  Purchase          Purchase[]
+  VatDetail         VatDetail[]
+  TotDetail         TotDetail[]
+  WithholdingDetail WithholdingDetail[]
+  PurchaseProduct   PurchaseProduct[]
 
   @@index([companyId, chartOfAccountId])
 }
@@ -525,17 +521,31 @@ model Purchase {
   chartOfAccountTransactionId String?
   chartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
 
-  VatDetail            VatDetail?
-  TotDetail            TotDetail?
-  WithholdingDetail    WithholdingDetail?
-  hasVatDetail         Boolean            @default(true)
-  hasTotDetail         Boolean            @default(false)
-  hasWithholdingDetail Boolean            @default(true)
+  vatDetailId String?    @unique
+  vatDetail   VatDetail? @relation(fields: [vatDetailId], references: [id])
 
-  receiptNumber String
-  date          DateTime
-  month         Int
-  year          Int
+  totDetailId String?    @unique
+  totDetail   TotDetail? @relation(fields: [totDetailId], references: [id])
+
+  withholdingDetailId String?            @unique
+  withholdingDetail   WithholdingDetail? @relation(fields: [withholdingDetailId], references: [id])
+
+  hasVatDetail         Boolean @default(true)
+  hasTotDetail         Boolean @default(false)
+  hasWithholdingDetail Boolean @default(true)
+
+  receiptNumber      String
+  cashReceiptVoucher String?
+  mrcNumber          String?
+  withholdingNumber  String?
+
+  purchaseType ProductPurchaseType?
+  productType  ProductCategoryType?
+  description  String?              @db.Text()
+  quantity     Decimal              @default(0)
+  unitPrice    Decimal              @default(0)
+
+  date DateTime
 
   taxableAmount    Decimal @default(0)
   nonTaxableAmount Decimal @default(0)
@@ -545,9 +555,6 @@ model Purchase {
   taxAmount   Decimal @default(0)
   grossAmount Decimal @default(0)
 
-  purchaseReportId String?
-  purchaseReport   PurchaseReport? @relation(fields: [purchaseReportId], references: [id])
-
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
@@ -556,7 +563,6 @@ model Purchase {
 
   @@index([date, companyId])
   @@index([vendorId])
-  @@index([purchaseReportId])
   @@index([grossAmount])
 }
 
@@ -592,19 +598,10 @@ model PurchaseProduct {
 // VAT Details table
 model VatDetail {
   id                          String                     @id @default(uuid())
-  purchaseId                  String                     @unique
-  purchase                    Purchase                   @relation(fields: [purchaseId], references: [id])
-  chartOfAccountId            String
-  chartOfAccount              ChartOfAccount             @relation(fields: [chartOfAccountId], references: [id])
+  chartOfAccountId            String?
+  chartOfAccount              ChartOfAccount?            @relation(fields: [chartOfAccountId], references: [id])
   chartOfAccountTransactionId String?
   chartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
-
-  mrcNumber    String
-  purchaseType ProductPurchaseType
-  productType  ProductCategoryType
-  description  String              @db.Text()
-  quantity     Decimal             @default(0)
-  unitPrice    Decimal             @default(0)
 
   localPurchaseCapitalAssets      Decimal @default(0)
   vatOnLocalPurchaseCapitalAssets Decimal @default(0)
@@ -628,41 +625,34 @@ model VatDetail {
   nonTaxableAmount Decimal @default(0)
   totalBeforeTax   Decimal @default(0)
 
-  taxRate   Int     @default(15)
+  taxRate   Int?
   taxAmount Decimal @default(0)
 
-  grossAmount Decimal @default(0)
+  Purchase Purchase?
 }
 
 // TOT Details table
 model TotDetail {
   id                          String                     @id @default(uuid())
-  purchaseId                  String                     @unique
-  purchase                    Purchase                   @relation(fields: [purchaseId], references: [id])
-  chartOfAccountId            String
-  chartOfAccount              ChartOfAccount             @relation(fields: [chartOfAccountId], references: [id])
+  chartOfAccountId            String?
+  chartOfAccount              ChartOfAccount?            @relation(fields: [chartOfAccountId], references: [id])
   chartOfAccountTransactionId String?
   chartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
 
   taxableAmount Decimal
+  taxRate       Int?
+  taxAmount     Decimal
 
-  taxRate   Int     @default(2)
-  taxAmount Decimal
-
-  grossAmount Decimal @default(0)
+  Purchase Purchase?
 }
 
 // Withholding Details table
 model WithholdingDetail {
   id                          String                     @id @default(uuid())
-  purchaseId                  String                     @unique
-  purchase                    Purchase                   @relation(fields: [purchaseId], references: [id])
-  chartOfAccountId            String
-  chartOfAccount              ChartOfAccount             @relation(fields: [chartOfAccountId], references: [id])
+  chartOfAccountId            String?
+  chartOfAccount              ChartOfAccount?            @relation(fields: [chartOfAccountId], references: [id])
   chartOfAccountTransactionId String?
   chartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
-
-  withholdingNumber String
 
   importedGoodSummaryAmount Decimal @default(0)
   importedGoodWithholding   Decimal @default(0)
@@ -675,9 +665,11 @@ model WithholdingDetail {
 
   taxableAmount    Decimal @default(0)
   totalWithholding Decimal @default(0)
+
+  Purchase Purchase?
 }
 
-model PurchaseReport {
+model DailyPurchaseReport {
   id        String  @id @default(uuid())
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
@@ -688,98 +680,64 @@ model PurchaseReport {
   nonTaxableAmount Decimal @default(0)
   totalBeforeTax   Decimal @default(0)
 
-  taxRate     Int     @default(15)
-  taxAmount   Decimal @default(0)
-  grossAmount Decimal @default(0)
+  vatAmount         Decimal? @default(0)
+  totAmount         Decimal? @default(0)
+  withholdingAmount Decimal  @default(0)
+  grossAmount       Decimal  @default(0)
 
-  startDate DateTime
-  endDate   DateTime
-  month     Int
-  year      Int
+  date DateTime @default(now())
 
-  createdAt               DateTime                 @default(now())
-  updatedAt               DateTime                 @updatedAt
-  VatReportDetail         VatReportDetail?
-  WithholdingReportDetail WithholdingReportDetail?
-  TotReportDetail         TotReportDetail?
-  Purchase                Purchase[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@unique([month, year, companyId])
+  @@unique([date, companyId])
 }
 
-model TotReportDetail {
-  id               String         @id @default(uuid())
-  purchaseReportId String         @unique
-  purchaseReport   PurchaseReport @relation(fields: [purchaseReportId], references: [id])
+model MonthlyPurchaseReport {
+  id        String  @id @default(uuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+  count     Int
 
-  taxableAmount               Decimal
-  taxAmount                   Decimal
-  ChartOfAccount              ChartOfAccount?            @relation(fields: [chartOfAccountId], references: [id])
-  chartOfAccountId            String?
-  ChartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
-  chartOfAccountTransactionId String?
-}
-
-model VatReportDetail {
-  id               String         @id @default(uuid())
-  purchaseReportId String         @unique
-  purchaseReport   PurchaseReport @relation(fields: [purchaseReportId], references: [id])
-
-  localPurchaseCapitalAssets      Decimal @default(0)
-  vatOnLocalPurchaseCapitalAssets Decimal @default(0)
-  importedCapitalAssets           Decimal @default(0)
-  vatOnImportedCapitalAssets      Decimal @default(0)
-  totalCapitalAssets              Decimal @default(0)
-  vatOnTotalAssets                Decimal @default(0)
-
-  localPurchaseInputs       Decimal @default(0)
-  vatOnLocalPurchaseInputs  Decimal @default(0)
-  importedInputs            Decimal @default(0)
-  vatOnImportedInputs       Decimal @default(0)
-  generalExpenseInputs      Decimal @default(0)
-  vatOnGeneralExpenseInputs Decimal @default(0)
-
-  purchaseWithNoVat     Decimal @default(0)
-  totalNonCapitalInputs Decimal @default(0)
-  vatOnTotalInputs      Decimal @default(0)
-
-  deductibleOnVatReverseTaxation      Decimal @default(0)
-  vatOnDeductibleOnVatReverseTaxation Decimal @default(0)
-
-  taxAdjustmentsDebitNote       Decimal @default(0)
-  vatOnTaxAdjustmentsDebitNote  Decimal @default(0)
-  taxAdjustmentsCreditNote      Decimal @default(0)
-  vatOnTaxAdjustmentsCreditNote Decimal @default(0)
-
+  // General purchase information
   taxableAmount    Decimal @default(0)
   nonTaxableAmount Decimal @default(0)
   totalBeforeTax   Decimal @default(0)
 
-  taxAmount Decimal @default(0)
+  vatAmount         Decimal? @default(0)
+  totAmount         Decimal? @default(0)
+  withholdingAmount Decimal  @default(0)
+  grossAmount       Decimal  @default(0)
 
-  grossAmount                 Decimal                    @default(0)
-  ChartOfAccount              ChartOfAccount?            @relation(fields: [chartOfAccountId], references: [id])
-  chartOfAccountId            String?
-  ChartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
-  chartOfAccountTransactionId String?
+  month Int
+  year  Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([month, year, companyId])
 }
 
-model WithholdingReportDetail {
-  id               String         @id @default(uuid())
-  purchaseReportId String         @unique
-  purchaseReport   PurchaseReport @relation(fields: [purchaseReportId], references: [id])
+model YearPurchaseReport {
+  id        String  @id @default(uuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+  count     Int
 
-  localGoodSummaryAmount    Decimal @default(0)
-  localGoodWithholding      Decimal @default(0)
-  importedGoodSummaryAmount Decimal @default(0)
-  importedGoodWithholding   Decimal @default(0)
-  serviceSummaryAmount      Decimal @default(0)
-  serviceWithholding        Decimal @default(0)
+  // General purchase information
+  taxableAmount    Decimal @default(0)
+  nonTaxableAmount Decimal @default(0)
+  totalBeforeTax   Decimal @default(0)
 
-  taxableAmount               Decimal                    @default(0)
-  totalWithholding            Decimal                    @default(0)
-  ChartOfAccount              ChartOfAccount?            @relation(fields: [chartOfAccountId], references: [id])
-  chartOfAccountId            String?
-  ChartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
-  chartOfAccountTransactionId String?
+  vatAmount         Decimal? @default(0)
+  totAmount         Decimal? @default(0)
+  withholdingAmount Decimal  @default(0)
+  grossAmount       Decimal  @default(0)
+
+  year Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, companyId])
 }
