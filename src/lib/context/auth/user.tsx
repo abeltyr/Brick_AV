@@ -11,11 +11,13 @@ import LoadingTemplate from '@/modules/common/templates/loading';
 const initialValues: {
     session: Session | null,
     loading: boolean,
+    error: boolean,
     logout: () => void,
     fetchUser: () => void,
 } = {
     session: null,
     loading: true,
+    error: true,
     logout: () => { },
     fetchUser: () => { },
 };
@@ -30,6 +32,7 @@ const useAuth = () => useContext(AuthContext);
 
 const AuthProvider: React.FC<Props> = ({ children }) => {
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [session, setSession] = useState<Session | null>(null)
 
     const fetchUser = useCallback(
@@ -37,10 +40,12 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
             setLoading(true);
             try {
                 await getUserAction();
+                setLoading(false);
             } catch (e) {
                 console.error(e)
+                setError(true)
+                setLoading(false);
             }
-            setLoading(false);
         },
         [],
     );
@@ -64,31 +69,31 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
             try {
                 const data = await refreshAccountToken();
                 setSession(data.session);
+                setLoading(false);
             } catch (e) {
                 await logout();
                 setSession(null);
+                setError(true)
+                setLoading(false);
             }
-            setLoading(false);
         },
         [logout],
     );
 
     useEffect(() => {
-        console.log("refreshAccountSession dataSetter useEffect")
+        // console.log("refreshAccountSession dataSetter useEffect")
         const dataSetter = async () => {
             const supabase = createClient();
             const { data } = await supabase.auth.getSession();
             setSession(data.session)
             setLoading(false);
-            console.log("dataSetter", session, loading)
         }
         dataSetter()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
 
     useEffect(() => {
-        console.log("subscription useEffect")
+        // console.log("subscription useEffect")
         const supabase = createClient();
 
         const { data: { subscription }, } = supabase.auth.onAuthStateChange(
@@ -97,11 +102,15 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                     const expiresAt = session.expires_at
                     const currentTime = Math.floor(Date.now() / 1000) // convert to Unix timestamp
                     if (expiresAt && expiresAt - currentTime < 300) {
-                        refreshAccountSession();
+                        await refreshAccountSession();
                     }
+                    setError(false)
+                    setSession(session)
+                    setLoading(false);
+                } else {
+                    setSession(null)
+                    setLoading(false);
                 }
-                setSession(session)
-                setLoading(false);
             }
         )
 
@@ -118,6 +127,13 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
             </p>
             <LoadingTemplate />
         </>
+    else if (!loading && error)
+        return <>
+            <p className='text-3xl font-black text-black'>
+                Auth  Error Page
+            </p>
+            <LoadingTemplate />
+        </>
     else
         return (
             <AuthContext.Provider
@@ -126,6 +142,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                     fetchUser,
                     logout,
                     loading,
+                    error
                 }}
             >
                 {children}

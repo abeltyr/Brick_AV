@@ -7,6 +7,7 @@ import { CompanyMemberType } from '@/types/company';
 
 const initialValues: {
     loading: boolean,
+    error: boolean,
     companies: CompanyMemberType[],
     companyIndex: number,
     currentCompany: CompanyMemberType | null,
@@ -14,6 +15,7 @@ const initialValues: {
     fetchCompanies: ({ userId, refetch }: { userId: string, refetch?: boolean }) => void
 } = {
     loading: true,
+    error: true,
     companies: [],
     companyIndex: 0,
     currentCompany: null,
@@ -31,6 +33,7 @@ const useCompany = () => useContext(CompanyContext);
 
 const CompanyProvider: React.FC<Props> = ({ children }) => {
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [companies, setCompanies] = useState<CompanyMemberType[]>([])
     const [currentCompany, setCurrentCompany] = useState<CompanyMemberType | null>(null)
     const [companyIndex, setCompanyIndex] = useState<number>(0)
@@ -45,8 +48,6 @@ const CompanyProvider: React.FC<Props> = ({ children }) => {
 
     const fetchCompanies = useCallback(
         async ({ userId, refetch = false }: { userId: string, refetch?: boolean }) => {
-
-            console.log("fetchCompanies useEffect session", userId)
             setLoading(true);
             let fetchData = true;
             try {
@@ -65,29 +66,30 @@ const CompanyProvider: React.FC<Props> = ({ children }) => {
 
                 if (fetchData) {
                     const memberData = await fetchMemberCompanyAction(userId);
-                    console.log("memberData", userId)
                     localStorage.setItem("memberData", JSON.stringify({
                         memberData: memberData,
                         date: new Date().getTime()
                     }))
                     setCompanies(memberData);
                     setCurrentCompany(memberData && memberData[0])
-                    console.log("new Save", memberData);
+                    console.log("new Save");
 
                 }
+                setLoading(false);
             } catch (e) {
                 console.error(e)
+                setError(true)
+                setLoading(false);
             }
-            setLoading(false);
-            console.log("companies", companies);
         },
-        [companies],
+        [],
     );
 
     return (
         <CompanyContext.Provider
             value={{
                 loading,
+                error,
                 companyIndex,
                 companies,
                 updateCompanyIndex,

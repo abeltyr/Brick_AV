@@ -19,7 +19,7 @@ export default function RootLayout({
 
 
 
-  const { profile, fetchProfile, loading } = useProfile()
+  const { profile, loading, error } = useProfile()
 
 
   if (loading && !profile)
@@ -30,9 +30,14 @@ export default function RootLayout({
         </p>
         <LoadingTemplate />
       </>)
-
-
-  if (profile && profile.CompanyMember && profile.CompanyMember.length > 0)
+  else if (!loading && !profile && error)
+    return <>
+      <p className='text-3xl font-black text-black'>
+        Profile Error Page
+      </p>
+      <LoadingTemplate />
+    </>
+  else if (profile && profile.CompanyMember && profile.CompanyMember.length > 0)
     return (
       <DrawerManagerProvider>
         {children}

@@ -17,7 +17,7 @@ export default function AuthLayout({
   const { fetchProfile } = useProfile()
 
   useEffect(() => {
-    console.log("fetchProfile,session, useEffect", session)
+    console.log("fetchProfile,session, useEffect")
     if (session && session.user && session.user.id) {
       fetchProfile(session.user.id)
     }

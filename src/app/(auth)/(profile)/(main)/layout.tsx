@@ -14,15 +14,16 @@ export default function RootLayout({
 
 
   const { profile } = useProfile()
-  const { fetchCompanies, companies, loading } = useCompany()
+  const { fetchCompanies, companies, loading, error } = useCompany()
 
   useEffect(() => {
-    console.log("Company useEffect session")
-    if (profile && profile.id)
+    console.log("Company session")
+    if (profile && profile.id) {
       fetchCompanies({ userId: profile.id, refetch: false })
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [profile])
 
 
 
@@ -34,15 +35,22 @@ export default function RootLayout({
         </p>
         <LoadingTemplate />
       </>)
-
-
-  return (
-    <div className='flex'>
-      <main className='flex-1 '>
-        <NavBar />
-        <div className='min-h-14 h-[8vh] max-h-20' />
-        {children}
-      </main>
-    </div>
-  );
+  else if (!loading && !companies && error)
+    return (
+      <>
+        <p className='text-3xl font-black text-black'>
+          Company Error Page
+        </p>
+        <LoadingTemplate />
+      </>)
+  else
+    return (
+      <div className='flex'>
+        <main className='flex-1 '>
+          <NavBar />
+          <div className='min-h-14 h-[8vh] max-h-20' />
+          {children}
+        </main>
+      </div>
+    );
 }

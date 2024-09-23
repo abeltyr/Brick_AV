@@ -9,11 +9,13 @@ import { findProfileByUserIdAction } from '@/lib/data/profile/fetchByUserId';
 const initialValues: {
     profile: ProfileType | null,
     loading: boolean,
+    error: boolean,
     fetchProfile: (id: string) => Promise<ProfileType | null>,
-    setProfile: (profile: ProfileType) => void
+    setProfile: (profile: ProfileType) => void,
 } = {
     profile: null,
     loading: true,
+    error: false,
     fetchProfile: async (id: string) => { return null },
     setProfile: (profile) => { }
 };
@@ -28,15 +30,14 @@ const useProfile = () => useContext(ProfileContext);
 
 const ProfileProvider: React.FC<Props> = ({ children }) => {
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [profile, setProfile] = useState<ProfileType | null>(null)
 
     const fetchProfile = useCallback(
         async (id: string): Promise<ProfileType | null> => {
             setLoading(true);
             try {
-
                 let value = await findProfileByUserIdAction(id);
-                console.log("value", value)
                 setProfile(value)
                 setLoading(false);
                 return value
@@ -44,6 +45,7 @@ const ProfileProvider: React.FC<Props> = ({ children }) => {
             } catch (e) {
                 console.error(e)
                 setLoading(false);
+                setError(true)
                 return null
             }
         },
@@ -57,7 +59,8 @@ const ProfileProvider: React.FC<Props> = ({ children }) => {
                 profile,
                 setProfile,
                 fetchProfile,
-                loading
+                loading,
+                error
             }}
         >
             {children}

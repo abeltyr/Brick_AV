@@ -10,14 +10,13 @@ import React, { useEffect, useState } from 'react'
 
 export const DetailCard = ({ companyId }: { companyId: string }) => {
 
-    const { purchasesReport, dateRange, fetchPurchaseReport, loading, updateDateRange } = usePurchaseReport()
+    const { purchasesReport, dateRange, fetchPurchaseReport, loading, updateDateRange, error } = usePurchaseReport()
 
     const [purchasesReportData, setPurchasesReportData] = useState<PurchaseReportType | null>();
 
     useEffect(() => {
-        console.log("purchasesReport, useEffect", purchasesReport, companyId, dateRange.name)
         if (purchasesReport && purchasesReport[companyId] && purchasesReport[companyId][dateRange.name]) {
-            console.log("purchasesReport[companyId][dateRange.name]", purchasesReport[companyId][dateRange.name])
+            console.log("purchasesReport[companyId][dateRange.name]")
             setPurchasesReportData(purchasesReport[companyId][dateRange.name])
         }
 
@@ -72,6 +71,13 @@ export const DetailCard = ({ companyId }: { companyId: string }) => {
                 </Skeleton>
             </div>
         )
+
+    if (!loading && error)
+        return (
+            <div className="flex gap-4  lg:gap-8 flex-wrap min-h-[120px] ">
+                error Page
+            </div>
+        )
     else {
         return (
             <div className="flex gap-4  lg:gap-8 flex-wrap">
@@ -91,7 +97,6 @@ export const DetailCard = ({ companyId }: { companyId: string }) => {
                             <LanguageTranslator>
                                 Birr
                             </LanguageTranslator>
-
                         </div>
                     </CardContent>
                 </Card>

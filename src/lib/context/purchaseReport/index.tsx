@@ -21,6 +21,7 @@ const initialValues: {
     };
     fetchPurchaseReport: ({ }: { companyId: string, date: DateRangeType }) => void;
     loading: boolean;
+    error: boolean,
     dateRange: DateRangeType,
     updateDateRange: ({ companyId, date, }: {
         companyId: string,
@@ -30,6 +31,7 @@ const initialValues: {
     purchasesReport: {},
     fetchPurchaseReport: ({ }: { companyId: string, date: DateRangeType }) => { },
     loading: true,
+    error: false,
     dateRange: { ...defaultDateRange },
     updateDateRange: async ({ companyId, date, }: {
         companyId: string,
@@ -50,6 +52,7 @@ const usePurchaseReport = () => useContext(PurchaseReportContext);
 const PurchaseReportProvider: React.FC<Props> = ({ children }) => {
 
     const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<boolean>(false);
     const [dateRange, setDateRange] = useState<DateRangeType>({ ...defaultDateRange });
     const [purchasesReport, setPurchasesReport] = useState<{
         [id: string]: {
@@ -141,6 +144,7 @@ const PurchaseReportProvider: React.FC<Props> = ({ children }) => {
             } catch (e) {
                 console.log("error", e);
                 setLoading(false);
+                setError(true);
             }
         },
         [purchasesReport],
@@ -178,6 +182,7 @@ const PurchaseReportProvider: React.FC<Props> = ({ children }) => {
                 loading,
                 purchasesReport,
                 updateDateRange,
+                error
             }}
         >
             {children}
