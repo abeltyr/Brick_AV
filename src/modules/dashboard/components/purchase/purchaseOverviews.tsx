@@ -1,10 +1,9 @@
 import React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/modules/ui/card';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/modules/ui/avatar';
+import { Avatar, AvatarFallback } from '@/modules/ui/avatar';
 import { Button } from '@/modules/ui/button';
-import { CirclePlus, Eye } from 'lucide-react';
-import { useAuth } from '@/lib/context/auth/user';
+import { Eye } from 'lucide-react';
 import { usePurchases } from '@/lib/context/purchase';
 import { LanguageTranslator } from '@/modules/language/components';
 import {
@@ -15,15 +14,14 @@ import {
     TableHeader,
     TableRow,
 } from "@/modules/ui/table"
-import Decimal from 'decimal.js';
 import { Badge } from '@/modules/ui/badge';
 import Link from 'next/link';
 
 
 export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
 
-    const { getPurchase, loadMoreData, fetchingPurchases, fetchPurchases, purchases } = usePurchases();
-    const { currentCompany } = useAuth();
+    const { purchases } = usePurchases();
+
 
 
     return (
@@ -60,9 +58,9 @@ export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
                             <TableHead>Vendor</TableHead>
                             <TableHead className="hidden md:table-cell text-center">Date</TableHead>
                             <TableHead className="hidden md:table-cell text-center">Purchase Date</TableHead>
-                            <TableHead className="hidden md:table-cell text-center">nonTaxableAmount</TableHead>
                             <TableHead className="hidden md:table-cell text-center">Before Vat</TableHead>
-                            <TableHead className="table-cell text-center">Vat Amount</TableHead>
+                            <TableHead className="table-cell text-center">Vat</TableHead>
+                            <TableHead className="table-cell text-center">Withholding</TableHead>
                             <TableHead className="table-cell text-center">grossAmount</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -70,37 +68,20 @@ export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
                         {purchases[companyId] && purchases[companyId].slice(0, 10).map((purchase, index) => {
                             let companyName = "---";
                             let tinNumber = "---";
-                            let beforeVat = new Decimal(0);
+
                             if (purchase &&
                                 purchase.vendor &&
-                                purchase.vendor.profile &&
-                                purchase.vendor.profile.companyName) {
-                                companyName = purchase.vendor.profile.companyName;
-                            }
-                            else if (purchase &&
-                                purchase.vendor &&
-                                purchase.vendor.profile &&
-                                purchase.vendor.profile.name) {
-                                companyName = purchase.vendor.profile.name;
+                                purchase.vendor.name) {
+                                companyName = purchase.vendor.name;
                             }
 
                             if (purchase &&
                                 purchase.vendor &&
-                                purchase.vendor.profile &&
-                                purchase.vendor.profile.tinNumber)
-                                tinNumber = purchase.vendor.profile.tinNumber
+                                purchase.vendor.business &&
+                                purchase.vendor.business.tinNumber)
+                                tinNumber = purchase.vendor.business.tinNumber
 
 
-                            if (purchase &&
-                                purchase.taxableAmount) {
-                                if (purchase.nonTaxableAmount) {
-                                    beforeVat = new Decimal(purchase.taxableAmount).plus(purchase.nonTaxableAmount)
-                                } else {
-
-                                    beforeVat = new Decimal(purchase.taxableAmount)
-                                }
-
-                            }
 
 
                             return <TableRow
@@ -140,10 +121,13 @@ export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
                                     {purchase && purchase.purchaseType ? `${purchase.purchaseType}` : "---"}
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-center">
-                                    {`${beforeVat}`}
+                                    {purchase && purchase.totalBeforeTax ? `${purchase.totalBeforeTax}` : "---"}
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-center">
-                                    {purchase && purchase.totalVat ? `${purchase.totalVat}` : "---"}
+                                    {purchase && purchase.taxAmount ? `${purchase.taxAmount}` : "---"}
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell text-center">
+                                    {purchase && purchase.withholdingAmount ? `${purchase.withholdingAmount}` : "---"}
                                 </TableCell>
                                 <TableCell className="table-cell text-center">
                                     {purchase && purchase.grossAmount ? `${purchase.grossAmount}` : "---"}

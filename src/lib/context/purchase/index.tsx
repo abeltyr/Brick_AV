@@ -5,36 +5,32 @@ import { fetchPurchasesByCompanyIdAction } from '@/lib/data/purchase/fetchByComp
 import { filter, Filter, loadLimit } from '@/types/shared';
 import { PurchaseInputType, PurchaseType } from '@/types/purchase';
 import React, { useCallback, useContext, useState } from "react";
-import { toEthiopian, } from '@/lib/utils/calendar';
 import { DateRangeType } from '@/types/shared';
-import { secondsInADay } from '@/lib/utils/calendar/date';
 import { defaultDateRange } from '../purchaseReport';
 
 const initialValues: {
-    purchases: { [id: string]: PurchaseType[] };
+    loading: boolean;
+    error: boolean;
+    isLoading: boolean,
     loadMoreData: boolean;
+    purchases: { [id: string]: PurchaseType[] };
     fetchPurchases: ({ companyId }: { companyId: string }) => void;
     getPurchase: ({ companyId }: {
         companyId: string,
-        yearData: number,
-        monthData: number,
     }) => void;
-    fetchingPurchases: boolean;
-    initialLoading: boolean;
     createPurchase: ({ }: PurchaseInputType) => void;
     dateRange: DateRangeType,
     setDateRange: (date: DateRangeType,) => void
 } = {
-    purchases: {},
+    loading: true,
+    error: false,
     loadMoreData: true,
+    isLoading: false,
+    purchases: {},
     fetchPurchases: ({ }: { companyId: string }) => { },
     getPurchase: ({ }: {
         companyId: string,
-        yearData: number,
-        monthData: number,
     }) => { },
-    fetchingPurchases: true,
-    initialLoading: true,
     createPurchase: ({ }: PurchaseInputType) => { },
     dateRange: { ...defaultDateRange },
     setDateRange: (date: DateRangeType,) => { }
@@ -54,8 +50,9 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
 
     const [purchases, setPurchases] = useState<{ [id: string]: PurchaseType[] }>({});
     const [loadMoreData, setLoadMoreData] = useState<boolean>(true);
-    const [fetchingPurchases, setFetchingPurchases] = useState<boolean>(false);
-    const [initialLoading, setInitialLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<boolean>(false);
     const [dateRange, setDateRange] = useState<DateRangeType>({ ...defaultDateRange });
 
 
@@ -85,9 +82,8 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
     const getPurchase = useCallback(
         async ({ companyId }: {
             companyId: string,
-
         }) => {
-            setInitialLoading(true);
+            setLoading(true);
             try {
                 const newPurchases = await fetchPurchasesByCompanyIdAction({
                     companyId,
@@ -101,18 +97,20 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                     setLoadMoreData(true);
                 }
                 setPurchases(purchasesData);
+                setLoading(false);
             } catch (e) {
                 console.log(e);
+                setLoading(false);
+                setError(true);
             }
-            setInitialLoading(false);
         },
         [purchases],
     );
 
     const fetchPurchases = useCallback(
         async ({ companyId }: { companyId: string }) => {
-            if (!fetchingPurchases) {
-                setFetchingPurchases(true);
+            if (!isLoading) {
+                setIsLoading(true);
                 try {
                     const filter: Filter = {
                         limit: loadLimit,
@@ -137,28 +135,30 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                     if (newPurchases.length < loadLimit) {
                         setLoadMoreData(false);
                     }
+                    setIsLoading(false);
                 } catch (e) {
                     console.log(e);
-                    alert("e");
+                    setIsLoading(false);
+                    setError(true);
                 }
-                setFetchingPurchases(false);
             }
         },
-        [fetchingPurchases, purchases],
+        [isLoading, purchases],
     );
 
     return (
         <PurchasesContext.Provider
             value={{
                 purchases,
-                initialLoading,
+                loading,
+                error,
                 loadMoreData,
-                fetchingPurchases,
                 fetchPurchases,
                 createPurchase,
                 getPurchase,
                 dateRange,
-                setDateRange
+                setDateRange,
+                isLoading
             }}
         >
             {children}

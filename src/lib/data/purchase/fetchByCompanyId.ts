@@ -6,6 +6,7 @@ import { DateRangeType, Filter, RangeType } from "@/types/shared";
 import { Prisma, Purchase } from "@prisma/client";
 import { purchaseIncludeData } from "./common/include";
 import Decimal from "decimal.js";
+import { vendorIncludeData } from "../vendor/common/include";
 
 const prisma = getPrisma();
 
@@ -40,10 +41,6 @@ export const fetchPurchasesByCompanyIdAction = async ({
   }
 
   if (filter) {
-    where = {
-      OR: [],
-    };
-
     let value = where.OR ?? [];
 
     //date rage filter

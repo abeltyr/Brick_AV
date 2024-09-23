@@ -6,4 +6,5 @@ export const vendorIncludeData = {
       MRCRegistration: true,
     },
   },
+  seller: true,
 };

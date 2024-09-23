@@ -1,11 +1,12 @@
-import { Vendor, Company, File } from "@prisma/client";
+import { Vendor, Company } from "@prisma/client";
 import { BusinessType } from "./business";
 import { PurchaseType } from "./purchase";
+import { ProfileType } from "./profile";
 
 export type VendorType = Vendor & {
   company: Company;
+  seller?: ProfileType;
   business?: BusinessType;
-  logo?: File;
   Purchase: PurchaseType[];
 };
 

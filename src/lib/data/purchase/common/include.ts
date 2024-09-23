@@ -1,7 +1,9 @@
 import { vendorIncludeData } from "../../vendor/common/include";
 
 export const purchaseIncludeData = {
-  PurchaseProduct: {
+  chartOfAccount: true,
+  chartOfAccountTransaction: true,
+  purchaseProducts: {
     include: {
       inventory: {
         include: {
