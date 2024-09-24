@@ -46,9 +46,11 @@ export const fetchBusinessApi = async (
       kebele: null,
       houseNumber: null,
     };
+
+    console.log("businessData", businessData);
     // // Iterate through each business trade and create records
     for (const trade of businessData.Businesses.reverse()) {
-      if (address.region === null || address.woreda) {
+      if (address.region === null || address.woreda === null) {
         const tradeResponse = await axios({
           method: "get",
           url: `https://etrade.gov.et/api/BusinessMain/GetBusinessByLicenseNo?LicenseNo=${trade.LicenceNumber}&Tin=null&Lang=en`,
@@ -67,7 +69,36 @@ export const fetchBusinessApi = async (
           kebele: tradeData.AddressInfo.Kebele,
           houseNumber: tradeData.AddressInfo.HouseNo,
         };
+        console.log("fetching Licenses");
       }
+
+      let renewedTo: Date | undefined = undefined;
+      let renewalDate: Date | undefined = undefined;
+      let renewedFrom: Date | undefined = undefined;
+      try {
+        if (
+          trade.RenewedTo &&
+          trade.RenewedTo !== "Data not available" &&
+          !isNaN(new Date(trade.RenewedTo).getTime())
+        ) {
+          renewedTo = new Date(trade.RenewedTo);
+        }
+        if (
+          trade.RenewalDate &&
+          trade.RenewalDate !== "Data not available" &&
+          !isNaN(new Date(trade.RenewalDate).getTime())
+        ) {
+          renewalDate = new Date(trade.RenewalDate);
+        }
+
+        if (
+          trade.RenewedFrom &&
+          trade.RenewedFrom !== "Data not available" &&
+          !isNaN(new Date(trade.RenewedFrom).getTime())
+        ) {
+          renewedFrom = new Date(trade.RenewedFrom);
+        }
+      } catch (e) {}
       // Create the business trade record
       businessTrade = [
         ...businessTrade,
@@ -76,15 +107,9 @@ export const fetchBusinessApi = async (
           tradeName: trade.TradesName,
           tradeNameAmh: trade.TradeNameAmh,
           licenseNumber: trade.LicenceNumber,
-          RenewedTo: !isNaN(new Date(trade.RenewedTo).getTime())
-            ? new Date(trade.RenewedTo)
-            : "",
-          RenewedFrom: !isNaN(new Date(trade.RenewedFrom).getTime())
-            ? new Date(trade.RenewedFrom)
-            : "",
-          RenewalDate: !isNaN(new Date(trade.RenewalDate).getTime())
-            ? new Date(trade.RenewalDate)
-            : "",
+          RenewedTo: renewedTo,
+          RenewedFrom: renewedFrom,
+          RenewalDate: renewalDate,
           licenseName:
             trade.SubGroups.length > 0 ? trade.SubGroups[0].Description : "",
           licenseCode:

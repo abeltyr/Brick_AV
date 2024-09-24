@@ -50,6 +50,7 @@ export default function RootLayout({
           <NavBar />
           <div className='min-h-14 h-[8vh] max-h-20' />
           {children}
+          <div className='min-h-14 h-[8vh] max-h-20' />
         </main>
       </div>
     );

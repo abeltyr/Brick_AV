@@ -22,6 +22,7 @@ export const DrawerSheetFooter = ({
                 <Button className='flex gap-2 p-x4 py-2'
                     variant={"secondary"}
                     onClick={(e) => {
+                        e.preventDefault();
                         if (closeFunction) closeFunction(e)
                     }}
                 >
@@ -36,6 +37,7 @@ export const DrawerSheetFooter = ({
                 disabled={isLoading || disabled}
                 className='flex gap-2 p-x4 py-2'
                 onClick={(e) => {
+                    e.preventDefault();
                     if (createFunction) createFunction(e);
                 }}
             >

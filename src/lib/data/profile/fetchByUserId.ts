@@ -12,8 +12,9 @@ export const findProfileByUserIdAction = async (
     include: {
       address: true,
       CompanyMember: {
-        include: {
-          company: true,
+        take: 1,
+        select: {
+          id: true,
         },
       },
     },

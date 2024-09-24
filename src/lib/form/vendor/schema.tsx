@@ -1,20 +1,27 @@
 import { z } from 'zod';
 
-export const vendorFormSchema = z.object({
-    tinNumber: z.string().min(10, {
-        message: "Please Provide a valid TIN number. ",
-    }),
-    name: z.string().optional(),
-    companyName: z.string().optional(),
-    vatNumber: z.string().optional(),
-    email: z.string().email({
-        message: "Please provided a valid email.",
-    }).optional(),
-    phoneNumber: z.string().optional(),
-    region: z.string().optional(),
-    city: z.string().optional(),
-    woreda: z.string().optional(),
-    houseNumber: z.string().optional(),
+export const vendorSchema = z.object({
+    name: z.string().min(1, 'Company name is required'),
     description: z.string().optional(),
-})
+    isRegistered: z.enum(['yes', 'no']),
+    tin: z.string().optional(),
+    vat: z.string().optional(),
+    sellerName: z.string().optional(),
+}).refine((data) => {
+    if (data.isRegistered === 'yes') {
+        return data.tin && data.tin.length === 10;
+    }
+    return true;
+}, {
+    message: "TIN number is required for registered businesses",
+    path: ['tinNumber']
+}).refine((data) => {
+    if (data.isRegistered === 'no') {
+        return data.sellerName && data.sellerName.length > 2;
+    }
+    return true;
+}, {
+    message: "Seller Name is required for unregistered businesses",
+    path: ['sellerName']
+});
 

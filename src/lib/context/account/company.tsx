@@ -49,6 +49,7 @@ const CompanyProvider: React.FC<Props> = ({ children }) => {
     const fetchCompanies = useCallback(
         async ({ userId, refetch = false }: { userId: string, refetch?: boolean }) => {
             setLoading(true);
+            setError(false);
             let fetchData = true;
             try {
                 // const data = localStorage.getItem("memberData")

@@ -12,8 +12,6 @@ export const OverViewPurchaseSection = ({ companyId }: { companyId: string }) =>
   useEffect(() => {
     console.log("purchase overview useEffect")
     getPurchase({ companyId: companyId })
-
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyId])
 

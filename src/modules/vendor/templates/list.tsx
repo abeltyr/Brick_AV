@@ -1,17 +1,17 @@
 'use client'
 
-import React, { useEffect, useState, } from 'react'
-import { VendorHeader } from '../components/header'
+import React, { useEffect, } from 'react'
+import { VendorHeader } from '@/modules/vendor/components/header'
 import { VendorEmptyState } from '@/modules/empty/templates/vendor'
 import { useVendors } from '@/lib/context/vendor'
-import { useAuth } from '@/lib/context/auth/user'
-import VendorsTableList from '../components/table'
+import VendorsTableList from '@/modules/vendor/components/table'
 import { Skeleton } from '@/modules/ui/skeleton'
+import { useCompany } from '@/lib/context/account'
 
 export const VendorListTempo = () => {
 
     const { vendors, getVendor, initialLoading } = useVendors()
-    const { currentCompany } = useAuth();
+    const { currentCompany } = useCompany();
 
 
     useEffect(() => {
@@ -19,7 +19,8 @@ export const VendorListTempo = () => {
             if (!vendors[currentCompany.companyId])
                 getVendor({ companyId: currentCompany.companyId })
         }
-    }, [currentCompany, getVendor, vendors])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentCompany])
 
 
     return (

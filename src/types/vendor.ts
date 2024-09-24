@@ -1,7 +1,7 @@
 import { Vendor, Company } from "@prisma/client";
 import { BusinessType } from "./business";
 import { PurchaseType } from "./purchase";
-import { ProfileType } from "./profile";
+import { ProfileInputType, ProfileType } from "./profile";
 
 export type VendorType = Vendor & {
   company: Company;
@@ -12,14 +12,11 @@ export type VendorType = Vendor & {
 
 export type VendorInputType = {
   companyId: string;
-  businessId?: string;
-  logoId?: string;
   name: string;
-  vat?: string;
-  contactName?: string;
-  email?: string;
-  phoneNumber?: string;
   description?: string;
+  businessId?: string;
+  vat?: string;
+  seller?: ProfileInputType;
 };
 
 export type UpdateVendorInputType = {

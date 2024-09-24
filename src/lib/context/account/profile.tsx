@@ -36,6 +36,7 @@ const ProfileProvider: React.FC<Props> = ({ children }) => {
     const fetchProfile = useCallback(
         async (id: string): Promise<ProfileType | null> => {
             setLoading(true);
+            setError(false);
             try {
                 let value = await findProfileByUserIdAction(id);
                 setProfile(value)

@@ -305,6 +305,8 @@ model ChartOfAccountTransaction {
   transactionType  ChartOfAccountTransactionType // Transaction type (invoice, payment, etc.)
   referenceId      String? // External reference (e.g., invoice number)
 
+  chartOfAccountTransactionId String?
+
   credit       Decimal @default(0)
   debit        Decimal @default(0)
   currency     String  @default("ETB")
@@ -495,7 +497,7 @@ model Vendor {
   logo       File?     @relation(fields: [logoId], references: [id])
 
   name        String
-  vat         String?
+  vatNumber   String?
   description String? @db.Text()
 
   createdAt DateTime   @default(now())

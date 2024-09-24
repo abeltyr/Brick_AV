@@ -1,24 +1,10 @@
-
-
 import { z } from 'zod';
-import { profileSchema } from './profile';
-import { addressSchema } from './address';
 
 
 export const companyInTakeSchema = z.object({
     companyName: z.string().min(1, 'Company name is required'),
-    isRegistered: z.enum(['yes', 'no']),
-    tinNumber: z.string().optional()
-}).refine((data) => {
-    if (data.isRegistered === 'yes') {
-        return data.tinNumber && data.tinNumber.length > 0;
-    }
-    return true;
-}, {
-    message: "TIN number is required for registered businesses",
-    path: ['tinNumber']
-});
-
+    tinNumber: z.string().min(10, 'TIN number is required'),
+})
 
 export const companySchema = z.object({
     managerName: z.string().min(1, 'Manager Name is required'),

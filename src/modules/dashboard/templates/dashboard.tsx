@@ -2,14 +2,7 @@
 
 import { DashboardNav } from '@/modules/dashboard/components/nav';
 import { DetailCard } from '@/modules/dashboard/components/detailCard';
-import { PurchaseEmptyState } from '@/modules/empty/templates/purchase';
-import { usePurchases } from '@/lib/context/purchase';
-import { useEffect } from 'react';
-import { Skeleton } from '@/modules/ui/skeleton';
-import { PurchaseOverview } from '../components/purchase/purchaseOverviews';
-import { defaultDateRange, usePurchaseReport } from '@/lib/context/purchaseReport';
 import { useCompany } from '@/lib/context/account';
-import { dateNameValue } from '@/types/shared';
 import { OverViewPurchaseSection } from '../components/purchase';
 
 

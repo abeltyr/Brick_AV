@@ -15,7 +15,7 @@ import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 
 
-export const GeneralProfileForm = ({ form, readOnlyValues = [] }: { form: UseFormReturn<z.infer<typeof profileSchema>>, readOnlyValues?: string[] }) => {
+export const GeneralProfileForm = ({ form, readOnlyValues = [], hideForm = [] }: { form: UseFormReturn<z.infer<typeof profileSchema>>, readOnlyValues?: string[], hideForm?: string[] }) => {
     return (
         <div className='flex flex-col gap-5'>
             <FormField
@@ -27,7 +27,7 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [] }: { form: UseFor
                         <FormControl>
                             <Input
                                 disabled={readOnlyValues.includes("fullName")}
-                                placeholder="Enter your full name"
+                                placeholder="Enter full name"
                                 {...field}
                             />
                         </FormControl>
@@ -37,7 +37,8 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [] }: { form: UseFor
 
             />
             <div className='flex gap-2 flex-wrap'>
-                <div className='flex-1 min-w-[200px]'>
+
+                {!hideForm.includes("email") && <div className='flex-1 min-w-[200px]'>
                     <FormField
                         control={form.control}
                         name="email"
@@ -47,7 +48,7 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [] }: { form: UseFor
                                 <FormControl>
                                     <Input
                                         disabled={readOnlyValues.includes("email")}
-                                        placeholder="Enter your email"
+                                        placeholder="Enter email address"
                                         {...field}
                                         type="email"
                                     />
@@ -57,7 +58,8 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [] }: { form: UseFor
                         )}
                     />
                 </div>
-                <div className='flex-1 min-w-[200px]'>
+                }
+                {!hideForm.includes("tinNumber") && <div className='flex-1 min-w-[200px]'>
                     <FormField
                         control={form.control}
                         name="tinNumber"
@@ -67,7 +69,7 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [] }: { form: UseFor
                                 <FormControl>
                                     <Input
                                         disabled={readOnlyValues.includes("tinNumber")}
-                                        placeholder="Enter your TIN number"
+                                        placeholder="Enter TIN number"
                                         {...field}
                                     />
                                 </FormControl>
@@ -75,10 +77,12 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [] }: { form: UseFor
                             </FormItem>
                         )}
                     />
-                </div>
+                </div>}
 
             </div>
-            <FormField
+
+
+            {!hideForm.includes("phoneNumber") && <FormField
                 control={form.control}
                 name="phoneNumber"
                 render={({ field }) => (
@@ -105,9 +109,11 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [] }: { form: UseFor
                         <FormMessage />
                     </FormItem>
                 )}
-            />
+            />}
 
-            <div className="space-y-2">
+
+
+            {!hideForm.includes("gender") && <div className="space-y-2">
                 <Label>Gender</Label>
                 <RadioGroup defaultValue="male" className='flex gap-6'>
                     <div className="flex items-center space-x-2">
@@ -120,47 +126,9 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [] }: { form: UseFor
                     </div>
                 </RadioGroup>
             </div>
-            {/* 
-            <FormField
-                control={form.control}
-                name="dateOfBirth"
-                render={({ field }) => (
-                    <FormItem className='flex  flex-col gap-1'>
-                        <FormLabel className='text-sm'>
-                            <LanguageTranslator>
-                                Date
-                            </LanguageTranslator>
-                        </FormLabel>
-                        <FormControl >
-                            <Popover >
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-[full] justify-start text-left font-normal",
-                                            !field.value && "text-muted-foreground"
-                                        )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={field.value}
-                                        onSelect={field.onChange}
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            /> */}
+            }
 
-            <div className="space-y-2">
+            {!hideForm.includes("dateOfBirth") && <div className="space-y-2">
                 <Label>Date of birth</Label>
                 <div className="flex space-x-2">
                     <div className='flex-1'>
@@ -257,6 +225,7 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [] }: { form: UseFor
 
                 </div>
             </div>
+            }
 
         </div>
     )

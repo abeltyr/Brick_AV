@@ -38,6 +38,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     const fetchUser = useCallback(
         async () => {
             setLoading(true);
+            setError(false);
             try {
                 await getUserAction();
                 setLoading(false);
@@ -53,7 +54,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     const logout = useCallback(
         async () => {
             try {
-                let user = await logoutAction();
+                await logoutAction();
                 setSession(null);
                 localStorage.clear();
             } catch (e) {
@@ -66,6 +67,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     const refreshAccountSession = useCallback(
         async () => {
             setLoading(true);
+            setError(false);
             try {
                 const data = await refreshAccountToken();
                 setSession(data.session);

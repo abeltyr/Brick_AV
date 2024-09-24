@@ -56,23 +56,15 @@ export function OnboardingCompanyInTakeForm({ className, ...props }: OnboardingC
         if (!isLoading) {
             setIsLoading(true)
             try {
-
                 setCompanyIntake(values)
-                if (values.isRegistered === "yes" && values.tinNumber) {
-                    if (business && business.tinNumber === values.tinNumber) {
-                        setBusinessFetched(business);
-                        setIsOpen(true)
-                        setIsLoading(false)
-                    } else {
-                        const businessData = await fetchBusiness(values.tinNumber)
-                        setBusinessFetched(businessData);
-                        setIsOpen(true)
-                        setIsLoading(false)
-                    }
-                    return
+                if (business && business.tinNumber === values.tinNumber) {
+                    setBusinessFetched(business);
+                    setIsOpen(true)
+                    setIsLoading(false)
                 } else {
-                    setOnBoardingId(2)
-                    setOnBoardingSubSet(0)
+                    const businessData = await fetchBusiness(values.tinNumber)
+                    setBusinessFetched(businessData);
+                    setIsOpen(true)
                     setIsLoading(false)
                 }
 
