@@ -6,7 +6,7 @@ import { filter, Filter, loadLimit } from '@/types/shared';
 import { PurchaseInputType, PurchaseType } from '@/types/purchase';
 import React, { useCallback, useContext, useState } from "react";
 import { DateRangeType } from '@/types/shared';
-import { defaultDateRange } from '../purchaseReport';
+import { defaultDateRange } from '@/lib/utils/calendar/date';
 
 const initialValues: {
     loading: boolean;

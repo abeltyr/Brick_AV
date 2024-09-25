@@ -1,4 +1,5 @@
-import { defaultDateRange, usePurchaseReport } from '@/lib/context/purchaseReport'
+import { usePurchaseReport } from '@/lib/context/purchaseReport'
+import { defaultDateRange } from '@/lib/utils/calendar/date'
 import { LanguageTranslator } from '@/modules/language/components'
 import { Card, CardContent, CardHeader, CardTitle } from '@/modules/ui/card'
 import { Skeleton } from '@/modules/ui/skeleton'

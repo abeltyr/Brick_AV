@@ -1,18 +1,26 @@
 import { ProductPurchaseType } from "@prisma/client";
 import { z } from "zod";
 
-export const productInputType = ["Good", "Service"];
-
+export const productInputType = [
+  {
+    value: "Good",
+    data: "Good",
+  },
+  {
+    value: "Service",
+    data: "Service",
+  },
+];
 export const productInputUnit = [
-  "KG",
-  "ML",
-  "GM",
-  "LIT",
-  "MT",
-  "PCS",
-  "CT",
-  "OTHER",
-  "PC",
+  { value: "KG", data: "KG" },
+  { value: "ML", data: "ML" },
+  { value: "GM", data: "GM" },
+  { value: "LIT", data: "LIT" },
+  { value: "MT", data: "MT" },
+  { value: "PCS", data: "PCS" },
+  { value: "CT", data: "CT" },
+  { value: "OTHER", data: "OTHER" },
+  { value: "PC", data: "PC" },
 ];
 
 export const purchaseTypeConvertor = (inputData: ProductPurchaseType) => {

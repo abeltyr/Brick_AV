@@ -2,15 +2,9 @@
 
 import React, { useCallback, useContext, useState } from "react";
 import { DateRangeType } from '@/types/shared';
-import { secondsInAWeek } from '@/lib/utils/calendar/date';
+import { defaultDateRange } from '@/lib/utils/calendar/date';
 import { fetchDailyPurchaseReportAction, fetchMonthlyPurchaseReportAction, fetchYearlyPurchaseReportAction } from '@/lib/data/purchaseReport/fetchByRange';
 import { PurchaseReportType } from '@/types/report';
-
-export const defaultDateRange: DateRangeType = {
-    startDate: new Date(new Date().getTime() - secondsInAWeek * 1000),
-    endDate: new Date(),
-    name: "Weekly"
-}
 
 
 const initialValues: {

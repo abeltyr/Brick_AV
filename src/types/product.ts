@@ -9,7 +9,7 @@ import {
 } from "@prisma/client";
 
 export type ProductType = Product & {
-  Inventory?: InventoryType;
+  Inventory?: InventoryType[];
 };
 
 export type InventoryType = Inventory & {

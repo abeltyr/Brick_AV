@@ -248,6 +248,7 @@ model ChartOfAccount {
   VatDetail                 VatDetail[]
   TotDetail                 TotDetail[]
   WithholdingDetail         WithholdingDetail[]
+  Product                   Product[]
 
   @@unique([companyId, code]) // Unique company-specific code
   @@unique([companyId, name]) // Unique company-specific name
@@ -426,19 +427,21 @@ enum ProductPurchaseType {
 }
 
 model Product {
-  id           String              @id @default(uuid())
-  companyId    String
-  company      Company             @relation(fields: [companyId], references: [id])
-  name         String
-  productCode  String
-  description  String?             @db.Text()
-  type         ProductCategoryType @default(Good)
-  purchaseType ProductPurchaseType
-  active       Boolean             @default(true)
-  purchase     Boolean             @default(true)
-  createdAt    DateTime            @default(now())
-  deletedAt    DateTime?
-  Inventory    Inventory?
+  id               String              @id @default(uuid())
+  companyId        String
+  company          Company             @relation(fields: [companyId], references: [id])
+  chartOfAccountId String?
+  chartOfAccount   ChartOfAccount?     @relation(fields: [chartOfAccountId], references: [id])
+  name             String
+  productCode      String
+  description      String?             @db.Text()
+  type             ProductCategoryType @default(Good)
+  purchaseType     ProductPurchaseType
+  active           Boolean             @default(true)
+  purchase         Boolean             @default(true)
+  createdAt        DateTime            @default(now())
+  deletedAt        DateTime?
+  Inventory        Inventory?
 
   @@unique([companyId, productCode])
   @@index([companyId], type: Hash)

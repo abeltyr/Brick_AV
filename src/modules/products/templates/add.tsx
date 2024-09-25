@@ -11,22 +11,22 @@ import { useToast } from '@/modules/ui/use-toast'
 import { useState } from 'react'
 import { useAuth } from '@/lib/context/auth/user'
 import { useProducts } from '@/lib/context/product'
-import ProductTypeForm from '../components/add/productTypeForm'
-import ProductDetailForm from '../components/add/productDetailForm'
-import { productFormSchema } from '@/lib/form/product'
+import { productSchema } from '@/lib/form/product'
 import { useDrawerManager } from '@/lib/context/drawer/drawer'
 import { DrawerSheetHeader } from '@/modules/common/components/drawer/header'
 import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
+import { useCompany } from '@/lib/context/account'
+import { GeneralProductForm } from '@/modules/common/components/form/generalProductForm'
 
 export const AddProductSection = () => {
     const { setAddProductDrawer } = useDrawerManager();
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
 
-    const { currentCompany } = useAuth();
+    const { currentCompany } = useCompany();
     const { createProduct } = useProducts();
-    const form = useForm<z.infer<typeof productFormSchema>>({
-        resolver: zodResolver(productFormSchema),
+    const form = useForm<z.infer<typeof productSchema>>({
+        resolver: zodResolver(productSchema),
         defaultValues: {
             name: "Pen",
             purchaseType: "taxableLocalCapitalAssets",
@@ -38,7 +38,7 @@ export const AddProductSection = () => {
     })
 
 
-    const onSubmit = async (values: z.infer<typeof productFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof productSchema>) => {
         if (!isLoading) {
             setIsLoading(true)
             try {
@@ -80,14 +80,12 @@ export const AddProductSection = () => {
 
     return (
         <div className='w-full h-full overflow-y-auto'>
-            <DrawerSheetHeader title={"Add Product"} />
+            <DrawerSheetHeader title={"Add Purchase Items"} description='Provided the needed detail about the items' />
             <div className='h-20' />
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full">
-
                     <div className='flex flex-col p-4 pb-20 flex-1 relative w-full h-full  gap-6'>
-                        <ProductDetailForm form={form} />
-                        <ProductTypeForm form={form} />
+                        <GeneralProductForm form={form} />
                     </div>
                     <DrawerSheetFooter
                         isLoading={isLoading}
