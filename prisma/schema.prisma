@@ -505,6 +505,7 @@ model Vendor {
   deletedAt DateTime?
   Purchase  Purchase[]
 
+  @@unique([businessId, companyId])
   @@index([companyId], type: Hash)
   @@index([createdAt])
 }

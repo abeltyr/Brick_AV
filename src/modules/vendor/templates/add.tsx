@@ -23,7 +23,7 @@ export const AddVendorSection = () => {
     const { toast } = useToast()
 
     const { currentCompany } = useCompany();
-    const { createVendor } = useVendors();
+    const { createVendor, setBusiness } = useVendors();
     const form = useForm<z.infer<typeof vendorSchema>>({
         resolver: zodResolver(vendorSchema),
         defaultValues: {
@@ -51,17 +51,29 @@ export const AddVendorSection = () => {
                             </div>
                         ),
                     })
+                    setBusiness(null)
                 }
-            } catch (e) {
-                console.log(e)
-                toast({
-                    title: "Error Signing In",
-                    description: (
-                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue persists, please contact us here.
-                        </div>
-                    ),
-                })
+            } catch (error: any) {
+                console.log("message", error.message)
+                if (error.message.includes('Unique constraint failed')) {
+                    toast({
+                        title: "Error: Vendor Already exist",
+                        description: (
+                            <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-200 font-medium text-sm">
+                                {"There's already a record with the same Tin. Please check your tin input or check a your vendor list."}
+                            </div>
+                        ),
+                    });
+                } else {
+                    toast({
+                        title: "Error creating vendor",
+                        description: (
+                            <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
+                                An error occurred. Please try again. If the issue persists, please contact us here.
+                            </div>
+                        ),
+                    });
+                }
             }
             setIsLoading(false)
         }
@@ -74,19 +86,16 @@ export const AddVendorSection = () => {
             <div className='h-32' />
             <Form {...form}>
                 <div className='flex flex-col p-4 pb-20 flex-1 relative w-full h-full px-8 gap-6'>
-
                     <GeneralVendorDetailForm form={form} />
-
-
                 </div>
                 <DrawerSheetFooter
                     isLoading={isLoading}
                     createSVG={<AddSVG />}
                     closeFunction={() => {
                         setAddVendorDrawer(false);
+                        setBusiness(null)
                     }}
                     createFunction={() => {
-                        console.log("here", form.formState)
                         form.handleSubmit(onSubmit)();
                     }}
                 />

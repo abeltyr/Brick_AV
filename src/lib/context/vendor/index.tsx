@@ -95,15 +95,14 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
             const newVendor = await createVenderAction({
                 ...data,
                 businessId: business ? business.id : undefined,
-
+                phoneNumber: data.phoneNumber ? `+251${data.phoneNumber}` : undefined
             }) as VendorType
             vendorsData[data.companyId] = [newVendor, ...vendorsData[data.companyId]];
             setVendors(vendorsData);
             return newVendor;
         }
-        catch (e) {
-            console.log(e)
-            throw new Error("Error Creating the vendor")
+        catch (e: any) {
+            throw new Error(e.message)
         }
 
     };

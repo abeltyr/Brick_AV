@@ -1,31 +1,21 @@
 import React, { useEffect, useState } from 'react'
-import {
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/modules/ui/form"
-import { companyInTakeSchema } from '@/lib/form/account'
-import { Input } from "@/modules/ui/input"
 import { UseFormReturn, useWatch } from 'react-hook-form'
 import { z } from 'zod'
-import { LanguageTranslator } from '@/modules/language/components'
-import { Label } from '@/modules/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/modules/ui/radio-group'
 import { vendorSchema } from '@/lib/form/vendor'
-import { Textarea } from '@/modules/ui/textarea'
 import { Button } from '@/modules/ui/button'
 import { useVendors } from '@/lib/context/vendor'
 import { BusinessDetailModal } from '@/modules/business/components/businessDetailModal'
-import { BusinessType } from '@/types/business'
 import LoadingSVG from '@/assets/icons/loading'
 import { Card, CardContent } from '@/modules/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/modules/ui/avatar'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/modules/ui/select'
+import { ZeroAdjustableInput } from '../input/tin'
+import { PhoneNumberInput } from '../input/phoneNumber'
+import { NormalInput } from '../input/normal'
+import { NormalTextAreaInput } from '../input/textArea'
+import { RadioInput } from '../input/radio'
 
 
-export const GeneralVendorDetailForm = ({ form, title = "Vendor Name", readOnlyValues = [] }: { form: UseFormReturn<z.infer<typeof vendorSchema>>, title?: string, readOnlyValues?: string[] }) => {
+export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: UseFormReturn<z.infer<typeof vendorSchema>>, readOnlyValues?: string[] }) => {
 
     const watchedRegisteredData = useWatch({
         control: form.control,
@@ -61,11 +51,8 @@ export const GeneralVendorDetailForm = ({ form, title = "Vendor Name", readOnlyV
 
     const handleClose = () => {
         setIsOpen(false)
-        // setBusiness(null)
-        // setBusinessFetched(null)
     }
     const handleContinue = () => {
-        console.log('Continuing...')
         setIsOpen(false)
     }
 
@@ -102,212 +89,95 @@ export const GeneralVendorDetailForm = ({ form, title = "Vendor Name", readOnlyV
                 </CardContent>
             </Card>}
             {!business && <div className="space-y-2">
-                <FormField control={form.control}
-                    name="isRegistered"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className='text-sm'>
-                                <LanguageTranslator>
-                                    Is it the vendor registered Business?
-                                </LanguageTranslator></FormLabel>
-                            <FormControl>
-                                <RadioGroup
-                                    className='flex gap-6'
-                                    {...field}
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    value={field.value}
-                                >
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem
-                                            value="yes"
-                                            id="yes"
-                                        />
-                                        <Label htmlFor="yes">Yes</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem
-                                            value="no"
-                                            id="no"
-                                            onClick={() => {
-                                                form.setValue("tin", undefined);
-                                                form.clearErrors("tin");
-                                                setBusiness(null)
-                                            }}
-                                        />
-                                        <Label htmlFor="no">No</Label>
-                                    </div>
-                                </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                <RadioInput
+                    form={form}
+                    title='Is it the vendor registered Business?'
+                    name='isRegistered'
+                    alignment='horizontal'
+                    values={[
+                        {
+                            name: "Yes",
+                            value: "yes",
+                            onClick: () => { }
+                        },
+                        {
+                            name: "No",
+                            value: "no",
+                            onClick: () => {
+                            }
+                        }
+                    ]} />
             </div>}
 
-            {!business && watchedRegisteredData === "yes" && <FormField
-                control={form.control}
-                name="tin"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className='text-sm'>Vendor Tin *</FormLabel>
-                        <FormControl>
-                            <Input
-                                placeholder="Enter your TIN number"
-                                {...field}
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-
+            {!business && watchedRegisteredData === "yes" &&
+                <ZeroAdjustableInput title={"Vendor Tin *"} name="tin" form={form} />
             }
 
             {business && <div className="flex gap-3 flex-wrap justify-between">
-
                 <div className="flex-1 min-w-[200px]">
-                    <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className='text-sm'>
-                                    <LanguageTranslator>
-                                        {title}
-                                    </LanguageTranslator></FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="text"
-                                        placeholder="Eurka Tech"
-                                        {...field}
-                                        disabled={true}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
+                    <NormalInput
+                        form={form}
+                        name='name'
+                        title="Vendor Name"
+                        type='text'
+                        disabled={readOnlyValues.includes("fullName")}
+                        placeholder="Vendor name"
                     />
                 </div>
 
                 <div className="flex-1 min-w-[200px] w-full">
-                    <FormField
-                        control={form.control}
-                        name="vat"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className='text-sm'>Vendor Vat</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder="Enter your TIN number"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
+                    <NormalInput
+                        form={form}
+                        name='vat'
+                        title="Vendor Vat"
+                        type='text'
+                        disabled={readOnlyValues.includes("vat")}
+                        placeholder="Enter your TIN number"
                     />
                 </div>
             </div>}
 
             {watchedRegisteredData === 'no' && <div className="flex-1 min-w-1/2">
-                <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className='text-sm'>Seller name</FormLabel>
-                            <FormControl>
-                                <Input
-                                    disabled={readOnlyValues.includes("fullName")}
-                                    placeholder="Enter full name"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-
+                <NormalInput
+                    form={form}
+                    name='name'
+                    title='Seller name'
+                    type='text'
+                    disabled={readOnlyValues.includes("fullName")}
+                    placeholder="Enter Vendor Full name"
                 />
             </div>
             }
             {business !== null && watchedRegisteredData === 'yes' || watchedRegisteredData === 'no' ? <div className="flex gap-3 flex-wrap justify-between">
                 <div className='flex-1 min-w-[200px]'>
-                    <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className='text-sm'>Email</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        disabled={readOnlyValues.includes("email")}
-                                        placeholder="Enter email address"
-                                        {...field}
-                                        type="email"
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
+                    <NormalInput
+                        form={form}
+                        name='email'
+                        title='Vendor Email'
+                        type='email'
+                        disabled={readOnlyValues.includes("email")}
+                        placeholder="Enter email address"
                     />
                 </div>
 
                 <div className="flex-1 min-w-[200px] w-full">
-                    <FormField
-                        control={form.control}
+                    <PhoneNumberInput
+                        title={"Phone number"}
                         name="phoneNumber"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className='text-sm'>Phone number</FormLabel>
-                                <FormControl>
-                                    <div className='flex '>
-                                        <Select>
-                                            <SelectTrigger className="w-[100px]">
-                                                <SelectValue placeholder="🇪🇹 +251" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="eth">🇪🇹 +251</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <Input
-                                            {...field}
-                                            disabled={readOnlyValues.includes("phoneNumber")}
-                                            placeholder="922998885"
-                                            className="flex-1 ml-2"
-                                        />
-                                    </div>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
+                        form={form}
                     />
                 </div>
             </div> : <></>}
             {business !== null && watchedRegisteredData === 'yes' || watchedRegisteredData === 'no' ?
-                <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className='text-sm'>
-                                <LanguageTranslator>
-                                    Description of the Vendor
-                                </LanguageTranslator></FormLabel>
-                            <FormControl>
-                                <Textarea
-                                    {...field}
-                                    id="description"
-                                    placeholder="Description of the Vendor, what they sell and special not for the future"
-                                    className="min-h-32"
-                                    disabled={readOnlyValues.includes("description")}
-                                />
-                            </FormControl>
 
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                /> : <></>
+                <NormalTextAreaInput
+                    form={form}
+                    name='description'
+                    title='Description of the Vendor'
+                    placeholder="Description of the Vendor, what they sell and special not for the future"
+                    disabled={readOnlyValues.includes("description")}
+                />
+                : <></>
             }
 
 

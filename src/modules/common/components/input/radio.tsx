@@ -1,0 +1,62 @@
+import { LanguageTranslator } from '@/modules/language/components';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/modules/ui/form';
+import { Label } from '@/modules/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/modules/ui/radio-group';
+import React from 'react'
+
+export const RadioInput = ({
+    title,
+    form,
+    name,
+    values,
+    alignment = "vertical"
+}: {
+    title: string,
+    form: any,
+    name: string,
+    values: {
+        name: string,
+        value: string,
+        onClick: () => void
+    }[]
+    alignment: "vertical" | "horizontal"
+}
+) => {
+    return (
+        <FormField control={form.control}
+            name={name}
+            render={({ field }) => (
+                <FormItem>
+                    <FormLabel className='text-sm'>
+                        <LanguageTranslator>
+                            {title}
+                        </LanguageTranslator>
+                    </FormLabel>
+                    <FormControl>
+                        <RadioGroup
+                            className={`flex ${alignment === "vertical" ? "flex-col gap-4 " : "gap-6"}`}
+                            {...field}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            value={field.value}
+                        >
+                            {values.map((data, index) => {
+                                return <div key={index} className="flex items-center space-x-2">
+                                    <RadioGroupItem
+                                        value={data.value}
+                                        id={data.value}
+                                        onClick={() => {
+                                            data.onClick()
+                                        }}
+                                    />
+                                    <Label htmlFor={data.value}>{data.name}</Label>
+                                </div>
+                            })}
+                        </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
+    )
+}
