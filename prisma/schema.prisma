@@ -66,7 +66,6 @@ model Profile {
   updatedAt                 DateTime                    @default(now()) @updatedAt
   deletedAt                 DateTime?
   CompanyMember             CompanyMember[]
-  Vendor                    Vendor[]
   ChartOfAccountTransaction ChartOfAccountTransaction[]
   ChartOfAccount            ChartOfAccount[]
   ChartOfAccountBalance     ChartOfAccountBalance[]
@@ -491,12 +490,13 @@ model Vendor {
   company    Company   @relation(fields: [companyId], references: [id])
   businessId String?
   business   Business? @relation(fields: [businessId], references: [id])
-  seller     Profile?  @relation(fields: [sellerId], references: [id])
-  sellerId   String?
   logoId     String?
   logo       File?     @relation(fields: [logoId], references: [id])
 
-  name        String
+  name        String?
+  vat         String?
+  email       String?
+  phoneNumber String?
   vatNumber   String?
   description String? @db.Text()
 

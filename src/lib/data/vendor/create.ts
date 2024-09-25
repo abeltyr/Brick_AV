@@ -13,7 +13,6 @@ export const createVenderAction = async (
   let value: Prisma.VendorCreateInput = {
     name: data.name,
     vat: data.vat,
-    contactName: data.contactName,
     email: data.email,
     phoneNumber: data.phoneNumber,
     description: data.description,

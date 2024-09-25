@@ -35,13 +35,14 @@ import {
     PaginationPrevious,
 } from "@/modules/ui/pagination"
 import { limitAmount } from '@/lib/utils/limiter'
+import { useCompany } from '@/lib/context/account'
 
 
 
 export default function VendorsTableList({ vendors }: { vendors: VendorType[] }) {
 
     const { getVendor, loadMoreData, fetchingVendors, fetchVendors } = useVendors();
-    const { currentCompany } = useAuth();
+    const { currentCompany } = useCompany();
     return (
         <Card>
             <CardHeader className="px-7 ">
@@ -68,12 +69,12 @@ export default function VendorsTableList({ vendors }: { vendors: VendorType[] })
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Tin Number</TableHead>
-                            <TableHead className="sm:table-cell text-center">Company Name</TableHead>
-                            <TableHead className="hidden sm:table-cell text-center">Seller Name</TableHead>
-                            <TableHead className="hidden md:table-cell text-center">City</TableHead>
-                            <TableHead className="hidden md:table-cell text-center">vatNumber</TableHead>
-                            <TableHead className="hidden md:table-cell text-right">Date</TableHead>
+                            <TableHead className="text-left">Company Name</TableHead>
+                            <TableHead className="text-left">Tin Number</TableHead>
+                            <TableHead className="hidden sm:table-cell text-left">Vat</TableHead>
+                            <TableHead className="hidden md:table-cell text-left">Email</TableHead>
+                            <TableHead className="hidden md:table-cell text-left">Phone number</TableHead>
+                            <TableHead className="text-right">Date</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -81,22 +82,22 @@ export default function VendorsTableList({ vendors }: { vendors: VendorType[] })
                             return <TableRow
                                 key={index}
                                 className="bg-accent">
-                                <TableCell>
+                                <TableCell className="table-cell text-left">
+                                    {data && data.name ? data.name : "---"}
+                                </TableCell>
+                                <TableCell className="text-left">
                                     <div className="font-medium">
-                                        {data.profile && data.profile.tinNumber ? data.profile.tinNumber : "---"}
+                                        {data.business && data.business.tinNumber ? data.business.tinNumber : "---"}
                                     </div>
                                 </TableCell>
-                                <TableCell className="table-cell text-center">
-                                    {data.profile && data.profile.companyName ? data.profile.companyName : "---"}
+                                <TableCell className="hidden sm:table-cell text-left">
+                                    {data && data.vat ? data.vat : "---"}
                                 </TableCell>
-                                <TableCell className="hidden sm:table-cell text-center">
-                                    {data.profile && data.profile.name ? data.profile.name : "---"}
+                                <TableCell className="hidden sm:table-cell text-left">
+                                    {data && data.email ? data.email : "---"}
                                 </TableCell>
-                                <TableCell className="hidden sm:table-cell text-center">
-                                    {data.profile && data.profile.address && data.profile.address.city ? data.profile.address.city : "---"}
-                                </TableCell>
-                                <TableCell className="hidden sm:table-cell text-center">
-                                    {data.profile && data.profile.vatNumber ? data.profile.vatNumber : "---"}
+                                <TableCell className="hidden sm:table-cell text-left">
+                                    {data && data.phoneNumber ? data.phoneNumber : "---"}
                                 </TableCell>
                                 <TableCell className="hidden md:table-cell text-right ">
                                     {data.createdAt && data.createdAt.toLocaleDateString('en-GB', {

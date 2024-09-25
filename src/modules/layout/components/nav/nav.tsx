@@ -7,7 +7,8 @@ import OverViewSVG from '@/assets/icons/overview'
 import ProductSVG from '@/assets/icons/product'
 import VendorSVG from '@/assets/icons/vendor'
 import PurchaseSVG from '@/assets/icons/purchase'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 
 const navList = [
@@ -37,7 +38,35 @@ export function MainNav({
     className,
     ...props
 }: React.HTMLAttributes<HTMLElement>) {
+
+
+    const pathname = usePathname();
+    const [pathData, setPathData] = useState(null)
+
     const [indexData, setIndexData] = useState(0)
+    useEffect(() => {
+        // This hook works on the client-side only
+        if (pathname) {
+            console.log('Current Path:', pathname);
+
+
+        }
+
+
+        if (pathname === "/") {
+            setIndexData(0)
+        }
+        else if (pathname === "/vendors") {
+            setIndexData(1)
+        } else if (pathname === "/items") {
+            setIndexData(2)
+        } else if (pathname === "/purchases") {
+            setIndexData(3)
+        }
+    }, [pathname]);
+
+
+
     return (
         <nav
             className={cn("flex items-center space-x-4 lg:space-x-6", className)}
@@ -49,7 +78,7 @@ export function MainNav({
                     <Link
                         prefetch={true}
                         onClick={() => {
-                            setIndexData(index)
+                            // setIndexData(index)
                         }}
                         id={`purchase-${index}`}
                         key={index}

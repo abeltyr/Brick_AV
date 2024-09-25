@@ -20,6 +20,9 @@ import { useVendors } from '@/lib/context/vendor'
 import { BusinessDetailModal } from '@/modules/business/components/businessDetailModal'
 import { BusinessType } from '@/types/business'
 import LoadingSVG from '@/assets/icons/loading'
+import { Card, CardContent } from '@/modules/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/modules/ui/avatar'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/modules/ui/select'
 
 
 export const GeneralVendorDetailForm = ({ form, title = "Vendor Name", readOnlyValues = [] }: { form: UseFormReturn<z.infer<typeof vendorSchema>>, title?: string, readOnlyValues?: string[] }) => {
@@ -54,9 +57,13 @@ export const GeneralVendorDetailForm = ({ form, title = "Vendor Name", readOnlyV
 
 
     const [isOpen, setIsOpen] = useState(false)
-    const [businessFetched, setBusinessFetched] = useState<BusinessType | null>(business)
+    // const [business, setBusinessFetched] = useState<BusinessType | null>(business)
 
-    const handleClose = () => setIsOpen(false)
+    const handleClose = () => {
+        setIsOpen(false)
+        // setBusiness(null)
+        // setBusinessFetched(null)
+    }
     const handleContinue = () => {
         console.log('Continuing...')
         setIsOpen(false)
@@ -66,9 +73,36 @@ export const GeneralVendorDetailForm = ({ form, title = "Vendor Name", readOnlyV
 
     return (
         <div className='flex flex-col gap-5'>
-            <div className="space-y-2">
-                <FormField
-                    control={form.control}
+            {business && <Card>
+                <CardContent className='flex justify-between p-4 items-center '>
+                    <div className='flex gap-3 items-center'>
+                        <Avatar className="h-12 w-12">
+                            <AvatarImage
+                                src={`images/companyLogo.webp`}
+                                alt={"company logo"}
+                            />
+                            <AvatarFallback>{business.businessName?.slice(0, 2)?.toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <p className='text-base font-semibold text-foreground'>
+                            {business.businessName}
+                        </p>
+                    </div>
+                    <Button variant={"secondary"} onClick={(e) => {
+                        e.preventDefault()
+                        setIsOpen(true)
+                    }}>
+                        View Business Detail
+                    </Button>
+                    <Button variant={"secondary"} onClick={(e) => {
+                        e.preventDefault()
+                        setBusiness(null)
+                    }}>
+                        Change
+                    </Button>
+                </CardContent>
+            </Card>}
+            {!business && <div className="space-y-2">
+                <FormField control={form.control}
                     name="isRegistered"
                     render={({ field }) => (
                         <FormItem>
@@ -95,6 +129,11 @@ export const GeneralVendorDetailForm = ({ form, title = "Vendor Name", readOnlyV
                                         <RadioGroupItem
                                             value="no"
                                             id="no"
+                                            onClick={() => {
+                                                form.setValue("tin", undefined);
+                                                form.clearErrors("tin");
+                                                setBusiness(null)
+                                            }}
                                         />
                                         <Label htmlFor="no">No</Label>
                                     </div>
@@ -104,28 +143,54 @@ export const GeneralVendorDetailForm = ({ form, title = "Vendor Name", readOnlyV
                         </FormItem>
                     )}
                 />
-            </div>
+            </div>}
 
-            {watchedRegisteredData === 'yes' && <div className=" gap-3 flex justify-between flex-wrap">
-                <div className="flex-1 min-w-1/2"><FormField
-                    control={form.control}
-                    name="tin"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className='text-sm'>Vendor Tin *</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Enter your TIN number"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+            {!business && watchedRegisteredData === "yes" && <FormField
+                control={form.control}
+                name="tin"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel className='text-sm'>Vendor Tin *</FormLabel>
+                        <FormControl>
+                            <Input
+                                placeholder="Enter your TIN number"
+                                {...field}
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+
+            }
+
+            {business && <div className="flex gap-3 flex-wrap justify-between">
+
+                <div className="flex-1 min-w-[200px]">
+                    <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className='text-sm'>
+                                    <LanguageTranslator>
+                                        {title}
+                                    </LanguageTranslator></FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="text"
+                                        placeholder="Eurka Tech"
+                                        {...field}
+                                        disabled={true}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </div>
 
-                {businessFetched && <div className="flex-1 min-w-1/2">
+                <div className="flex-1 min-w-[200px] w-full">
                     <FormField
                         control={form.control}
                         name="vat"
@@ -142,58 +207,84 @@ export const GeneralVendorDetailForm = ({ form, title = "Vendor Name", readOnlyV
                             </FormItem>
                         )}
                     />
-                </div>}
+                </div>
+            </div>}
+
+            {watchedRegisteredData === 'no' && <div className="flex-1 min-w-1/2">
+                <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className='text-sm'>Seller name</FormLabel>
+                            <FormControl>
+                                <Input
+                                    disabled={readOnlyValues.includes("fullName")}
+                                    placeholder="Enter full name"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+
+                />
             </div>
             }
-            <div className=" gap-3 flex justify-between flex-wrap">
-
-                {watchedRegisteredData === 'yes' && businessFetched &&
-                    <div className="flex-1 min-w-1/2">
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className='text-sm'>
-                                        <LanguageTranslator>
-                                            {title}
-                                        </LanguageTranslator></FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="text"
-                                            placeholder="Eurka Tech"
-                                            {...field}
-                                            disabled={readOnlyValues.includes("companyName")}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>}
-
-                {watchedRegisteredData === 'no' && <div className="flex-1 min-w-1/2">
+            {business !== null && watchedRegisteredData === 'yes' || watchedRegisteredData === 'no' ? <div className="flex gap-3 flex-wrap justify-between">
+                <div className='flex-1 min-w-[200px]'>
                     <FormField
                         control={form.control}
-                        name="sellerName"
+                        name="email"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className='text-sm'>Seller name</FormLabel>
+                                <FormLabel className='text-sm'>Email</FormLabel>
                                 <FormControl>
                                     <Input
-                                        disabled={readOnlyValues.includes("fullName")}
-                                        placeholder="Enter full name"
+                                        disabled={readOnlyValues.includes("email")}
+                                        placeholder="Enter email address"
                                         {...field}
+                                        type="email"
                                     />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
-
                     />
-                </div>}
-            </div>
-            {businessFetched && watchedRegisteredData === 'yes' || watchedRegisteredData === 'no' && <div className="gap-3">
+                </div>
+
+                <div className="flex-1 min-w-[200px] w-full">
+                    <FormField
+                        control={form.control}
+                        name="phoneNumber"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className='text-sm'>Phone number</FormLabel>
+                                <FormControl>
+                                    <div className='flex '>
+                                        <Select>
+                                            <SelectTrigger className="w-[100px]">
+                                                <SelectValue placeholder="🇪🇹 +251" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="eth">🇪🇹 +251</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <Input
+                                            {...field}
+                                            disabled={readOnlyValues.includes("phoneNumber")}
+                                            placeholder="922998885"
+                                            className="flex-1 ml-2"
+                                        />
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+            </div> : <></>}
+            {business !== null && watchedRegisteredData === 'yes' || watchedRegisteredData === 'no' ?
                 <FormField
                     control={form.control}
                     name="description"
@@ -201,13 +292,13 @@ export const GeneralVendorDetailForm = ({ form, title = "Vendor Name", readOnlyV
                         <FormItem>
                             <FormLabel className='text-sm'>
                                 <LanguageTranslator>
-                                    Description of the area
+                                    Description of the Vendor
                                 </LanguageTranslator></FormLabel>
                             <FormControl>
                                 <Textarea
                                     {...field}
                                     id="description"
-                                    placeholder="Description of the address area"
+                                    placeholder="Description of the Vendor, what they sell and special not for the future"
                                     className="min-h-32"
                                     disabled={readOnlyValues.includes("description")}
                                 />
@@ -216,49 +307,55 @@ export const GeneralVendorDetailForm = ({ form, title = "Vendor Name", readOnlyV
                             <FormMessage />
                         </FormItem>
                     )}
-                />
-            </div>}
+                /> : <></>
+            }
 
 
-            {watchedRegisteredData === 'yes' && <Button
+            {
+                watchedRegisteredData === 'yes' && !business && <Button
 
-                disabled={isLoading}
-                onClick={async (e) => {
+                    disabled={isLoading}
+                    onClick={async (e) => {
 
-                    e.preventDefault();
-                    if (!isLoading) {
-                        setIsLoading(true)
-                        form.clearErrors("tin")
-                        const tin = form.getValues("tin")
-                        if (tin && tin.length === 10) {
-                            try {
-                                const businessData = await fetchBusiness(tin)
-                                setBusinessFetched(businessData);
-                                setIsOpen(true)
-                            } catch (e) {
+                        e.preventDefault();
+                        if (!isLoading) {
+                            setIsLoading(true)
+                            form.clearErrors("tin")
+                            const tin = form.getValues("tin")
+                            if (tin && tin.length === 10) {
+                                try {
+                                    const businessData = await fetchBusiness(tin)
+                                    if (businessData === null) throw Error()
+
+                                    setIsOpen(true)
+                                    form.setValue("name", businessData.businessName ?? "")
+                                    form.setValue("phoneNumber", businessData.phoneNumber ?? "")
+                                    form.clearErrors();
+                                } catch (e) {
+                                    form.setError("tin", {
+                                        message: "Given tin number, doesn't have a business with it"
+                                    })
+                                }
+                                setIsLoading(false)
+                            } else {
+
                                 form.setError("tin", {
-                                    message: "Given tin number, doesn't have a business with it"
+                                    message: "Invalid tin number"
                                 })
                             }
                             setIsLoading(false)
-                        } else {
-
-                            form.setError("tin", {
-                                message: "Invalid tin number"
-                            })
                         }
-                        setIsLoading(false)
-                    }
 
-                }}>
-                {isLoading && (
-                    <div className='mr-2 h-5 w-5 animate-spin'>
-                        <LoadingSVG />
-                    </div>
-                )}
-                Fetch Business
-            </Button>
+                    }}>
+                    {isLoading && (
+                        <div className='mr-2 h-5 w-5 animate-spin'>
+                            <LoadingSVG />
+                        </div>
+                    )}
+                    Fetch Business
+                </Button>
             }
+
 
 
             <BusinessDetailModal
@@ -266,8 +363,10 @@ export const GeneralVendorDetailForm = ({ form, title = "Vendor Name", readOnlyV
                 setIsOpen={setIsOpen}
                 handleClose={handleClose}
                 handleContinue={handleContinue}
-                businessFetched={businessFetched}
+                businessFetched={business}
+                viewingOnly={true}
+                name={business?.businessName ?? ""}
             />
-        </div>
+        </div >
     )
 }

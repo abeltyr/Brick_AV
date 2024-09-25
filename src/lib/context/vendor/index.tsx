@@ -88,24 +88,16 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
 
 
 
-    const createVendor = async ({ companyId }: VendorInputType): Promise<VendorType | null> => {
+    const createVendor = async (data: VendorInputType): Promise<VendorType | null> => {
 
         try {
             const vendorsData = { ...vendors }
             const newVendor = await createVenderAction({
-                companyId: "",
-                name: "",
-                businessId: "",
-                description: "",
-                seller: {
-                    name: "",
-                    dateBirth: new Date("02/12/2020"),
-                    email: "",
-                    gender: "Male",
-                    phoneNumber: "",
-                },
+                ...data,
+                businessId: business ? business.id : undefined,
+
             }) as VendorType
-            vendorsData[companyId] = [newVendor, ...vendorsData[companyId]];
+            vendorsData[data.companyId] = [newVendor, ...vendorsData[data.companyId]];
             setVendors(vendorsData);
             return newVendor;
         }
