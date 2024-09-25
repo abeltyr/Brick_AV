@@ -4,6 +4,7 @@ import AuthenticationPage from '@/modules/auth/templates/';
 import { AuthFlowProvider, useAuth } from '@/lib/context/auth';
 import { CompanyProvider, useProfile } from '@/lib/context/account';
 import { useEffect } from 'react';
+import { ChartOfAccountProvider } from '@/lib/context/account/chartOfAccount';
 
 
 export default function AuthLayout({
@@ -28,7 +29,9 @@ export default function AuthLayout({
   if (session)
     return (
       <CompanyProvider>
-        {children}
+        <ChartOfAccountProvider>
+          {children}
+        </ChartOfAccountProvider>
       </CompanyProvider>
     );
   else

@@ -35,75 +35,148 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.runSetupSeed = void 0;
 var runSetupSeed = function (prisma) { return __awaiter(void 0, void 0, void 0, function () {
-    var company, texlyCompany, nivorCompany, user;
+    var financialPeriod, chartOfAccount, data;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, prisma.company.create({
+            case 0: return [4 /*yield*/, prisma.financialPeriod.create({
                     data: {
-                        name: "Eurka",
-                        email: "",
-                        phoneNumber: "",
+                        startDate: new Date("08/07/2024"),
+                        endDate: new Date("08/07/2025"),
+                        year: 2024,
+                        companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
                     },
                 })];
             case 1:
-                company = _a.sent();
-                return [4 /*yield*/, prisma.company.create({
+                financialPeriod = _a.sent();
+                chartOfAccount = [
+                    prisma.chartOfAccount.create({
                         data: {
-                            name: "texly",
-                            email: "",
-                            phoneNumber: "",
+                            category: "Cash",
+                            code: "1000",
+                            type: "ASSET",
+                            companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                            name: "CBE Bank",
+                            ChartOfAccountBalance: {
+                                create: {
+                                    periodId: financialPeriod.id,
+                                    balance: 100000,
+                                    initialBalance: 100000,
+                                },
+                            },
+                            ChartOfAccountTransaction: {
+                                create: {
+                                    transactionType: "DEPOSIT",
+                                    companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                                    credit: 100000,
+                                    date: new Date("08/07/2024"),
+                                },
+                            },
                         },
-                    })];
+                    }),
+                    prisma.chartOfAccount.create({
+                        data: {
+                            category: "Cash",
+                            code: "1001",
+                            type: "ASSET",
+                            companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                            name: "Zemen Bank",
+                            ChartOfAccountBalance: {
+                                create: {
+                                    periodId: financialPeriod.id,
+                                    balance: 100000,
+                                    initialBalance: 100000,
+                                },
+                            },
+                            ChartOfAccountTransaction: {
+                                create: {
+                                    transactionType: "DEPOSIT",
+                                    companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                                    credit: 100000,
+                                    date: new Date("08/07/2024"),
+                                },
+                            },
+                        },
+                    }),
+                    prisma.chartOfAccount.create({
+                        data: {
+                            category: "Account_payable",
+                            code: "1010",
+                            type: "ASSET",
+                            companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                            name: "Vat payable",
+                            ChartOfAccountBalance: {
+                                create: {
+                                    periodId: financialPeriod.id,
+                                    balance: 0,
+                                    initialBalance: 0,
+                                },
+                            },
+                        },
+                    }),
+                    prisma.chartOfAccount.create({
+                        data: {
+                            category: "Account_receivable",
+                            code: "3010",
+                            type: "LIABILITY",
+                            companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                            name: "Vat receivable",
+                            ChartOfAccountBalance: {
+                                create: {
+                                    periodId: financialPeriod.id,
+                                    balance: 0,
+                                    initialBalance: 0,
+                                },
+                            },
+                        },
+                    }),
+                    prisma.chartOfAccount.create({
+                        data: {
+                            category: "Account_payable",
+                            code: "1030",
+                            type: "ASSET",
+                            companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                            name: "Withholding payable",
+                            ChartOfAccountBalance: {
+                                create: {
+                                    periodId: financialPeriod.id,
+                                    balance: 0,
+                                    initialBalance: 0,
+                                },
+                            },
+                        },
+                    }),
+                    prisma.chartOfAccount.create({
+                        data: {
+                            category: "Account_receivable",
+                            code: "3020",
+                            type: "LIABILITY",
+                            companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                            name: "Withholding receivable",
+                            ChartOfAccountBalance: {
+                                create: {
+                                    periodId: financialPeriod.id,
+                                    balance: 0,
+                                    initialBalance: 0,
+                                },
+                            },
+                        },
+                    }),
+                ];
+                return [4 /*yield*/, prisma.$transaction(__spreadArray([], chartOfAccount, true))];
             case 2:
-                texlyCompany = _a.sent();
-                return [4 /*yield*/, prisma.company.create({
-                        data: {
-                            name: "nivor",
-                            email: "",
-                            phoneNumber: "",
-                        },
-                    })];
-            case 3:
-                nivorCompany = _a.sent();
-                return [4 /*yield*/, prisma.profile.create({
-                        data: {
-                            id: "e40fbc07-c963-444b-bbb6-306b4b2585f3",
-                            email: "abel@tecly.co",
-                            name: "Abel",
-                        },
-                    })];
-            case 4:
-                user = _a.sent();
-                return [4 /*yield*/, prisma.companyMember.create({
-                        data: {
-                            profileId: user.id,
-                            companyId: company.id,
-                            role: "Owner",
-                        },
-                    })];
-            case 5:
-                _a.sent();
-                return [4 /*yield*/, prisma.companyMember.create({
-                        data: {
-                            profileId: user.id,
-                            companyId: texlyCompany.id,
-                            role: "Owner",
-                        },
-                    })];
-            case 6:
-                _a.sent();
-                return [4 /*yield*/, prisma.companyMember.create({
-                        data: {
-                            profileId: user.id,
-                            companyId: nivorCompany.id,
-                            role: "Accountant",
-                        },
-                    })];
-            case 7:
-                _a.sent();
+                data = _a.sent();
                 return [2 /*return*/];
         }
     });

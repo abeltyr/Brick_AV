@@ -190,10 +190,30 @@ model FinancialPeriod {
   endDate   DateTime
   status    FinancialPeriodStatus @default(OPEN) // Indicates if the period is open or closed
 
-  accountBalances ChartOfAccountBalance[]
-  GeneralLedger   GeneralLedger[]
+  accountBalances          ChartOfAccountBalance[]
+  GeneralLedger            GeneralLedger[]
+  FinancialPeriodIntervals FinancialPeriodIntervals[]
+  YearPurchaseReport       YearPurchaseReport[]
 
   @@unique([companyId, year]) // Ensure the company only has one period per year
+}
+
+// Model to track financial periods (e.g., fiscal years)
+model FinancialPeriodIntervals {
+  id                String          @id @default(cuid())
+  financialPeriodId String
+  financialPeriod   FinancialPeriod @relation(fields: [financialPeriodId], references: [id])
+
+  order     Int      @default(0)
+  startDate DateTime
+  endDate   DateTime
+
+  // Ensure the company only has one period per year
+  MonthlyPurchaseReport MonthlyPurchaseReport[]
+
+  @@unique([financialPeriodId, startDate])
+  @@unique([financialPeriodId, endDate])
+  @@unique([financialPeriodId, order])
 }
 
 enum ChartOfAccountsType {
@@ -288,6 +308,8 @@ enum ChartOfAccountTransactionType {
   REFUND
   ADJUSTMENT
   TRANSFER
+  DEPOSIT
+  WITHDRAWAL
 }
 
 enum ChartOfAccountTransactionStatus {
@@ -701,10 +723,12 @@ model DailyPurchaseReport {
 }
 
 model MonthlyPurchaseReport {
-  id        String  @id @default(uuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
-  count     Int
+  id                         String                   @id @default(uuid())
+  companyId                  String
+  company                    Company                  @relation(fields: [companyId], references: [id])
+  financialPeriodIntervalsId String
+  financialPeriodIntervals   FinancialPeriodIntervals @relation(fields: [financialPeriodIntervalsId], references: [id])
+  count                      Int
 
   // General purchase information
   taxableAmount    Decimal @default(0)
@@ -722,14 +746,18 @@ model MonthlyPurchaseReport {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([financialPeriodIntervalsId, companyId])
   @@unique([month, year, companyId])
 }
 
 model YearPurchaseReport {
-  id        String  @id @default(uuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
-  count     Int
+  id                String          @id @default(uuid())
+  companyId         String
+  company           Company         @relation(fields: [companyId], references: [id])
+  financialPeriodId String
+  financialPeriod   FinancialPeriod @relation(fields: [financialPeriodId], references: [id])
+
+  count Int
 
   // General purchase information
   taxableAmount    Decimal @default(0)
@@ -747,4 +775,5 @@ model YearPurchaseReport {
   updatedAt DateTime @updatedAt
 
   @@unique([year, companyId])
+  @@unique([financialPeriodId, companyId])
 }

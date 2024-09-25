@@ -7,6 +7,8 @@ import {
   ChartOfAccount,
   ChartOfAccountTransaction,
   ChartOfAccountBalance,
+  ChartOfAccountsCategoryType,
+  ChartOfAccountsType,
 } from "@prisma/client";
 import { ProductType } from "../product";
 import { VendorType } from "../vendor";
@@ -50,4 +52,26 @@ export type ChartOfAccountTransactionType = ChartOfAccountTransaction & {
   company?: CompanyType;
   createdBy?: ProfileType;
   chartOfAccount?: ChartOfAccountType;
+};
+
+export type ChartOfAccountInputType = {
+  companyId: string;
+  name: string;
+  code: string;
+  description?: string;
+  category: ChartOfAccountsCategoryType;
+  type: ChartOfAccountsType;
+  credit?: number;
+  debit?: number;
+  date?: Date;
+  createdBy: string;
+};
+
+export type ChartOfAccountTransactionInputType = {
+  companyId: string;
+  chartOfAccountId: string;
+  amount: number;
+  date: Date;
+  description?: string;
+  type: ChartOfAccountTransactionType;
 };
