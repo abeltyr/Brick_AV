@@ -12,13 +12,13 @@ const initialValues: {
     error: boolean,
     chartOfAccounts: { [id: string]: ChartOfAccountType[] },
     getChartOfAccounts: ({ companyId, refetch }: { companyId: string, refetch?: boolean }) => void,
-    createCOA: ({ }: { companyId: string, data: ChartOfAccountInputType }) => Promise<ChartOfAccountType | null>
+    createCOA: ({ }: { companyId: string, creatorId: string, data: ChartOfAccountInputType }) => Promise<ChartOfAccountType | null>
 } = {
     loading: true,
     error: true,
     chartOfAccounts: {},
     getChartOfAccounts: ({ }: { companyId: string, refetch?: boolean }) => { },
-    createCOA: async ({ }: { companyId: string, data: ChartOfAccountInputType }): Promise<ChartOfAccountType | null> => { return null }
+    createCOA: async ({ }: { companyId: string, creatorId: string, data: ChartOfAccountInputType }): Promise<ChartOfAccountType | null> => { return null }
 };
 
 type Props = {
@@ -37,21 +37,26 @@ const ChartOfAccountProvider: React.FC<Props> = ({ children }) => {
 
 
 
-    const createCOA = async ({ data, companyId }: {
-        companyId: string
+    const createCOA = async ({ data, companyId, creatorId }: {
+        companyId: string,
+        creatorId: string,
         data: ChartOfAccountInputType
     }
     ): Promise<ChartOfAccountType | null> => {
         try {
             const chartOfAccountsData = { ...chartOfAccounts };
             const newChartOfAccounts = await createChartOfAccountAction({
-                ...data
+                creatorId,
+                companyId,
+                data: {
+                    ...data
+                }
             });
             chartOfAccountsData[companyId] = [newChartOfAccounts as ChartOfAccountType, ...chartOfAccountsData[companyId]];
             setChartOfAccounts(chartOfAccountsData);
             return newChartOfAccounts;
-        } catch (e) {
-            throw new Error("Error Creating the product");
+        } catch (e: any) {
+            throw new Error(e.message);
         }
     };
 

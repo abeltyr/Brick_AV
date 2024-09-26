@@ -4,6 +4,7 @@ import { getPrisma } from "@/lib/utils/database";
 import { generate8CharUUID } from "@/lib/utils/idGenerator";
 import { ProductInputType, ProductType } from "@/types/product";
 import { includeData } from "./common/include";
+import { connect } from "http2";
 
 const prisma = getPrisma();
 
@@ -24,6 +25,11 @@ export const createProductAction = async (
       productCode: `${data.name.slice(0, 2).toUpperCase()}-${productCode}`,
       Inventory: {
         create: {
+          chartOfAccount: {
+            connect: {
+              id: data.chartOfAccountId,
+            },
+          },
           quantity: 0,
           ProductPrice: {
             create: {

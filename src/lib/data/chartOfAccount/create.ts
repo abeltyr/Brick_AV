@@ -1,27 +1,28 @@
 "use server";
 
 import { getPrisma } from "@/lib/utils/database";
-import { generate8CharUUID } from "@/lib/utils/idGenerator";
 import { chartOfAccountIncludeData } from "./common/include";
 import { ChartOfAccountInputType, ChartOfAccountType } from "@/types/purchase";
 import { Prisma } from "@prisma/client";
 
 const prisma = getPrisma();
 
-export const createChartOfAccountAction = async (
-  data: ChartOfAccountInputType,
-): Promise<ChartOfAccountType> => {
-  const productCode = generate8CharUUID();
-
-  let year = new Date().getFullYear();
-
-  if (data.date) year = new Date(data.date).getFullYear();
+export const createChartOfAccountAction = async ({
+  companyId,
+  creatorId,
+  data,
+}: {
+  companyId: string;
+  creatorId: string;
+  data: ChartOfAccountInputType;
+}): Promise<ChartOfAccountType> => {
+  let date = new Date();
 
   const financialPeriod = await prisma.financialPeriod.findUnique({
     where: {
       companyId_year: {
-        year,
-        companyId: data.companyId,
+        year: date.getFullYear(),
+        companyId: companyId,
       },
     },
   });
@@ -30,35 +31,33 @@ export const createChartOfAccountAction = async (
 
   const createChartOfAccount: Prisma.ChartOfAccountCreateInput = {
     name: data.name,
-    description: data.description,
-    category: data.category,
-    code: productCode,
+    accountType: data.accountType,
+    code: data.code,
     company: {
       connect: {
-        id: data.companyId,
+        id: companyId,
       },
     },
     type: data.type,
   };
 
-  if (data.credit || data.debit) {
-    createChartOfAccount.ChartOfAccountBalance = {
-      create: {
-        balance: data.credit ? data.credit : data.debit,
-        periodId: financialPeriod.id,
-        profileId: data.createdBy,
-        initialBalance: data.credit ? data.credit : data.debit,
-      },
-    };
-
+  createChartOfAccount.ChartOfAccountBalance = {
+    create: {
+      balance: data.amount,
+      periodId: financialPeriod.id,
+      profileId: creatorId,
+      initialBalance: data.amount,
+    },
+  };
+  if (data.amount > 0) {
     createChartOfAccount.ChartOfAccountTransaction = {
       create: {
         transactionType: "DEPOSIT",
-        companyId: data.companyId,
-        createdById: data.createdBy,
-        credit: data.credit,
-        debit: data.debit,
-        date: data.date,
+        companyId: companyId,
+        createdById: creatorId,
+        credit: data.balanceType === "credit" ? data.amount : 0,
+        debit: data.balanceType === "debit" ? data.amount : 0,
+        date: date,
       },
     };
   }

@@ -32,7 +32,20 @@ export const PriceInput = ({
                             step="1"
                             onChange={(e) => {
                                 const value = e.target.value;
-                                field.onChange(value === "" ? undefined : Number(value));
+                                console.log("value", value)
+                                if (value === "") {
+                                    console.log("value", value)
+                                    field.onChange("");
+                                }
+                                else {
+                                    field.onChange(Number(value));
+                                }
+                            }}
+                            onBlur={(e) => {
+                                let value = e.target.value;
+                                if (value === "")
+                                    field.onChange(0);
+                                field.onBlur();
                             }}
                         />
                     </FormControl>

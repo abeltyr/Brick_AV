@@ -252,7 +252,7 @@ model ChartOfAccount {
   createdBy   Profile? @relation(fields: [createdById], references: [id])
 
   type        ChartOfAccountsType // Type: Asset, Liability, etc.
-  category    ChartOfAccountsCategoryType // Sub-category: Account_receivable, Cash, etc.
+  accountType ChartOfAccountsCategoryType // Sub-category: Account_receivable, Cash, etc.
   name        String
   code        String
   description String?                     @db.Text()
@@ -271,7 +271,6 @@ model ChartOfAccount {
   Product                   Product[]
 
   @@unique([companyId, code]) // Unique company-specific code
-  @@unique([companyId, name]) // Unique company-specific name
   @@index([companyId])
   @@index([type])
 }
@@ -463,7 +462,7 @@ model Product {
   purchase         Boolean             @default(true)
   createdAt        DateTime            @default(now())
   deletedAt        DateTime?
-  Inventory        Inventory?
+  Inventory        Inventory[]
 
   @@unique([companyId, productCode])
   @@index([companyId], type: Hash)
@@ -472,7 +471,7 @@ model Product {
 
 model Inventory {
   id               String            @id @default(uuid())
-  productId        String            @unique
+  productId        String
   product          Product           @relation(fields: [productId], references: [id])
   quantity         Int               @default(0)
   lastUpdated      DateTime          @default(now()) @updatedAt

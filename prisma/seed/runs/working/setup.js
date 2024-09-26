@@ -55,7 +55,7 @@ var runSetupSeed = function (prisma) { return __awaiter(void 0, void 0, void 0, 
                         startDate: new Date("08/07/2024"),
                         endDate: new Date("08/07/2025"),
                         year: 2024,
-                        companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                        companyId: "1d96599f-0e7e-486a-95e0-5aec3d394f6a",
                     },
                 })];
             case 1:
@@ -63,10 +63,10 @@ var runSetupSeed = function (prisma) { return __awaiter(void 0, void 0, void 0, 
                 chartOfAccount = [
                     prisma.chartOfAccount.create({
                         data: {
-                            category: "Cash",
+                            accountType: "Cash",
                             code: "1000",
                             type: "ASSET",
-                            companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                            companyId: "1d96599f-0e7e-486a-95e0-5aec3d394f6a",
                             name: "CBE Bank",
                             ChartOfAccountBalance: {
                                 create: {
@@ -78,7 +78,7 @@ var runSetupSeed = function (prisma) { return __awaiter(void 0, void 0, void 0, 
                             ChartOfAccountTransaction: {
                                 create: {
                                     transactionType: "DEPOSIT",
-                                    companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                                    companyId: "1d96599f-0e7e-486a-95e0-5aec3d394f6a",
                                     credit: 100000,
                                     date: new Date("08/07/2024"),
                                 },
@@ -87,10 +87,10 @@ var runSetupSeed = function (prisma) { return __awaiter(void 0, void 0, void 0, 
                     }),
                     prisma.chartOfAccount.create({
                         data: {
-                            category: "Cash",
+                            accountType: "Cash",
                             code: "1001",
                             type: "ASSET",
-                            companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                            companyId: "1d96599f-0e7e-486a-95e0-5aec3d394f6a",
                             name: "Zemen Bank",
                             ChartOfAccountBalance: {
                                 create: {
@@ -102,7 +102,7 @@ var runSetupSeed = function (prisma) { return __awaiter(void 0, void 0, void 0, 
                             ChartOfAccountTransaction: {
                                 create: {
                                     transactionType: "DEPOSIT",
-                                    companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                                    companyId: "1d96599f-0e7e-486a-95e0-5aec3d394f6a",
                                     credit: 100000,
                                     date: new Date("08/07/2024"),
                                 },
@@ -111,10 +111,10 @@ var runSetupSeed = function (prisma) { return __awaiter(void 0, void 0, void 0, 
                     }),
                     prisma.chartOfAccount.create({
                         data: {
-                            category: "Account_payable",
+                            accountType: "Account_payable",
                             code: "1010",
                             type: "ASSET",
-                            companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                            companyId: "1d96599f-0e7e-486a-95e0-5aec3d394f6a",
                             name: "Vat payable",
                             ChartOfAccountBalance: {
                                 create: {
@@ -127,10 +127,10 @@ var runSetupSeed = function (prisma) { return __awaiter(void 0, void 0, void 0, 
                     }),
                     prisma.chartOfAccount.create({
                         data: {
-                            category: "Account_receivable",
+                            accountType: "Account_receivable",
                             code: "3010",
                             type: "LIABILITY",
-                            companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                            companyId: "1d96599f-0e7e-486a-95e0-5aec3d394f6a",
                             name: "Vat receivable",
                             ChartOfAccountBalance: {
                                 create: {
@@ -143,10 +143,10 @@ var runSetupSeed = function (prisma) { return __awaiter(void 0, void 0, void 0, 
                     }),
                     prisma.chartOfAccount.create({
                         data: {
-                            category: "Account_payable",
+                            accountType: "Account_payable",
                             code: "1030",
                             type: "ASSET",
-                            companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                            companyId: "1d96599f-0e7e-486a-95e0-5aec3d394f6a",
                             name: "Withholding payable",
                             ChartOfAccountBalance: {
                                 create: {
@@ -159,10 +159,10 @@ var runSetupSeed = function (prisma) { return __awaiter(void 0, void 0, void 0, 
                     }),
                     prisma.chartOfAccount.create({
                         data: {
-                            category: "Account_receivable",
+                            accountType: "Account_receivable",
                             code: "3020",
                             type: "LIABILITY",
-                            companyId: "a30c618e-fd82-40c0-84a5-cd2082724012",
+                            companyId: "1d96599f-0e7e-486a-95e0-5aec3d394f6a",
                             name: "Withholding receivable",
                             ChartOfAccountBalance: {
                                 create: {

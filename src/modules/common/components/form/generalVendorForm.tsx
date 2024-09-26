@@ -96,12 +96,12 @@ export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: U
                     alignment='horizontal'
                     values={[
                         {
-                            name: "Yes",
+                            data: "Yes",
                             value: "yes",
                             onClick: () => { }
                         },
                         {
-                            name: "No",
+                            data: "No",
                             value: "no",
                             onClick: () => {
                             }

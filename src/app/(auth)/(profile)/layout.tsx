@@ -20,20 +20,6 @@ export default function RootLayout({
 
 
   const { profile, loading, error } = useProfile()
-  const { currentCompany } = useCompany()
-  const { getChartOfAccounts } = useChartOfAccount()
-
-
-
-  useEffect(() => {
-    console.log("getChartOfAccounts,session, useEffect")
-    if (currentCompany && currentCompany.companyId) {
-      getChartOfAccounts({
-        companyId: currentCompany.companyId
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
 
   if (loading && !profile)

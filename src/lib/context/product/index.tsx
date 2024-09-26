@@ -68,7 +68,8 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
             type,
             unitPrice,
             purchaseType,
-            companyId
+            companyId,
+            chartOfAccountId
         }: ProductInputType
     ): Promise<ProductType | null> => {
         try {
@@ -81,6 +82,7 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
                 unitPrice,
                 purchaseType,
                 type,
+                chartOfAccountId
             });
             productsData[companyId] = [newProduct, ...productsData[companyId]];
             setProducts(productsData);

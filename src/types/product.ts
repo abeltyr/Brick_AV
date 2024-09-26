@@ -7,18 +7,16 @@ import {
   ProductPurchaseType,
   ProductUnitType,
 } from "@prisma/client";
+import { ChartOfAccountType } from "./purchase";
 
 export type ProductType = Product & {
   Inventory?: InventoryType[];
 };
 
 export type InventoryType = Inventory & {
-  ProductPrice?: ProductPriceType[];
+  ProductPrice?: ProductPrice[];
+  chartOfAccount?: ChartOfAccountType;
   BOM?: BOMType[];
-};
-
-export type ProductPriceType = ProductPrice & {
-  inventory?: Inventory;
 };
 
 export type BOMType = BOM & {
@@ -27,6 +25,7 @@ export type BOMType = BOM & {
 
 export type ProductInputType = {
   companyId: string;
+  chartOfAccountId: string;
   name: string;
   description?: string;
   type?: ProductCategoryType;

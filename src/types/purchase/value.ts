@@ -55,16 +55,12 @@ export type ChartOfAccountTransactionType = ChartOfAccountTransaction & {
 };
 
 export type ChartOfAccountInputType = {
-  companyId: string;
   name: string;
   code: string;
-  description?: string;
-  category: ChartOfAccountsCategoryType;
+  accountType: ChartOfAccountsCategoryType;
   type: ChartOfAccountsType;
-  credit?: number;
-  debit?: number;
-  date?: Date;
-  createdBy: string;
+  balanceType: "credit" | "debit";
+  amount: number;
 };
 
 export type ChartOfAccountTransactionInputType = {

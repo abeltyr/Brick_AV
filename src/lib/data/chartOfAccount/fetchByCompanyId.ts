@@ -38,7 +38,7 @@ export const fetchChartOfAccountAction = async ({
     cursor: myCursor,
     orderBy: [
       {
-        name: orderBy,
+        code: "asc",
       },
     ],
     skip,

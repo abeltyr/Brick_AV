@@ -15,9 +15,9 @@ export const RadioInput = ({
     form: any,
     name: string,
     values: {
-        name: string,
+        data: string,
         value: string,
-        onClick: () => void
+        onClick?: () => void
     }[]
     alignment: "vertical" | "horizontal"
 }
@@ -46,10 +46,10 @@ export const RadioInput = ({
                                         value={data.value}
                                         id={data.value}
                                         onClick={() => {
-                                            data.onClick()
+                                            if (data.onClick) data.onClick()
                                         }}
                                     />
-                                    <Label htmlFor={data.value}>{data.name}</Label>
+                                    <Label htmlFor={data.value}>{data.data}</Label>
                                 </div>
                             })}
                         </RadioGroup>

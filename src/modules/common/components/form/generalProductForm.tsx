@@ -7,11 +7,13 @@ import { SelectInput } from '../input/select'
 import { PriceInput } from '../input/price'
 import { ChartOfAccountInput } from '../input/coa'
 import { useCompany } from '@/lib/context/account'
+import { ChartOfAccountType } from '@/types/purchase'
 
 
 export const GeneralProductForm = ({ form, readOnlyValues = [] }: { form: UseFormReturn<z.infer<typeof productSchema>>, readOnlyValues?: string[] }) => {
 
     const { currentCompany } = useCompany()
+
 
     return (
         <div className='flex flex-col gap-5'>
@@ -86,7 +88,16 @@ export const GeneralProductForm = ({ form, readOnlyValues = [] }: { form: UseFor
             </div>
 
             {currentCompany &&
-                <ChartOfAccountInput companyId={currentCompany.companyId} className='' />
+                <ChartOfAccountInput
+                    companyId={currentCompany.companyId}
+                    className=''
+                    setChartOfAccount={(coa: ChartOfAccountType) => {
+                        form.setValue("chartOfAccountId", coa.id);
+                        form.clearErrors()
+                    }}
+                    formData={form}
+
+                />
             }
 
 
