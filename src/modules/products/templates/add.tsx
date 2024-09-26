@@ -95,7 +95,7 @@ export const AddProductSection = () => {
             <DrawerSheetHeader title={"Add Purchase Items"} description='Provided the needed detail about the items' />
             <div className='h-28' />
             <Form {...form}>
-                <div className='flex flex-col p-4 pb-20 flex-1 relative w-full h-full  gap-6'>
+                <div className='flex flex-col p-4 pb-40 flex-1 relative w-full h-full  gap-6'>
                     <GeneralProductForm form={form} />
                 </div>
                 <DrawerSheetFooter

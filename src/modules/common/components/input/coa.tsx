@@ -3,33 +3,18 @@
 import React, { useEffect, useState } from 'react'
 import {
     CaretSortIcon,
-    CheckIcon,
     PlusCircledIcon,
 } from "@radix-ui/react-icons"
 
 import { cn } from "@/lib/utils"
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-} from "@/modules/ui/avatar"
 import { Button } from "@/modules/ui/button"
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-    CommandSeparator,
-} from "@/modules/ui/command"
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from "@/modules/ui/popover"
 import { useChartOfAccount } from '@/lib/context/account/chartOfAccount';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/modules/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/modules/ui/dialog';
 import { File } from 'lucide-react'
 import { useCompany, useProfile } from '@/lib/context/account'
 import { GeneralChartAccountForm } from '../form/generalChartOfAccountForm'
@@ -41,13 +26,12 @@ import { Form } from '@/modules/ui/form'
 import { accountTypeObject } from '@/lib/utils/chartOfAccount/values'
 import { useToast } from '@/modules/ui/use-toast'
 import { ChartOfAccountType } from '@/types/purchase'
-
+import { ChartOfAccountPopup } from '../popup/chartOfAccount'
+import { ScrollArea } from '@/modules/ui/scroll-area'
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<typeof PopoverTrigger>
 
-
 interface TeamSwitcherProps extends PopoverTriggerProps { }
-
 
 export const ChartOfAccountInput = ({
     companyId,
@@ -60,12 +44,9 @@ export const ChartOfAccountInput = ({
     setChartOfAccount: (data: ChartOfAccountType) => void
 } & TeamSwitcherProps) => {
 
-
     const [open, setOpen] = useState(false)
-
     const [showNewTeamDialog, setShowNewTeamDialog] = useState(false)
-
-
+    const [chartOfAccountsData, setChartOfAccountsData] = useState<ChartOfAccountType[]>([])
 
     const { currentCompany } = useCompany()
     const { profile } = useProfile()
@@ -76,19 +57,27 @@ export const ChartOfAccountInput = ({
     const { toast } = useToast()
 
     useEffect(() => {
-        console.log("getChartOfAccounts,session, useEffect")
+        console.log("lloing")
         if (currentCompany && currentCompany.companyId) {
             if (!chartOfAccounts[currentCompany.companyId] || chartOfAccounts[currentCompany.companyId] && chartOfAccounts[currentCompany.companyId].length === 0)
                 getChartOfAccounts({
                     companyId: currentCompany.companyId
                 })
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [currentCompany, chartOfAccounts, getChartOfAccounts])
 
+    useEffect(() => {
+        if (currentCompany && currentCompany.companyId) {
+            if (
+                chartOfAccounts[currentCompany.companyId] && chartOfAccounts[currentCompany.companyId].length > 0
+            ) {
+                const values = chartOfAccounts[currentCompany.companyId] ?? [];
+                setChartOfAccountsData(values)
+            }
+        }
+    }, [chartOfAccounts, currentCompany])
 
-    const [chartOfAccountIndex, setChartOfAccountIndex] = useState<number | null>()
-
+    const [chartOfAccountIndex, setChartOfAccountIndex] = useState<number | null>(null)
 
     const chartOfAccountForm = useForm<z.infer<typeof chartOfAccountSchema>>({
         resolver: zodResolver(chartOfAccountSchema),
@@ -99,8 +88,6 @@ export const ChartOfAccountInput = ({
             },
         },
     })
-
-
 
     const onSubmit = async (values: z.infer<typeof chartOfAccountSchema>) => {
         if (!isLoading) {
@@ -138,12 +125,10 @@ export const ChartOfAccountInput = ({
                     }
                 }
             } catch (error: any) {
-                console.log("message", error.message, error.message.includes('Unique constraint failed'))
                 let message = {
                     title: "Chart of account creation failed",
                     description: "An error occurred. Please try again. If the issue persists, please contact us here."
                 }
-
 
                 if (error.message.includes('Unique constraint failed')) {
                     message = {
@@ -165,9 +150,7 @@ export const ChartOfAccountInput = ({
         }
     }
 
-
     return (
-
         <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
@@ -188,64 +171,19 @@ export const ChartOfAccountInput = ({
                         </p>}
                     </div>
                 </PopoverTrigger>
-                <PopoverContent className="w-full min-w-[100%] p-0">
-                    <Command>
-                        <CommandInput placeholder="Search Chart Of Account..." />
-                        <CommandList>
-                            <CommandEmpty>No Chart of Account found.</CommandEmpty>
-                            <CommandGroup >
-                                {chartOfAccounts && chartOfAccounts[companyId] && chartOfAccounts[companyId].map((chartOfAccount, index) => (
-                                    <CommandItem
-                                        key={chartOfAccount.id}
-                                        onSelect={() => {
-                                            setChartOfAccountIndex(index)
-                                            setChartOfAccount(chartOfAccount);
-                                            setOpen(false)
-                                        }}
-                                        className="text-sm group px-3 py-2 "
-                                    >
-                                        <Avatar className="mr-2 h-5 w-5">
-                                            <AvatarImage
-                                                src={`images/companyLogo.webp`}
-                                                alt={chartOfAccount.name}
-                                            />
-                                            <AvatarFallback>SC</AvatarFallback>
-                                        </Avatar>
-                                        {chartOfAccount.name}{" "} - {" "}
-                                        {chartOfAccount.code}{" "} - {" "}
-                                        {chartOfAccount.accountType}
-                                        <CheckIcon
-                                            className={cn(
-                                                "h-4 w-4 ml-5",
-                                                chartOfAccountIndex != null && chartOfAccounts &&
-                                                    chartOfAccounts[companyId] &&
-                                                    chartOfAccounts[companyId].length > chartOfAccountIndex
-                                                    && chartOfAccounts[companyId][chartOfAccountIndex].id === chartOfAccount.id
-                                                    ? "opacity-100"
-                                                    : "opacity-0"
-                                            )}
-                                        />
-                                    </CommandItem>
-                                ))}
-                            </CommandGroup>
-                        </CommandList>
-                        <CommandSeparator />
-                        <CommandList>
-                            <CommandGroup>
-                                <DialogTrigger asChild>
-                                    <CommandItem
-                                        onSelect={() => {
-                                            setOpen(false)
-                                            setShowNewTeamDialog(true)
-                                        }}
-                                    >
-                                        <PlusCircledIcon className="mr-2 h-5 w-5" />
-                                        Create Chart Of Account
-                                    </CommandItem>
-                                </DialogTrigger>
-                            </CommandGroup>
-                        </CommandList>
-                    </Command>
+                <PopoverContent className="w-full min-w-[100%] h-auto p-0 overflow-y-scroll">
+                    <ChartOfAccountPopup
+                        chartOfAccounts={chartOfAccounts}
+                        chartOfAccountsData={chartOfAccountsData}
+                        loading={loading}
+                        setChartOfAccountIndex={setChartOfAccountIndex}
+                        setOpen={setOpen}
+                        setShowNewTeamDialog={setShowNewTeamDialog}
+                        companyId={companyId}
+                        accountTypeObject={accountTypeObject}
+                        chartOfAccountIndex={chartOfAccountIndex}
+                        setChartOfAccount={setChartOfAccount}
+                    />
                 </PopoverContent>
             </Popover>
 
@@ -273,15 +211,7 @@ export const ChartOfAccountInput = ({
                         }}>Create</Button>
                     </DialogFooter>
                 </Form>
-
-
-
-
             </DialogContent>
         </Dialog>
     )
 }
-
-
-
-

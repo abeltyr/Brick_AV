@@ -11,10 +11,11 @@ import { useAuth } from '@/lib/context/auth/user'
 import { useVendors } from '@/lib/context/vendor'
 import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
 import { useDrawerManager } from '@/lib/context/drawer/drawer'
-import { vendorFormSchema } from '@/lib/form/vendor'
+import { vendorSchema } from '@/lib/form/vendor'
 import ProfileForm from '@/modules/vendor/components/addForm/profile'
 import AddressForm from '@/modules/vendor/components/addForm/address'
 import { VendorType } from '@/types/vendor'
+import { useCompany } from '@/lib/context/account'
 
 
 export const DrawerAddVendorSection = ({
@@ -28,26 +29,15 @@ export const DrawerAddVendorSection = ({
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
 
-    const { currentCompany } = useAuth();
+    const { currentCompany } = useCompany();
     const { createVendor } = useVendors();
-    const form = useForm<z.infer<typeof vendorFormSchema>>({
-        resolver: zodResolver(vendorFormSchema),
+    const form = useForm<z.infer<typeof vendorSchema>>({
+        resolver: zodResolver(vendorSchema),
         defaultValues: {
-            tinNumber: "0090866119",
-            vatNumber: "0090866119",
-            name: "Abel",
-            companyName: "Eurka",
-            email: "abel@eurka.co",
-            phoneNumber: "0911223989",
-            region: "Kolfe Kernio",
-            city: "",
-            woreda: "10",
-            houseNumber: "NEw",
-            description: "MExico KKcare Building",
         },
     })
 
-    const onSubmit = async (values: z.infer<typeof vendorFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof vendorSchema>) => {
         if (!isLoading) {
             setIsLoading(true)
             try {

@@ -42,60 +42,75 @@ export const BalanceTypeData = [
     { value: "debit", data: "Debit" },
 ];
 
-
-
 export const accountTypeObject: {
     [key: string]: {
-        type: "ASSET" | "LIABILITY" | "EQUITY" | "EXPENSE" | "REVENUE"
+        type: "ASSET" | "LIABILITY" | "EQUITY" | "EXPENSE" | "REVENUE",
+        data: string
     }
 } =
 {
     "Account_payable": {
-        type: "LIABILITY"
+        type: "LIABILITY",
+        data: "Account payable",
     },
     "Account_receivable": {
-        type: "ASSET"
+        type: "ASSET",
+        data: "Account receivable",
     },
     "Accumulated_depreciation": {
-        type: "ASSET"
+        type: "ASSET",
+        data: "Accumulated depreciation",
     },
     "Cash": {
-        type: "ASSET"
+        type: "ASSET",
+        data: "Cash"
     },
     "Cost_of_sales": {
-        type: "EXPENSE"
+        type: "EXPENSE",
+        data: "Cost of sales"
     },
     "Equity_does_not_close": {
-        type: "EQUITY"
+        type: "EQUITY",
+        data: "Equity does not close"
     },
     "Equity_get_closed": {
-        type: "EQUITY"
+        type: "EQUITY",
+        data: "Equity get closed"
     },
     "Equity_retained_earnings": {
-        type: "EQUITY"
+        type: "EQUITY",
+        data: "Equity retained earnings"
     },
     "Expenses": {
-        type: "EXPENSE"
+        type: "EXPENSE",
+        data: "Expenses"
     },
     "Fixed_assets": {
-        type: "ASSET"
+        type: "ASSET",
+        data: "Fixed assets"
     },
     "Income": {
-        type: "REVENUE"
+        type: "REVENUE",
+        data: "Income"
     },
     "Inventory": {
-        type: "ASSET"
+        type: "ASSET",
+        data: "Inventory"
     },
     "Long_term_liabilities": {
-        type: "LIABILITY"
+        type: "LIABILITY",
+        data: "Long term liabilities"
     },
     "Other_assets": {
-        type: "ASSET"
+        type: "ASSET",
+        data: "Other assets"
     },
     "Other_current_assets": {
-        type: "ASSET"
+        type: "ASSET",
+        data: "Other current assets"
     },
     "Other_current_liabilities": {
-        type: "LIABILITY"
+        type: "LIABILITY",
+        data: "Other current liabilities"
     },
 }
