@@ -2,6 +2,7 @@
 
 import { getPrisma } from "@/lib/utils/database";
 import { BusinessType } from "@/types/business";
+import { BusinessIncludeData } from "./common/include";
 const prisma = getPrisma();
 
 export const findAddressByIdAction = async (
@@ -9,10 +10,6 @@ export const findAddressByIdAction = async (
 ): Promise<BusinessType | null> => {
   return (await prisma.business.findUnique({
     where: { id },
-    include: {
-      BusinessTrade: true,
-      address: true,
-      MRCRegistration: true,
-    },
+    include: BusinessIncludeData,
   })) as BusinessType;
 };

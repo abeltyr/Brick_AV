@@ -3,6 +3,7 @@
 import { getPrisma } from "@/lib/utils/database";
 import { ProfileInputType } from "@/types/profile";
 import { Profile } from "@prisma/client";
+import { profileIncludeData } from "./common/include";
 const prisma = getPrisma();
 
 export const createProfileAction = async (data: {
@@ -25,5 +26,6 @@ export const createProfileAction = async (data: {
       tinNumber: data.profile.tinNumber,
       address,
     },
+    include: profileIncludeData,
   });
 };

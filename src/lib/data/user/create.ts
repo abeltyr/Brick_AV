@@ -37,7 +37,7 @@ export const onBoardingAction = async (data: {
             ...data.profile.address,
           },
         },
-        CompanyMember: {
+        companyMember: {
           create: {
             company: {
               create: {
@@ -61,13 +61,13 @@ export const onBoardingAction = async (data: {
       },
       include: {
         address: true,
-        CompanyMember: {
+        companyMember: {
           include: {
             company: {
               include: {
                 business: {
                   include: {
-                    BusinessTrade: true,
+                    businessTrade: true,
                   },
                 },
               },
@@ -94,7 +94,7 @@ export const onBoardingAction = async (data: {
               ...data.ownerProfile.address,
             },
           },
-          CompanyMember: {
+          companyMember: {
             create: {
               company: {
                 connect: {

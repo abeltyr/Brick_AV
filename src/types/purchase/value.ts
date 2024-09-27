@@ -16,7 +16,7 @@ import { CompanyType } from "../company";
 import { ProfileType } from "../profile";
 
 export type PurchaseType = Purchase & {
-  PurchaseProduct?: PurchaseProductType[];
+  purchaseProduct?: PurchaseProductType[];
   vendor?: VendorType;
   vatDetail?: VatDetailType;
   totDetail?: TotDetailType;

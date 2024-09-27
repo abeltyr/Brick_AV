@@ -18,7 +18,7 @@ export const createChartOfAccountAction = async ({
 }): Promise<ChartOfAccountType> => {
   let date = new Date();
 
-  const financialPeriod = await prisma.financialPeriod.findUnique({
+  const fiscalYear = await prisma.fiscalYear.findUnique({
     where: {
       companyId_year: {
         year: date.getFullYear(),
@@ -27,7 +27,22 @@ export const createChartOfAccountAction = async ({
     },
   });
 
-  if (!financialPeriod) throw new Error("Financial period not found");
+  if (!fiscalYear) throw new Error("Financial period not found");
+
+  const accountPeriod = await prisma.accountPeriod.findMany({
+    where: {
+      fiscalYearId: fiscalYear.id,
+      startDate: {
+        lte: date,
+      },
+      endDate: {
+        gte: date,
+      },
+    },
+  });
+
+  if (!accountPeriod || accountPeriod.length > 0)
+    throw new Error("Account period not found");
 
   const createChartOfAccount: Prisma.ChartOfAccountCreateInput = {
     name: data.name,
@@ -41,16 +56,16 @@ export const createChartOfAccountAction = async ({
     type: data.type,
   };
 
-  createChartOfAccount.ChartOfAccountBalance = {
+  createChartOfAccount.chartOfAccountBalance = {
     create: {
       balance: data.amount,
-      periodId: financialPeriod.id,
-      profileId: creatorId,
+      fiscalYearId: fiscalYear.id,
+      creatorId: creatorId,
       initialBalance: data.amount,
     },
   };
   if (data.amount > 0) {
-    createChartOfAccount.ChartOfAccountTransaction = {
+    createChartOfAccount.chartOfAccountTransaction = {
       create: {
         transactionType: "DEPOSIT",
         companyId: companyId,
@@ -58,14 +73,15 @@ export const createChartOfAccountAction = async ({
         credit: data.balanceType === "credit" ? data.amount : 0,
         debit: data.balanceType === "debit" ? data.amount : 0,
         date: date,
+        accountPeriodId: accountPeriod[0].id,
       },
     };
   }
 
-  const product = await prisma.chartOfAccount.create({
+  const chartOfAccount = await prisma.chartOfAccount.create({
     data: createChartOfAccount,
     include: chartOfAccountIncludeData,
   });
 
-  return product as ChartOfAccountType;
+  return chartOfAccount as ChartOfAccountType;
 };

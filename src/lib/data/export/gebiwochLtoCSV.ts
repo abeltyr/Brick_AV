@@ -4,7 +4,6 @@ import { fetchAllPurchases } from "../purchase/fetchAllPurchases";
 import Decimal from "decimal.js";
 import { purchaseTypeConvertor } from "@/lib/form/product/data";
 import { stringify } from "csv-stringify/sync";
-import { DateRangeType } from "@/types/shared";
 
 type gebiwochPurchaseReport = {
   productType: string;
@@ -25,17 +24,19 @@ type gebiwochPurchaseReport = {
 };
 
 export const GebiwochPurchaseCSV = async ({
-  dateRange,
+  startDate,
+  endDate,
   companyId,
 }: {
-  dateRange: DateRangeType;
+  startDate: Date;
+  endDate: Date;
   companyId: string;
 }) => {
   try {
     const purchases = await fetchAllPurchases({
       companyId,
-      startDate: dateRange.startDate,
-      endDate: dateRange.endDate,
+      startDate,
+      endDate,
       filter: {
         fetch: "vat",
       },
@@ -96,7 +97,7 @@ This field is  mandatory.`,
           productType: purchase.productType === "Good" ? "G" : "S",
           calendar: "G",
           purchaseType: purchaseTypeConvertor(purchase.purchaseType),
-          vendorTin: purchase.vatDetail ?? "",
+          vendorTin: purchase.vendorTin ?? "",
           sellerName: "",
           date: purchase.date.toLocaleDateString("en-GB"),
           MRCNumber: purchase.MRCNumber ?? "",

@@ -1,8 +1,8 @@
-export const includeData = {
-  Inventory: {
+export const productIncludeData = {
+  inventory: {
     include: {
       chartOfAccount: true,
-      ProductPrice: {
+      productPrice: {
         where: {
           active: true,
         },

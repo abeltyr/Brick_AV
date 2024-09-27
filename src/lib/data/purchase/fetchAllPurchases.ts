@@ -5,19 +5,30 @@ import { Prisma, Purchase } from "@prisma/client";
 const prisma = getPrisma();
 
 export const fetchAllPurchases = async ({
-  month,
-  year,
+  startDate,
+  endDate,
   companyId,
   filter,
 }: {
-  year: number;
-  month: number;
+  startDate: Date;
+  endDate: Date;
   companyId: string;
   filter?: {
-    hasVat?: boolean;
-    hasWithholding?: boolean;
+    fetch?: "vat" | "tot" | "withholding";
   };
 }): Promise<Purchase[]> => {
+  if (startDate.getTime() > endDate.getTime())
+    throw new Error("Invalid date range");
+  // Calculate the difference in milliseconds
+  const timeDifference = endDate.getTime() - startDate.getTime();
+
+  // Convert milliseconds to days
+  const daysDifference = timeDifference / (1000 * 3600 * 24);
+
+  if (daysDifference > 60) {
+    throw new Error("Date range cannot exceed 60 days");
+  }
+
   const pageSize = 1200;
   let currentPage = 0;
   let hasMore = true;
@@ -25,13 +36,24 @@ export const fetchAllPurchases = async ({
 
   let where: Prisma.PurchaseWhereInput = {
     companyId,
-    year,
-    month,
+    date: {
+      gte: startDate,
+      lte: endDate,
+    },
   };
   if (filter) {
-    if (filter.hasVat != undefined) where.hasVat = filter.hasVat;
-    if (filter.hasWithholding != undefined)
-      where.hasWithholding = filter.hasWithholding;
+    if (filter.fetch === "vat")
+      where.vatDetailId = {
+        not: null,
+      };
+    if (filter.fetch === "tot")
+      where.totDetailId = {
+        not: null,
+      };
+    if (filter.fetch === "withholding")
+      where.withholdingDetailId = {
+        not: null,
+      };
   }
 
   while (hasMore) {

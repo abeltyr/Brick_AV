@@ -16,7 +16,7 @@ export const fetchChartOfAccountAction = async ({
   filter: Filter;
 }): Promise<ChartOfAccountType[]> => {
   let limit = limitSetter({ limit: filter.limit });
-  let orderBy: Prisma.SortOrder = filter && filter.before ? "asc" : "desc";
+  let orderBy: Prisma.SortOrder = filter && filter.before ? "desc" : "asc";
 
   let where: Prisma.ChartOfAccountWhereInput = { companyId };
 
@@ -32,23 +32,16 @@ export const fetchChartOfAccountAction = async ({
     skip = 1;
   }
 
-  return await prisma.chartOfAccount.findMany({
+  return (await prisma.chartOfAccount.findMany({
     where,
     take: limit,
     cursor: myCursor,
     orderBy: [
       {
-        code: "asc",
+        code: orderBy,
       },
     ],
     skip,
-    include: {
-      ChartOfAccountBalance: {
-        select: {
-          initialBalance: true,
-          balance: true,
-        },
-      },
-    },
-  });
+    include: chartOfAccountIncludeData,
+  })) as ChartOfAccountType[];
 };

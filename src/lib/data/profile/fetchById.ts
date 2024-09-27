@@ -2,6 +2,7 @@
 
 import { getPrisma } from "@/lib/utils/database";
 import { Profile } from "@prisma/client";
+import { profileIncludeData } from "./common/include";
 const prisma = getPrisma();
 
 export const findProfileByIdAction = async (
@@ -9,13 +10,6 @@ export const findProfileByIdAction = async (
 ): Promise<Profile | null> => {
   return await prisma.profile.findUnique({
     where: { id },
-    include: {
-      address: true,
-      CompanyMember: {
-        include: {
-          company: true,
-        },
-      },
-    },
+    include: profileIncludeData,
   });
 };

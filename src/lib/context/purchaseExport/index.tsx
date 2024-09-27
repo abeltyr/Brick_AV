@@ -5,26 +5,25 @@ import React, { useState } from 'react';
 import { useContext } from 'react';
 import { BaseDirectory, writeTextFile } from '@tauri-apps/plugin-fs';
 import { save } from '@tauri-apps/plugin-dialog';
-import { GebiwochWithHoldingCSV } from '@/lib/data/export/gebiwochWithholdingCSVt';
+import { GebiwochWithHoldingCSV } from '@/lib/data/export/gebiwochWithholdingCSV';
+import { DateRangeType } from '@/types/shared';
 
 const initialValues: {
     purchaseCSV: { [id: string]: string };
     withholdingCSV: { [id: string]: string };
-    fetchPurchaseCSV: ({ year, month, companyId }: { year: number, month: number, companyId: string }) => void;
-    fetchWithholdingCSV: ({ year, month, companyId }: { year: number, month: number, companyId: string }) => void,
+    fetchPurchaseCSV: ({ }: { dateRange: DateRangeType, companyId: string }) => void;
+    fetchWithholdingCSV: ({ }: { dateRange: DateRangeType, companyId: string }) => void,
     purchaseLoading: boolean,
     withholdingLoading: boolean
 } = {
     purchaseCSV: {},
     withholdingCSV: {},
     fetchPurchaseCSV: ({ }: {
-        year: number,
-        month: number,
+        dateRange: DateRangeType,
         companyId: string
     }) => { },
     fetchWithholdingCSV: ({ }: {
-        year: number,
-        month: number,
+        dateRange: DateRangeType,
         companyId: string
     }) => { },
     purchaseLoading: false,
@@ -47,12 +46,10 @@ const ExportPurchaseProvider: React.FC<Props> = ({ children }) => {
     const [withholdingLoading, setWithholdingLoading] = useState(false)
 
 
-    const fetchPurchaseCSV = async ({ year, month, companyId }: { year: number, month: number, companyId: string }) => {
+    const fetchPurchaseCSV = async ({ dateRange, companyId }: { companyId: string, dateRange: DateRangeType, }) => {
         setPurchaseLoading(true)
         const result = await GebiwochPurchaseCSV({
-            companyId,
-            month,
-            year
+            companyId, dateRange
         })
         setPurchaseLoading(false)
         if (result.success && result.data) {
@@ -60,12 +57,13 @@ const ExportPurchaseProvider: React.FC<Props> = ({ children }) => {
             const url = window.URL.createObjectURL(blob)
             const a = document.createElement('a')
             a.style.display = 'none'
+            const filePathData = `purchase_${dateRange.startDate}_${dateRange.endDate}.csv`;
+
             a.href = url
-            a.download = `purchase_${year}_${month}.csv`
+            a.download = filePathData;
             document.body.appendChild(a)
             a.click()
             window.URL.revokeObjectURL(url)
-            const filePath = `purchase_${year}_${month}.csv`;
 
             try {
 
@@ -75,7 +73,7 @@ const ExportPurchaseProvider: React.FC<Props> = ({ children }) => {
                         name: 'CSV File',
                         extensions: ['csv']
                     }],
-                    defaultPath: `purchase_${year}_${month}.csv`
+                    defaultPath: filePathData
                 });
 
                 // If the user cancels the save dialog, filePath will be null
@@ -92,7 +90,7 @@ const ExportPurchaseProvider: React.FC<Props> = ({ children }) => {
 
             } catch (e) {
                 console.log(e);
-                console.log('File not saved at:', filePath, e);
+                console.log('File not saved at:', filePathData, e);
             }
 
         } else {
@@ -104,12 +102,11 @@ const ExportPurchaseProvider: React.FC<Props> = ({ children }) => {
 
     }
 
-    const fetchWithholdingCSV = async ({ year, month, companyId }: { year: number, month: number, companyId: string }) => {
+    const fetchWithholdingCSV = async ({ dateRange, companyId }: { dateRange: DateRangeType, companyId: string }) => {
         setWithholdingLoading(true)
         const result = await GebiwochWithHoldingCSV({
             companyId,
-            month,
-            year
+            dateRange
         })
         setWithholdingLoading(false)
         if (result.success && result.data) {
@@ -118,11 +115,12 @@ const ExportPurchaseProvider: React.FC<Props> = ({ children }) => {
             const a = document.createElement('a')
             a.style.display = 'none'
             a.href = url
-            a.download = `withholding_${year}_${month}.csv`
+            const filePathData = `withholding_${dateRange.startDate}_${dateRange.endDate}.csv`;
+            a.download = filePathData
             document.body.appendChild(a)
             a.click()
             window.URL.revokeObjectURL(url)
-            const filePath = `withholding_${year}_${month}.csv`;
+            const filePath = filePathData;
 
             try {
 
@@ -132,7 +130,7 @@ const ExportPurchaseProvider: React.FC<Props> = ({ children }) => {
                         name: 'CSV File',
                         extensions: ['csv']
                     }],
-                    defaultPath: `withholding_${year}_${month}.csv`
+                    defaultPath: filePathData
                 });
 
                 // If the user cancels the save dialog, filePath will be null

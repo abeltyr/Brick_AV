@@ -107,9 +107,9 @@ export const fetchBusinessApi = async (
           tradeName: trade.TradesName,
           tradeNameAmh: trade.TradeNameAmh,
           licenseNumber: trade.LicenceNumber,
-          RenewedTo: renewedTo,
-          RenewedFrom: renewedFrom,
-          RenewalDate: renewalDate,
+          renewedTo,
+          renewedFrom,
+          renewalDate,
           licenseName:
             trade.SubGroups.length > 0 ? trade.SubGroups[0].Description : "",
           licenseCode:
@@ -132,7 +132,7 @@ export const fetchBusinessApi = async (
         address: {
           create: address,
         },
-        BusinessTrade: {
+        businessTrade: {
           createMany: {
             data: businessTrade,
             skipDuplicates: true,
@@ -155,7 +155,7 @@ export const fetchBusinessApi = async (
         address: {
           create: address,
         },
-        BusinessTrade: {
+        businessTrade: {
           createMany: {
             data: businessTrade,
             skipDuplicates: true,

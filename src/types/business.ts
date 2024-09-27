@@ -8,8 +8,8 @@ import {
 
 export type BusinessType = Business & {
   address?: Address;
-  BusinessTrade: BusinessTradeType[];
-  MRCRegistration: MRCRegistration[];
+  businessTrade: BusinessTradeType[];
+  mrcRegistration: MRCRegistration[];
 };
 
 export type BusinessTradeType = BusinessTrade & {

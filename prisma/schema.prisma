@@ -99,7 +99,7 @@ model Business {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @default(now()) @updatedAt
   deletedAt       DateTime?
-  BusinessTrade   BusinessTrade[]
+  businessTrade   BusinessTrade[]
   mrcRegistration MRCRegistration[]
   company         Company[]
   vendor          Vendor[]
@@ -173,6 +173,7 @@ model Company {
   purchaseDailyReport         PurchaseDailyReport[]
   purchaseAccountPeriodReport PurchaseAccountPeriodReport[]
   purchaseFiscalYearReport    PurchaseFiscalYearReport[]
+  PurchaseWeeklyReport        PurchaseWeeklyReport[]
 }
 
 // Model to track financial periods (e.g., fiscal years)
@@ -206,6 +207,7 @@ model AccountPeriod {
   // Ensure the company only has one period per year
   chartOfAccountTransaction   ChartOfAccountTransaction[]
   purchaseAccountPeriodReport PurchaseAccountPeriodReport[]
+  PurchaseWeeklyReport        PurchaseWeeklyReport[]
 
   @@unique([fiscalYearId, startDate, endDate])
   @@unique([fiscalYearId, order])
@@ -255,13 +257,8 @@ model ChartOfAccount {
   updatedAt   DateTime                    @default(now()) @updatedAt
 
   inventory                 Inventory[]
-  purchase                  Purchase[]
-  purchaseProduct           PurchaseProduct[]
   chartOfAccountBalance     ChartOfAccountBalance?
   chartOfAccountTransaction ChartOfAccountTransaction?
-  VatDetail                 VatDetail[]
-  TotDetail                 TotDetail[]
-  WithholdingDetail         WithholdingDetail[]
 
   @@unique([companyId, code]) // Unique company-specific code
   @@index([companyId])
@@ -503,8 +500,6 @@ model Purchase {
   vendor    Vendor  @relation(fields: [vendorId], references: [id])
 
   // for the cash payment
-  chartOfAccountId            String?
-  chartOfAccount              ChartOfAccount?            @relation(fields: [chartOfAccountId], references: [id])
   chartOfAccountTransactionId String?
   chartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
 
@@ -526,11 +521,11 @@ model Purchase {
   mrcNumber          String?
   withholdingNumber  String?
 
-  purchaseType ProductPurchaseType?
-  productType  ProductCategoryType?
-  description  String?              @db.Text()
-  quantity     Decimal              @default(0)
-  unitPrice    Decimal              @default(0)
+  purchaseType ProductPurchaseType
+  productType  ProductCategoryType
+  description  String              @db.Text()
+  quantity     Decimal             @default(0)
+  unitPrice    Decimal             @default(0)
 
   date DateTime
 
@@ -555,16 +550,11 @@ model Purchase {
 }
 
 model PurchaseProduct {
-  id          String    @id @default(uuid())
-  purchaseId  String
-  purchase    Purchase  @relation(fields: [purchaseId], references: [id])
-  inventoryId String
-  inventory   Inventory @relation(fields: [inventoryId], references: [id])
-
-  // for the expense 
-  // for the case of inventory should ask if they want to save it as cost of goods and add it up or as inventory and add it to the beginning of inventory
-  chartOfAccountId            String?
-  chartOfAccount              ChartOfAccount?            @relation(fields: [chartOfAccountId], references: [id])
+  id                          String                     @id @default(uuid())
+  purchaseId                  String
+  purchase                    Purchase                   @relation(fields: [purchaseId], references: [id])
+  inventoryId                 String
+  inventory                   Inventory                  @relation(fields: [inventoryId], references: [id])
   chartOfAccountTransactionId String?
   chartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
 
@@ -586,8 +576,6 @@ model PurchaseProduct {
 // VAT Details table
 model VatDetail {
   id                          String                     @id @default(uuid())
-  chartOfAccountId            String?
-  chartOfAccount              ChartOfAccount?            @relation(fields: [chartOfAccountId], references: [id])
   chartOfAccountTransactionId String?
   chartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
 
@@ -622,8 +610,6 @@ model VatDetail {
 // TOT Details table
 model TotDetail {
   id                          String                     @id @default(uuid())
-  chartOfAccountId            String?
-  chartOfAccount              ChartOfAccount?            @relation(fields: [chartOfAccountId], references: [id])
   chartOfAccountTransactionId String?
   chartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
 
@@ -637,8 +623,6 @@ model TotDetail {
 // Withholding Details table
 model WithholdingDetail {
   id                          String                     @id @default(uuid())
-  chartOfAccountId            String?
-  chartOfAccount              ChartOfAccount?            @relation(fields: [chartOfAccountId], references: [id])
   chartOfAccountTransactionId String?
   chartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
 
@@ -681,6 +665,32 @@ model PurchaseDailyReport {
   @@unique([date, companyId])
 }
 
+model PurchaseWeeklyReport {
+  id              String        @id @default(uuid())
+  companyId       String
+  company         Company       @relation(fields: [companyId], references: [id])
+  accountPeriodId String
+  accountPeriod   AccountPeriod @relation(fields: [accountPeriodId], references: [id])
+  count           Int
+
+  // General purchase information
+  taxableAmount    Decimal @default(0)
+  nonTaxableAmount Decimal @default(0)
+  totalBeforeTax   Decimal @default(0)
+
+  vatAmount         Decimal? @default(0)
+  totAmount         Decimal? @default(0)
+  withholdingAmount Decimal  @default(0)
+  grossAmount       Decimal  @default(0)
+
+  order Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([accountPeriodId, companyId])
+}
+
 model PurchaseAccountPeriodReport {
   id              String        @id @default(uuid())
   companyId       String
@@ -699,14 +709,10 @@ model PurchaseAccountPeriodReport {
   withholdingAmount Decimal  @default(0)
   grossAmount       Decimal  @default(0)
 
-  month Int
-  year  Int
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([accountPeriodId, companyId])
-  @@unique([month, year, companyId])
 }
 
 model PurchaseFiscalYearReport {
@@ -728,11 +734,8 @@ model PurchaseFiscalYearReport {
   withholdingAmount Decimal  @default(0)
   grossAmount       Decimal  @default(0)
 
-  year Int
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([year, companyId])
   @@unique([fiscalYearId, companyId])
 }

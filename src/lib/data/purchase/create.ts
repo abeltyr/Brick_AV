@@ -1,6 +1,6 @@
 "use server";
 import { getPrisma } from "@/lib/utils/database";
-import { Purchase, PurchaseReport } from "@prisma/client";
+import { Purchase } from "@prisma/client";
 import { findVendorByIdAction } from "../vendor/fetchById";
 import { VendorType } from "@/types/vendor";
 import { purchaseSummation } from "@/lib/utils/purchase/summation";
@@ -12,7 +12,6 @@ export const createPurchaseAction = async (
   data: PurchaseInputType,
 ): Promise<{
   purchase: Purchase;
-  purchaseReport: PurchaseReport;
 } | null> => {
   // validate vendor
   const vendor = (await findVendorByIdAction(data.vendorId)) as VendorType;
@@ -131,44 +130,24 @@ export const createPurchaseAction = async (
     ...sum.inventoryUpdate,
   ]);
 
-  const purchaseReport = await prisma.purchaseReport.upsert({
+  const purchaseReport = prisma.purchaseDailyReport.upsert({
     where: {
-      month_year_companyId: {
+      date_companyId: {
+        date: data.date,
         companyId: data.companyId,
-        month,
-        year,
       },
     },
     create: {
       companyId: data.companyId,
-      localPurchaseCapitalAssets,
-      vatOnLocalPurchaseCapitalAssets,
-      importedCapitalAssets,
-      vatOnImportedCapitalAssets,
-      totalCapitalAssets,
-      vatOnTotalAssets,
-      localPurchaseInputs,
-      vatOnLocalPurchaseInputs,
-      importedInputs,
-      vatOnImportedInputs,
-      generalExpenseInputs,
-      vatOnGeneralExpenseInputs,
-      purchaseWithNoVat,
-      totalNonCapitalInputs,
-      vatOnTotalInputs,
-      taxableAmount,
       nonTaxableAmount,
-      importedGoodSummaryAmount,
-      importedGoodWithholding,
-      localGoodSummaryAmount,
-      localGoodWithholding,
-      serviceSummaryAmount,
-      serviceWithholding,
-      withholding,
+      taxableAmount,
+      totalBeforeTax: totalBeforeVat,
+      totAmount,
+      vatAmount,
+      date: data.date,
+      withholdingAmount,
       totalVat,
       grossAmount,
-      month: month,
-      year: year,
       count: 1,
       Purchase: {
         connect: {
@@ -270,6 +249,5 @@ export const createPurchaseAction = async (
 
   return {
     purchase: allData[0],
-    purchaseReport: purchaseReport,
   };
 };

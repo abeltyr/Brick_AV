@@ -5,7 +5,7 @@ import { PurchaseType } from "./purchase";
 export type VendorType = Vendor & {
   company: Company;
   business?: BusinessType;
-  Purchase: PurchaseType[];
+  purchase: PurchaseType[];
 };
 
 export type VendorInputType = {

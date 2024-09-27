@@ -6,7 +6,7 @@ import { DateRangeType, RangeType } from "@/types/shared";
 import { Filter } from "@/types/shared";
 import { Prisma, Product } from "@prisma/client";
 import Decimal from "decimal.js";
-import { includeData } from "./common/include";
+import { productIncludeData } from "./common/include";
 const prisma = getPrisma();
 
 export const fetchProductsByCompanyIdAction = async ({
@@ -58,16 +58,18 @@ export const fetchProductsByCompanyIdAction = async ({
     if (filter.price) {
       if (filter.price.min) {
         where = {
-          Inventory: {
-            ProductPrice: {
-              every: {
-                OR: [
-                  {
-                    unitPrice: {
-                      gte: new Decimal(filter.price.min),
+          inventory: {
+            every: {
+              productPrice: {
+                every: {
+                  OR: [
+                    {
+                      unitPrice: {
+                        gte: new Decimal(filter.price.min),
+                      },
                     },
-                  },
-                ],
+                  ],
+                },
               },
             },
           },
@@ -77,25 +79,28 @@ export const fetchProductsByCompanyIdAction = async ({
       if (filter.price.max) {
         let valueDate: Prisma.ProductPriceWhereInput[] = [];
         if (
-          where.Inventory &&
-          where.Inventory?.ProductPrice &&
-          where.Inventory?.ProductPrice?.every &&
-          where.Inventory?.ProductPrice?.every.OR
+          where.inventory &&
+          where.inventory.every &&
+          where.inventory.every.productPrice &&
+          where.inventory.every.productPrice.every &&
+          where.inventory.every.productPrice.every.OR
         ) {
-          valueDate = where.Inventory?.ProductPrice?.every.OR;
+          valueDate = where.inventory.every.productPrice.every.OR;
         }
         where = {
-          Inventory: {
-            ProductPrice: {
-              every: {
-                OR: [
-                  ...valueDate,
-                  {
-                    unitPrice: {
-                      lte: new Decimal(filter.price.max),
+          inventory: {
+            every: {
+              productPrice: {
+                every: {
+                  OR: [
+                    ...valueDate,
+                    {
+                      unitPrice: {
+                        lte: new Decimal(filter.price.max),
+                      },
                     },
-                  },
-                ],
+                  ],
+                },
               },
             },
           },
@@ -114,6 +119,6 @@ export const fetchProductsByCompanyIdAction = async ({
       },
     ],
     skip,
-    include: includeData,
+    include: productIncludeData,
   });
 };

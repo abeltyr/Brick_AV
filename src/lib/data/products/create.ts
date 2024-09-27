@@ -3,8 +3,7 @@
 import { getPrisma } from "@/lib/utils/database";
 import { generate8CharUUID } from "@/lib/utils/idGenerator";
 import { ProductInputType, ProductType } from "@/types/product";
-import { includeData } from "./common/include";
-import { connect } from "http2";
+import { productIncludeData } from "./common/include";
 
 const prisma = getPrisma();
 
@@ -23,7 +22,7 @@ export const createProductAction = async (
       purchase: data.purchase,
       companyId: data.companyId,
       productCode: `${data.name.slice(0, 2).toUpperCase()}-${productCode}`,
-      Inventory: {
+      inventory: {
         create: {
           chartOfAccount: {
             connect: {
@@ -31,7 +30,7 @@ export const createProductAction = async (
             },
           },
           quantity: 0,
-          ProductPrice: {
+          productPrice: {
             create: {
               unit: data.unit,
               unitPrice: data.unitPrice,
@@ -41,7 +40,7 @@ export const createProductAction = async (
         },
       },
     },
-    include: includeData,
+    include: productIncludeData,
   });
 
   return product as ProductType;

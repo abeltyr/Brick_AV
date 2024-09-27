@@ -1,5 +1,5 @@
 export const BusinessIncludeData = {
-  BusinessTrade: true,
+  businessTrade: true,
   address: true,
-  MRCRegistration: true,
+  mrcRegistration: true,
 };

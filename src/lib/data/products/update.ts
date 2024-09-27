@@ -1,13 +1,9 @@
 "use server";
 
 import { getPrisma } from "@/lib/utils/database";
-import {
-  ProductPriceInputType,
-  ProductPriceType,
-  updateProductInputType,
-} from "@/types/product";
-import { Product } from "@prisma/client";
-import { includeData } from "./common/include";
+import { ProductPriceInputType, updateProductInputType } from "@/types/product";
+import { Product, ProductPrice } from "@prisma/client";
+import { productIncludeData } from "./common/include";
 const prisma = getPrisma();
 
 export const updateProductAction = async (
@@ -17,13 +13,13 @@ export const updateProductAction = async (
   return await prisma.product.update({
     where: { id },
     data,
-    include: includeData,
+    include: productIncludeData,
   });
 };
 
 export const updateProductInventoryPriceAction = async (
   data: ProductPriceInputType,
-): Promise<ProductPriceType> => {
+): Promise<ProductPrice> => {
   const [_, newProductPrice] = await prisma.$transaction([
     prisma.productPrice.updateMany({
       where: {
