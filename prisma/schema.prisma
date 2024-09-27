@@ -27,9 +27,9 @@ model File {
 
   createdAt                 DateTime                    @default(now())
   updatedAt                 DateTime                    @default(now()) @updatedAt
-  Company                   Company[]
-  Vendor                    Vendor[]
-  ChartOfAccountTransaction ChartOfAccountTransaction[]
+  company                   Company[]
+  vendor                    Vendor[]
+  chartOfAccountTransaction ChartOfAccountTransaction[]
 }
 
 model Address {
@@ -65,12 +65,10 @@ model Profile {
   createdAt                 DateTime                    @default(now())
   updatedAt                 DateTime                    @default(now()) @updatedAt
   deletedAt                 DateTime?
-  CompanyMember             CompanyMember[]
-  ChartOfAccountTransaction ChartOfAccountTransaction[]
-  ChartOfAccount            ChartOfAccount[]
-  ChartOfAccountBalance     ChartOfAccountBalance[]
-  generalLegerCreator       GeneralLedger[]             @relation("GeneralLegerCreator")
-  generalLegerUpdater       GeneralLedger[]             @relation("generalLegerUpdater")
+  companyMember             CompanyMember[]
+  chartOfAccountTransaction ChartOfAccountTransaction[]
+  chartOfAccount            ChartOfAccount[]
+  chartOfAccountBalance     ChartOfAccountBalance[]
 
   @@index([tinNumber], type: Hash)
 }
@@ -102,9 +100,9 @@ model Business {
   updatedAt       DateTime          @default(now()) @updatedAt
   deletedAt       DateTime?
   BusinessTrade   BusinessTrade[]
-  MRCRegistration MRCRegistration[]
-  Company         Company[]
-  Vendor          Vendor[]
+  mrcRegistration MRCRegistration[]
+  company         Company[]
+  vendor          Vendor[]
 }
 
 enum BusinessLegalCondition {
@@ -133,19 +131,17 @@ model BusinessTrade {
   licenseName    String
   licenseCode    String
   licenseNumber  String?
-  RenewedTo      DateTime?
-  RenewedFrom    DateTime?
-  RenewalDate    DateTime?
+  renewedTo      DateTime?
+  renewedFrom    DateTime?
+  renewalDate    DateTime?
 }
 
 model MRCRegistration {
   id         String   @id @default(uuid())
   businessId String
   business   Business @relation(fields: [businessId], references: [id])
-  MRCNumber  String
+  mrcNumber  String   @unique
   verified   Boolean
-
-  @@unique([businessId, MRCNumber])
 }
 
 model Company {
@@ -163,57 +159,56 @@ model Company {
   businessId String?
   business   Business? @relation(fields: [businessId], references: [id])
 
-  active                    Boolean                     @default(true)
-  createdAt                 DateTime                    @default(now())
-  updatedAt                 DateTime                    @default(now()) @updatedAt
-  deletedAt                 DateTime?
-  CompanyMember             CompanyMember[]
-  Product                   Product[]
-  Vendor                    Vendor[]
-  Purchase                  Purchase[]
-  ChartOfAccount            ChartOfAccount[]
-  GeneralLedger             GeneralLedger[]
-  FinancialPeriod           FinancialPeriod[]
-  ChartOfAccountTransaction ChartOfAccountTransaction[]
-  DailyPurchaseReport       DailyPurchaseReport[]
-  MonthlyPurchaseReport     MonthlyPurchaseReport[]
-  YearPurchaseReport        YearPurchaseReport[]
+  active                      Boolean                       @default(true)
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @default(now()) @updatedAt
+  deletedAt                   DateTime?
+  companyMember               CompanyMember[]
+  product                     Product[]
+  vendor                      Vendor[]
+  purchase                    Purchase[]
+  chartOfAccount              ChartOfAccount[]
+  fiscalYear                  FiscalYear[]
+  chartOfAccountTransaction   ChartOfAccountTransaction[]
+  purchaseDailyReport         PurchaseDailyReport[]
+  purchaseAccountPeriodReport PurchaseAccountPeriodReport[]
+  purchaseFiscalYearReport    PurchaseFiscalYearReport[]
 }
 
 // Model to track financial periods (e.g., fiscal years)
-model FinancialPeriod {
+model FiscalYear {
   id        String                @id @default(cuid())
   companyId String
   company   Company               @relation(fields: [companyId], references: [id])
-  year      Int // Year (e.g., 2023)
+  year      Int
   startDate DateTime
   endDate   DateTime
   status    FinancialPeriodStatus @default(OPEN) // Indicates if the period is open or closed
 
   accountBalances          ChartOfAccountBalance[]
-  GeneralLedger            GeneralLedger[]
-  FinancialPeriodIntervals FinancialPeriodIntervals[]
-  YearPurchaseReport       YearPurchaseReport[]
+  accountPeriods           AccountPeriod[]
+  purchaseFiscalYearReport PurchaseFiscalYearReport[]
 
   @@unique([companyId, year]) // Ensure the company only has one period per year
 }
 
 // Model to track financial periods (e.g., fiscal years)
-model FinancialPeriodIntervals {
-  id                String          @id @default(cuid())
-  financialPeriodId String
-  financialPeriod   FinancialPeriod @relation(fields: [financialPeriodId], references: [id])
+model AccountPeriod {
+  id           String     @id @default(cuid())
+  fiscalYearId String
+  fiscalYear   FiscalYear @relation(fields: [fiscalYearId], references: [id])
 
+  name      String?
   order     Int      @default(0)
   startDate DateTime
   endDate   DateTime
 
   // Ensure the company only has one period per year
-  MonthlyPurchaseReport MonthlyPurchaseReport[]
+  chartOfAccountTransaction   ChartOfAccountTransaction[]
+  purchaseAccountPeriodReport PurchaseAccountPeriodReport[]
 
-  @@unique([financialPeriodId, startDate])
-  @@unique([financialPeriodId, endDate])
-  @@unique([financialPeriodId, order])
+  @@unique([fiscalYearId, startDate, endDate])
+  @@unique([fiscalYearId, order])
 }
 
 enum ChartOfAccountsType {
@@ -259,16 +254,14 @@ model ChartOfAccount {
   createdAt   DateTime                    @default(now())
   updatedAt   DateTime                    @default(now()) @updatedAt
 
-  Inventory                 Inventory[]
-  Purchase                  Purchase[]
-  PurchaseProduct           PurchaseProduct[]
-  GeneralLedger             GeneralLedger[]
-  ChartOfAccountBalance     ChartOfAccountBalance?
-  ChartOfAccountTransaction ChartOfAccountTransaction?
+  inventory                 Inventory[]
+  purchase                  Purchase[]
+  purchaseProduct           PurchaseProduct[]
+  chartOfAccountBalance     ChartOfAccountBalance?
+  chartOfAccountTransaction ChartOfAccountTransaction?
   VatDetail                 VatDetail[]
   TotDetail                 TotDetail[]
   WithholdingDetail         WithholdingDetail[]
-  Product                   Product[]
 
   @@unique([companyId, code]) // Unique company-specific code
   @@index([companyId])
@@ -282,11 +275,11 @@ enum FinancialPeriodStatus {
 }
 
 model ChartOfAccountBalance {
-  id               String          @id @default(cuid())
-  chartOfAccountId String          @unique
-  chartOfAccount   ChartOfAccount  @relation(fields: [chartOfAccountId], references: [id])
-  periodId         String
-  period           FinancialPeriod @relation(fields: [periodId], references: [id])
+  id               String         @id @default(cuid())
+  chartOfAccountId String         @unique
+  chartOfAccount   ChartOfAccount @relation(fields: [chartOfAccountId], references: [id])
+  fiscalYearId     String
+  fiscalYear       FiscalYear     @relation(fields: [fiscalYearId], references: [id])
 
   initialBalance Decimal @default(0) // Balance they had when starting
   balance        Decimal @default(0) // Current balance
@@ -297,8 +290,8 @@ model ChartOfAccountBalance {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  Profile   Profile? @relation(fields: [profileId], references: [id])
-  profileId String?
+  creatorId String?
+  creator   Profile? @relation(fields: [creatorId], references: [id])
 }
 
 enum ChartOfAccountTransactionType {
@@ -318,82 +311,48 @@ enum ChartOfAccountTransactionStatus {
 }
 
 model ChartOfAccountTransaction {
-  id               String                        @id @default(cuid())
-  chartOfAccountId String                        @unique
-  chartOfAccount   ChartOfAccount                @relation(fields: [chartOfAccountId], references: [id])
-  companyId        String
-  company          Company                       @relation(fields: [companyId], references: [id])
-  transactionType  ChartOfAccountTransactionType // Transaction type (invoice, payment, etc.)
-  referenceId      String? // External reference (e.g., invoice number)
+  id                          String                     @id @default(cuid())
+  chartOfAccountId            String                     @unique
+  chartOfAccount              ChartOfAccount             @relation(fields: [chartOfAccountId], references: [id])
+  companyId                   String
+  company                     Company                    @relation(fields: [companyId], references: [id])
+  chartOfAccountTransactionId String? // Foreign key for the parent transaction
+  parentTransaction           ChartOfAccountTransaction? @relation("ParentChildTransaction", fields: [chartOfAccountTransactionId], references: [id]) // Self-referencing relation
+  accountPeriodId             String
+  accountPeriod               AccountPeriod              @relation(fields: [accountPeriodId], references: [id])
 
-  chartOfAccountTransactionId String?
-
-  credit       Decimal @default(0)
-  debit        Decimal @default(0)
-  currency     String  @default("ETB")
-  exchangeRate Decimal @default(1)
-
-  date              DateTime @default(now())
-  description       String?  @db.Text() // Description of the transaction
+  transactionType   ChartOfAccountTransactionType // Transaction type (invoice, payment, etc.)
+  referenceNumber   String? // External reference (e.g., invoice number)
+  paymentMethod     String?
+  date              DateTime                      @default(now())
+  description       String?                       @db.Text() // Description of the transaction
   documentReference String? // External document reference
   referenceFileId   String?
-  referenceFile     File?    @relation(fields: [referenceFileId], references: [id])
+  referenceFile     File?                         @relation(fields: [referenceFileId], references: [id])
 
-  status ChartOfAccountTransactionStatus @default(CONFIRMED) // Status (pending, confirmed)
+  credit        Decimal  @default(0)
+  debit         Decimal  @default(0)
+  currency      String   @default("ETB")
+  exchangeRate  Decimal  @default(1)
+  balanceBefore Decimal? // Balance after this entry
+  balanceAfter  Decimal? // Balance after this entry
 
-  metadata      Json? // Flexible metadata
-  GeneralLedger GeneralLedger[]
-
-  createdAt         DateTime            @default(now())
-  createdById       String? // User ID or system identifier
-  createdBy         Profile?            @relation(fields: [createdById], references: [id])
-  Purchase          Purchase[]
-  VatDetail         VatDetail[]
-  TotDetail         TotDetail[]
-  WithholdingDetail WithholdingDetail[]
-  PurchaseProduct   PurchaseProduct[]
-
-  @@index([companyId, chartOfAccountId])
-}
-
-model GeneralLedger {
-  id               String                     @id @default(cuid())
-  companyId        String
-  company          Company                    @relation(fields: [companyId], references: [id])
-  chartOfAccountId String
-  chartOfAccount   ChartOfAccount             @relation(fields: [chartOfAccountId], references: [id])
-  periodId         String
-  period           FinancialPeriod            @relation(fields: [periodId], references: [id])
-  transactionId    String? // Linked transaction
-  transaction      ChartOfAccountTransaction? @relation(fields: [transactionId], references: [id])
-
-  order Int      @default(autoincrement())
-  date  DateTime @default(now())
-
-  tableName String?
-  tableId   String?
-
-  credit Decimal @default(0)
-  debit  Decimal @default(0)
-
-  balanceBefore Decimal @default(0) // Balance after this entry
-  balanceAfter  Decimal @default(0) // Balance after this entry
-  isReconciled  Boolean @default(false) // Reconciliation status
+  isReconciled Boolean                         @default(false) // Reconciliation status
+  status       ChartOfAccountTransactionStatus @default(CONFIRMED) // Status (pending, confirmed)
+  metadata     Json?
 
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
   createdById String? // User ID or system identifier
-  createdBy   Profile? @relation("GeneralLegerCreator", fields: [createdById], references: [id])
-  updatedById String?
-  updatedBy   Profile? @relation("generalLegerUpdater", fields: [updatedById], references: [id])
+  createdBy   Profile? @relation(fields: [createdById], references: [id])
+
+  purchase                 Purchase[]
+  vatDetail                VatDetail[]
+  totDetail                TotDetail[]
+  withholdingDetail        WithholdingDetail[]
+  purchaseProduct          PurchaseProduct[]
+  parentAccountTransaction ChartOfAccountTransaction[] @relation("ParentChildTransaction")
 
   @@index([companyId, chartOfAccountId])
-}
-
-enum GeneralLedgerTableName {
-  Purchase
-  PurchaseProduct
-  GeneralLedger
 }
 
 model CompanyMember {
@@ -448,21 +407,19 @@ enum ProductPurchaseType {
 }
 
 model Product {
-  id               String              @id @default(uuid())
-  companyId        String
-  company          Company             @relation(fields: [companyId], references: [id])
-  chartOfAccountId String?
-  chartOfAccount   ChartOfAccount?     @relation(fields: [chartOfAccountId], references: [id])
-  name             String
-  productCode      String
-  description      String?             @db.Text()
-  type             ProductCategoryType @default(Good)
-  purchaseType     ProductPurchaseType
-  active           Boolean             @default(true)
-  purchase         Boolean             @default(true)
-  createdAt        DateTime            @default(now())
-  deletedAt        DateTime?
-  Inventory        Inventory[]
+  id           String              @id @default(uuid())
+  companyId    String
+  company      Company             @relation(fields: [companyId], references: [id])
+  name         String
+  productCode  String
+  description  String?             @db.Text()
+  type         ProductCategoryType @default(Good)
+  purchaseType ProductPurchaseType
+  active       Boolean             @default(true)
+  purchase     Boolean             @default(true)
+  createdAt    DateTime            @default(now())
+  deletedAt    DateTime?
+  inventory    Inventory[]
 
   @@unique([companyId, productCode])
   @@index([companyId], type: Hash)
@@ -473,13 +430,14 @@ model Inventory {
   id               String            @id @default(uuid())
   productId        String
   product          Product           @relation(fields: [productId], references: [id])
-  quantity         Int               @default(0)
+  quantity         Decimal           @default(0)
   lastUpdated      DateTime          @default(now()) @updatedAt
-  ProductPrice     ProductPrice[]
-  BOM              BOM[]
-  PurchaseProduct  PurchaseProduct[]
+  productPrice     ProductPrice[]
+  purchaseProduct  PurchaseProduct[]
   chartOfAccountId String
   chartOfAccount   ChartOfAccount    @relation(fields: [chartOfAccountId], references: [id])
+  childInventory   BillOfMaterial[]  @relation("childInventory")
+  parentInventory  BillOfMaterial[]  @relation("parentInventory")
 
   @@index([productId, quantity])
 }
@@ -497,15 +455,17 @@ model ProductPrice {
   @@index([inventoryId, unitPrice])
 }
 
-model BOM {
-  id                         String    @id @default(uuid())
-  finishedProductInventoryId String
-  initialInventoryId         String
-  initialInventory           Inventory @relation(fields: [initialInventoryId], references: [id])
-  quantityRequired           Int
+model BillOfMaterial {
+  id              String    @id @default(uuid())
+  parentProductId String
+  parentProduct   Inventory @relation("parentInventory", fields: [parentProductId], references: [id])
 
-  @@unique([finishedProductInventoryId, initialInventoryId]) // Ensure a component can only appear once per finished product
-  @@index([finishedProductInventoryId])
+  childInventoryId String
+  childInventory   Inventory @relation("childInventory", fields: [childInventoryId], references: [id])
+  quantityRequired Decimal
+
+  @@unique([parentProductId, childInventoryId]) // Ensure a component can only appear once per finished product
+  @@index([parentProductId])
 }
 
 model Vendor {
@@ -656,7 +616,7 @@ model VatDetail {
   taxRate   Int?
   taxAmount Decimal @default(0)
 
-  Purchase Purchase?
+  purchase Purchase?
 }
 
 // TOT Details table
@@ -671,7 +631,7 @@ model TotDetail {
   taxRate       Int?
   taxAmount     Decimal
 
-  Purchase Purchase?
+  purchase Purchase?
 }
 
 // Withholding Details table
@@ -694,10 +654,10 @@ model WithholdingDetail {
   taxableAmount    Decimal @default(0)
   totalWithholding Decimal @default(0)
 
-  Purchase Purchase?
+  purchase Purchase?
 }
 
-model DailyPurchaseReport {
+model PurchaseDailyReport {
   id        String  @id @default(uuid())
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
@@ -721,13 +681,13 @@ model DailyPurchaseReport {
   @@unique([date, companyId])
 }
 
-model MonthlyPurchaseReport {
-  id                         String                   @id @default(uuid())
-  companyId                  String
-  company                    Company                  @relation(fields: [companyId], references: [id])
-  financialPeriodIntervalsId String
-  financialPeriodIntervals   FinancialPeriodIntervals @relation(fields: [financialPeriodIntervalsId], references: [id])
-  count                      Int
+model PurchaseAccountPeriodReport {
+  id              String        @id @default(uuid())
+  companyId       String
+  company         Company       @relation(fields: [companyId], references: [id])
+  accountPeriodId String
+  accountPeriod   AccountPeriod @relation(fields: [accountPeriodId], references: [id])
+  count           Int
 
   // General purchase information
   taxableAmount    Decimal @default(0)
@@ -745,16 +705,16 @@ model MonthlyPurchaseReport {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([financialPeriodIntervalsId, companyId])
+  @@unique([accountPeriodId, companyId])
   @@unique([month, year, companyId])
 }
 
-model YearPurchaseReport {
-  id                String          @id @default(uuid())
-  companyId         String
-  company           Company         @relation(fields: [companyId], references: [id])
-  financialPeriodId String
-  financialPeriod   FinancialPeriod @relation(fields: [financialPeriodId], references: [id])
+model PurchaseFiscalYearReport {
+  id           String     @id @default(uuid())
+  companyId    String
+  company      Company    @relation(fields: [companyId], references: [id])
+  fiscalYearId String
+  fiscalYear   FiscalYear @relation(fields: [fiscalYearId], references: [id])
 
   count Int
 
@@ -774,5 +734,5 @@ model YearPurchaseReport {
   updatedAt DateTime @updatedAt
 
   @@unique([year, companyId])
-  @@unique([financialPeriodId, companyId])
+  @@unique([fiscalYearId, companyId])
 }
