@@ -19,9 +19,16 @@ import PurchaseProductsForm from '../components/add/purchaseProductsForm'
 import TotalPurchaseData from '../components/add/total'
 import PurchaseVendorForm from '../components/add/purchaseVendorForm'
 import { purchaseFormSchema } from '@/lib/form/purchase'
+import { useCompany } from '@/lib/context/account'
+import { VendorType } from '@/types/vendor'
+import { totPurchaseSummation, UnregisteredPurchaseSummation, vatPurchaseSummation } from '@/lib/utils/purchase'
 
 
 export const AddPurchaseSection = () => {
+
+
+
+    const [vendor, setVendor] = useState<VendorType | null>(null)
 
     const [totalQuantity, setTotalQuantity] = useState<number>(0);
     const [taxableAmount, setTaxableAmount] = useState<Decimal>(new Decimal(0));
@@ -40,17 +47,11 @@ export const AddPurchaseSection = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
 
-    const { currentCompany } = useAuth();
+    const { currentCompany } = useCompany();
     const { createPurchase } = usePurchases();
     const form = useForm<z.infer<typeof purchaseFormSchema>>({
         resolver: zodResolver(purchaseFormSchema),
         defaultValues: {
-            MRCNumber: "MR21092190",
-            VatReceiptNumber: "FC0019210",
-            date: new Date(),
-            invoiceNumber: "00001",
-            withholdingNumber: "00001",
-            purchaseProducts: [],
         },
     })
 
@@ -60,140 +61,72 @@ export const AddPurchaseSection = () => {
     });
 
     useEffect(() => {
-        const VAT_RATE = new Decimal('0.15'); // 15% VAT rate
-        const importedWithholdingRate = new Decimal('0.03'); // 3% Withholding rate
-        const localWithholdingRate = new Decimal('0.02'); // 2% Withholding rate
+        if (vendor && vendor.business?.tinNumber) {
+            if (form.getValues("taxType") === "VAT") {
+                const {
+                    summation
+                } = vatPurchaseSummation({
+                    purchaseProducts: watchedProducts,
+                    generateBackendData: false,
+                });
+                const {
+                    averagePrice,
+                    grossAmount,
+                    serviceSummaryAmount,
+                    totalAmount,
+                    totalQuantity,
+                    nonTaxableAmount,
+                    taxableAmount,
+                    withholding,
+                    serviceWithholding,
+                    totalVat,
+                    localGoodSummaryAmount,
+                    importedGoodSummaryAmount,
+                    localGoodWithholding,
+                    importedGoodWithholding,
+                } = summation
 
-
-        let newLocalGoodSummaryAmount = new Decimal(0);
-        let newImportedGoodSummaryAmount = new Decimal(0);
-        let newServiceSummaryAmount = new Decimal(0);
-        let newLocalPurchaseCapitalAssets = new Decimal(0);
-        let newVatOnLocalPurchaseCapitalAssets = new Decimal(0);
-        let newImportedCapitalAssets = new Decimal(0);
-        let newVatOnImportedCapitalAssets = new Decimal(0);
-        let newLocalPurchaseInputs = new Decimal(0);
-        let newVatOnLocalPurchaseInputs = new Decimal(0);
-        let newImportedInputs = new Decimal(0);
-        let newVatOnImportedInputs = new Decimal(0);
-        let newGeneralExpenseInputs = new Decimal(0);
-        let newVatOnGeneralExpenseInputs = new Decimal(0);
-        let newPurchaseWithNoVat = new Decimal(0);
-        let newTotalQuantity = 0;
-
-
-        if (watchedProducts) {
-            watchedProducts.forEach((product, index) => {
-                const totalValue = new Decimal(product.unitPrice || 0).times(product.quantity || 0);
-                const vat = totalValue.times(VAT_RATE);
-
-
-                if (product.type === "Service")
-                    newServiceSummaryAmount = newServiceSummaryAmount.plus(totalValue)
-
-                switch (product.purchaseType) {
-                    case "taxableLocalCapitalAssets":
-                        newLocalPurchaseCapitalAssets = newLocalPurchaseCapitalAssets.plus(totalValue);
-                        newVatOnLocalPurchaseCapitalAssets = newVatOnLocalPurchaseCapitalAssets.plus(vat);
-                        if (product.type === "Good") {
-                            newLocalGoodSummaryAmount = newLocalGoodSummaryAmount.plus(totalValue)
-                        }
-                        break;
-                    case "taxableImportedCapitalAssets":
-                        newImportedCapitalAssets = newImportedCapitalAssets.plus(totalValue);
-                        newVatOnImportedCapitalAssets = newVatOnImportedCapitalAssets.plus(vat);
-                        if (product.type === "Good") {
-                            newImportedGoodSummaryAmount = newImportedGoodSummaryAmount.plus(totalValue)
-                        }
-                        break;
-                    case "taxableLocalInputs":
-                        newLocalPurchaseInputs = newLocalPurchaseInputs.plus(totalValue);
-                        newVatOnLocalPurchaseInputs = newVatOnLocalPurchaseInputs.plus(vat);
-                        if (product.type === "Good") {
-                            newLocalGoodSummaryAmount = newLocalGoodSummaryAmount.plus(totalValue)
-                        }
-                        break;
-                    case "taxableImportedInputs":
-                        newImportedInputs = newImportedInputs.plus(totalValue);
-                        newVatOnImportedInputs = newVatOnImportedInputs.plus(vat);
-                        if (product.type === "Good") {
-                            newImportedGoodSummaryAmount = newImportedGoodSummaryAmount.plus(totalValue)
-                        }
-                        break;
-                    case "taxableGeneralExpenseInputs":
-                        newGeneralExpenseInputs = newGeneralExpenseInputs.plus(totalValue);
-                        newVatOnGeneralExpenseInputs = newVatOnGeneralExpenseInputs.plus(vat);
-                        if (product.type === "Good") {
-                            newLocalGoodSummaryAmount = newLocalGoodSummaryAmount.plus(totalValue)
-                        }
-                        break;
-                    case "taxExemptedPurchase":
-                        newPurchaseWithNoVat = newPurchaseWithNoVat.plus(totalValue);
-                        if (product.type === "Good") {
-                            newLocalGoodSummaryAmount = newLocalGoodSummaryAmount.plus(totalValue)
-                        }
-                        break;
-                }
-                newTotalQuantity += product.quantity;
-            });
-
-            const newTotalCapitalAssets = newLocalPurchaseCapitalAssets.plus(newImportedCapitalAssets);
-            const newVatOnTotalAssets = newVatOnLocalPurchaseCapitalAssets.plus(newVatOnImportedCapitalAssets);
-            const newTotalNonCapitalInputs = newLocalPurchaseInputs.plus(newImportedInputs).plus(newGeneralExpenseInputs);
-            const newVatOnTotalInputs = newVatOnLocalPurchaseInputs.plus(newVatOnImportedInputs).plus(newVatOnGeneralExpenseInputs);
-            const newTaxableAmount = newTotalCapitalAssets.plus(newTotalNonCapitalInputs);
-            const newNonTaxableAmount = newPurchaseWithNoVat;
-            const newTotalVat = newVatOnTotalAssets.plus(newVatOnTotalInputs);
-            const newGrossAmount = newTaxableAmount.plus(newNonTaxableAmount).plus(newTotalVat);
-
-            const beforeTaxData = newTaxableAmount.plus(newNonTaxableAmount)
-
-
-
-            let newImportedGoodWithholding = new Decimal(0);
-            let newLocalGoodWithholding = new Decimal(0);
-            let newServiceWithholding = new Decimal(0);
-
-            if (newLocalGoodSummaryAmount.greaterThan(10000)) {
-                newLocalGoodWithholding = newLocalGoodSummaryAmount.times(localWithholdingRate);
-            }
-
-            if (newImportedGoodSummaryAmount.greaterThan(10000)) {
-                newImportedGoodWithholding = newImportedGoodSummaryAmount.times(importedWithholdingRate);
-            }
-
-            if (newServiceSummaryAmount.greaterThan(3000)) {
-                newServiceWithholding = newServiceSummaryAmount.times(localWithholdingRate);
-            }
-
-
-
-            const withholding = newServiceWithholding.plus(newLocalGoodWithholding).plus(newImportedGoodWithholding)
-            setServiceWithholding(newServiceWithholding)
-            setLocalGoodWithholding(newLocalGoodWithholding)
-            setImportedGoodWithholding(newImportedGoodWithholding)
-            setWithholding(withholding)
-
-            setLocalGoodSummaryAmount(newLocalGoodSummaryAmount)
-            setImportedGoodSummaryAmount(newImportedGoodSummaryAmount)
-            setServiceSummaryAmount(newServiceSummaryAmount)
-
-            // Update all state values
-            setTaxableAmount(newTaxableAmount);
-            setNonTaxableAmount(newNonTaxableAmount);
-            setTotalVat(newTotalVat);
-            setGrossAmount(newGrossAmount.minus(withholding));
-
-
-            if (watchedProducts.length === 1) {
-                setTotalQuantity(watchedProducts[0].quantity)
-                setBeforeTax(new Decimal(watchedProducts[0].unitPrice))
             } else {
-                setTotalQuantity(1)
-                setBeforeTax(beforeTaxData)
+                const {
+                    summation
+                } = totPurchaseSummation({
+                    purchaseProducts: watchedProducts,
+                    generateBackendData: false,
+                });
+                const {
+                    averagePrice,
+                    grossAmount,
+                    serviceSummaryAmount,
+                    totalAmount,
+                    totalQuantity,
+                    goodSummaryAmount,
+                    goodWithholdingAmount,
+                    serviceWithholdingAmount,
+                    taxAmount,
+                    withholdingAmount
+                } = summation
+
             }
+
+        } else {
+            const {
+                summation
+            } = UnregisteredPurchaseSummation({
+                purchaseProducts: watchedProducts,
+                generateBackendData: false,
+                hasWithholding: form.getValues("withholdingType") === "hasWithholding"
+            });
+            const {
+                totalAmount,
+                withholdingAmount,
+                grossAmount,
+                totalQuantity,
+                averagePrice,
+            } = summation
         }
 
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [watchedProducts]);
 
     const onSubmit = async (values: z.infer<typeof purchaseFormSchema>) => {
@@ -203,17 +136,16 @@ export const AddPurchaseSection = () => {
                 if (currentCompany) {
                     const purchase = await createPurchase({
                         companyId: currentCompany.companyId,
-                        data: {
-                            date: values.date,
-                            invoiceNumber: values.invoiceNumber,
-                            MRCNumber: values.MRCNumber,
-                            productType: values.type,
-                            purchaseProducts: values.purchaseProducts,
-                            purchaseType: values.purchaseType,
-                            unit: values.unit,
-                            vendorId: values.vendorId,
-                            description: values.description,
-                        }
+                        date: values.date,
+                        taxType: values.taxType,
+                        receiptNumber: values.receiptNumber,
+                        mrcNumber: values.mrcNumber,
+                        withholdingType: values.withholdingType,
+                        withholdingNumber: values.withholdingNumber,
+                        cashReceiptVoucher: values.cashReceiptVoucher,
+                        vendorId: values.vendorId,
+                        gebiwoch: values.gebiwoch,
+                        purchaseProducts: watchedProducts,
                     })
                     toast({
                         title: "Purchase Created",
@@ -251,7 +183,11 @@ export const AddPurchaseSection = () => {
                         <div className='h-[8vh]' />
                         <div className='flex  flex-wrap xl:flex-nowrap'>
                             <div className='w-full  xl:min-w-[73%] pr-2  flex-1 flex flex-col gap-6 pb-20 '>
-                                <PurchaseVendorForm form={form} />
+                                <PurchaseVendorForm
+                                    form={form}
+                                    vendor={vendor}
+                                    setVendor={setVendor}
+                                />
                                 <PurchaseDetailForm form={form} />
                                 <PurchaseProductsForm form={form} />
                                 <PurchaseDeclarationAdjustmentForm

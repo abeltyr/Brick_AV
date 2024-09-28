@@ -86,6 +86,14 @@ export const zProductInputUnit = z.enum([
   "OTHER",
   "PC",
 ]);
+export const zProductInputTaxType = z.enum(["VAT", "TOT", "NONE"]);
+
+export const zProductInputReceiptType = z.enum(["Machine", "Manual"]);
+
+export const zProductInputWithholdingType = z.enum([
+  "noWithholding",
+  "hasWithholding",
+]);
 
 export const zPurchaseInputType = z.enum([
   "taxableLocalCapitalAssets",

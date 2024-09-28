@@ -10,7 +10,7 @@ import {
 } from "@/modules/ui/card"
 import { Sheet, SheetContent, SheetTrigger } from '@/modules/ui/sheet'
 import { VendorType } from '@/types/vendor'
-import { useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import { SearchVendorSection } from '@/modules/vendor/templates/search'
 import { Trash2 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/modules/ui/avatar'
@@ -23,9 +23,14 @@ import { z } from 'zod'
 import { Separator } from '@/modules/ui/separator'
 
 
-export default function PurchaseVendorForm({ form }: { form: UseFormReturn<z.infer<typeof purchaseFormSchema>> }) {
+export default function PurchaseVendorForm({ form, setVendor, vendor }: {
+    form: UseFormReturn<z.infer<typeof purchaseFormSchema>>,
+    vendor: VendorType | null
+    setVendor: Dispatch<SetStateAction<VendorType | null>>
+}
 
-    const [vendor, setVendor] = useState<VendorType | null>()
+) {
+
     const { purchaseVendorListingDrawer, setPurchaseVendorListingDrawer } = useDrawerManager()
 
     if (!vendor)
@@ -97,11 +102,11 @@ export default function PurchaseVendorForm({ form }: { form: UseFormReturn<z.inf
                         <div className="flex items-center space-x-4">
                             <Avatar className="h-20 w-20">
                                 {/* <AvatarImage src="/placeholder.svg?height=80&width=80" alt="Profile picture" /> */}
-                                <AvatarFallback className='text-3xl'>{vendor.profile?.name?.slice(0, 2)}</AvatarFallback>
+                                <AvatarFallback className='text-3xl'>{vendor.name?.slice(0, 2)}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <h2 className="text-2xl font-bold">{vendor.profile?.name}</h2>
-                                <p className="text-sm text-muted-foreground">{vendor.profile?.companyName}</p>
+                                <h2 className="text-2xl font-bold">{vendor.name}</h2>
+                                <p className="text-sm text-muted-foreground">{vendor.phoneNumber}</p>
                             </div>
                         </div>
                         <button
@@ -120,11 +125,11 @@ export default function PurchaseVendorForm({ form }: { form: UseFormReturn<z.inf
                 <CardContent className=" flex gap-3 justify-between items-center">
                     <div className="space-y-2 flex-1">
                         <Label htmlFor="tin">TIN (Tax Identification Number)</Label>
-                        <Input value={vendor.profile && vendor.profile.tinNumber ? vendor.profile.tinNumber : "---"} readOnly />
+                        <Input value={vendor.business && vendor.business.tinNumber ? vendor.business.tinNumber : "---"} readOnly />
                     </div>
                     <div className="space-y-2 flex-1">
                         <Label htmlFor="vat">VAT Number</Label>
-                        <Input value={vendor.profile && vendor.profile.vatNumber ? vendor.profile.vatNumber : "---"} readOnly />
+                        <Input value={vendor && vendor.vat ? vendor.vat : "---"} readOnly />
                     </div>
                 </CardContent>
             </Card>

@@ -48,8 +48,9 @@ export const UnregisteredPurchaseSummation = ({
       let updateInventory: Prisma.InventoryUpdateInput = {};
 
       if (
-        product.initialProductPrice.unit !== product.unit ||
-        product.initialProductPrice.unitPrice !== new Decimal(product.unitPrice)
+        product.initialProductPriceUnit !== product.unit ||
+        new Decimal(product.initialProductPriceUnitPrice) !==
+          new Decimal(product.unitPrice)
       ) {
         updateInventory = {
           quantity: {

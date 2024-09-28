@@ -1,6 +1,5 @@
 import {
   ProductCategoryType,
-  ProductPrice,
   ProductPurchaseType,
   ProductUnitType,
 } from "@prisma/client";
@@ -8,22 +7,26 @@ import {
 export type PurchaseInputType = {
   companyId: string;
   vendorId: string;
-  vendorBusiness: boolean;
-  hasVat: boolean;
-  hasWithholding: boolean;
   date: Date;
-  VatReceiptNumber: string;
-  MRCNumber?: string;
+  taxType: "VAT" | "TOT" | "NONE";
+  withholdingType: "noWithholding" | "hasWithholding";
+  receiptNumber: string;
+  mrcNumber?: string;
   withholdingNumber?: string;
-  purchaseType: ProductPurchaseType;
-  productType: ProductCategoryType;
-  unit: ProductUnitType;
-  description: string;
+  cashReceiptVoucher?: string;
+  gebiwoch: {
+    purchaseType: ProductPurchaseType;
+    productCategoryType: ProductCategoryType;
+    unit: ProductUnitType;
+    description: string;
+    quantity: number;
+  };
   purchaseProducts: PurchaseProductInput[];
 };
 
 export type PurchaseProductInput = {
-  initialProductPrice: ProductPrice;
+  initialProductPriceUnit: ProductUnitType;
+  initialProductPriceUnitPrice: number;
   inventoryId: string;
   productId: string;
   type: ProductCategoryType;

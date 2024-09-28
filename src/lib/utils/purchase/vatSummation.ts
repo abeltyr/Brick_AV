@@ -6,7 +6,7 @@ import { PurchaseProductInput } from "@/types/purchase";
 import { VAT_RATE, WITHHOLDING_RATE } from "@/types/shared";
 const prisma = getPrisma();
 
-export const purchaseSummation = ({
+export const vatPurchaseSummation = ({
   purchaseProducts,
   generateBackendData = false,
 }: {
@@ -164,8 +164,9 @@ export const purchaseSummation = ({
       let updateInventory: Prisma.InventoryUpdateInput = {};
 
       if (
-        product.initialProductPrice.unit !== product.unit ||
-        product.initialProductPrice.unitPrice !== new Decimal(product.unitPrice)
+        product.initialProductPriceUnit !== product.unit ||
+        new Decimal(product.initialProductPriceUnitPrice) !==
+          new Decimal(product.unitPrice)
       ) {
         updateInventory = {
           quantity: {
