@@ -1,5 +1,6 @@
 import {
   ProductCategoryType,
+  ProductPrice,
   ProductPurchaseType,
   ProductUnitType,
 } from "@prisma/client";
@@ -22,10 +23,12 @@ export type PurchaseInputType = {
 };
 
 export type PurchaseProductInput = {
+  initialProductPrice: ProductPrice;
   inventoryId: string;
   productId: string;
   type: ProductCategoryType;
   purchaseType: ProductPurchaseType;
+  chartOfAccountId: string;
   unit: ProductUnitType;
   unitPrice: number;
   quantity: number;

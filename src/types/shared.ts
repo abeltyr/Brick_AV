@@ -1,4 +1,4 @@
-import { secondsInAWeek } from "@/lib/utils/calendar/date";
+import Decimal from "decimal.js";
 
 export type Filter = {
   after?: string;
@@ -43,3 +43,16 @@ export const dateNameValue = [
   "Yearly",
   "Custom Range",
 ];
+
+export const VAT_RATE = 0.15;
+
+export const TOT_RATE = {
+  good: 0.02,
+  service: 0.1,
+};
+
+export const WITHHOLDING_RATE = {
+  local: 0.02,
+  imported: 0.03,
+  unregistered: 0.3,
+};

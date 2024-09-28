@@ -174,12 +174,12 @@ export function BusinessDetailModal({
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody >
-                                    {businessFetched.BusinessTrade.map((businessData, index) => (
+                                    {businessFetched.businessTrade.map((businessData, index) => (
                                         <TableRow key={index} className='text-primary'>
                                             <TableCell className='text-left'>{businessData.tradeName}</TableCell>
                                             <TableCell className='text-left'>{businessData.licenseName}</TableCell>
                                             <TableCell className='text-left'>{businessData.licenseCode}</TableCell>
-                                            <TableCell className='text-left'>{businessData.RenewedFrom ? new Date(businessData.RenewedFrom).toLocaleDateString("en-GB") : "-"}-{businessData.RenewedTo ? new Date(businessData.RenewedTo).toLocaleDateString("en-GB") : "-"}</TableCell>
+                                            <TableCell className='text-left'>{businessData.renewedFrom ? new Date(businessData.renewedFrom).toLocaleDateString("en-GB") : "-"}-{businessData.renewedTo ? new Date(businessData.renewedTo).toLocaleDateString("en-GB") : "-"}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

@@ -564,7 +564,7 @@ model PurchaseProduct {
   unitPrice    Decimal
   quantity     Int
   totalValue   Decimal             @default(0)
-  vat          Decimal             @default(0)
+  tax          Decimal             @default(0)
   withholding  Decimal             @default(0)
   grossAmount  Decimal             @default(0)
   order        Int                 @default(0)

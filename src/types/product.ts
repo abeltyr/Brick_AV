@@ -1,5 +1,5 @@
 import {
-  BOM,
+  BillOfMaterial,
   Inventory,
   Product,
   ProductCategoryType,
@@ -14,12 +14,12 @@ export type ProductType = Product & {
 };
 
 export type InventoryType = Inventory & {
-  ProductPrice?: ProductPrice[];
+  productPrice?: ProductPrice[];
   chartOfAccount?: ChartOfAccountType;
-  BOM?: BOMType[];
+  childInventory?: BillOfMaterialType[];
 };
 
-export type BOMType = BOM & {
+export type BillOfMaterialType = BillOfMaterial & {
   initialInventory?: Inventory;
 };
 

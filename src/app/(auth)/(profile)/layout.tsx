@@ -1,13 +1,11 @@
 'use client'
 
 
-import { useCompany, useProfile } from '@/lib/context/account';
+import { useProfile } from '@/lib/context/account';
 import { DrawerManagerProvider } from '@/lib/context/drawer/drawer';
-import { useEffect } from 'react';
 import LoadingTemplate from '@/modules/common/templates/loading';
 import OnboardingPage from '@/modules/account/templates/onboarding';
 import { OnboardingProvider } from '@/lib/context/account/onboarding';
-import { useChartOfAccount } from '@/lib/context/account/chartOfAccount';
 
 
 export default function RootLayout({
@@ -37,7 +35,7 @@ export default function RootLayout({
       </p>
       <LoadingTemplate />
     </>
-  else if (profile && profile.CompanyMember && profile.CompanyMember.length > 0)
+  else if (profile && profile.companyMember && profile.companyMember.length > 0)
     return (
       <DrawerManagerProvider>
         {children}

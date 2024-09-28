@@ -33,17 +33,17 @@ export type BusinessInputType = {
 
 export type BusinessTradeInputType = {
   dateRegistered?: Date;
-  TradeName?: string;
-  TradeNameAmh?: string;
-  LicenseNumber?: string;
-  RenewedTo?: Date;
-  RenewedFrom?: Date;
-  RenewalDate?: Date;
+  tradeName?: string;
+  tradeNameAmh?: string;
+  licenseNumber?: string;
+  renewedTo?: Date;
+  renewedFrom?: Date;
+  renewalDate?: Date;
   licenseName: string;
   addressId?: string;
 };
 
 export type MRCRegistrationInputType = {
-  MRCNumber: string;
+  mrcNumber: string;
   verified?: boolean;
 };

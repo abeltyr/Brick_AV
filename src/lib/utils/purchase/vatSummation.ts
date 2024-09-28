@@ -1,20 +1,15 @@
+import { ProductInputType } from "@/types/product";
 import { Prisma } from "@prisma/client";
 import Decimal from "decimal.js";
 import { getPrisma } from "@/lib/utils/database";
 import { PurchaseProductInput } from "@/types/purchase";
-import { DefaultArgs } from "@prisma/client/runtime/library";
+import { VAT_RATE, WITHHOLDING_RATE } from "@/types/shared";
 const prisma = getPrisma();
 
 export const purchaseSummation = ({
-  hasVat = true,
-  hasWithholding = true,
-  vendorBusiness = false,
   purchaseProducts,
   generateBackendData = false,
 }: {
-  hasVat?: boolean;
-  hasWithholding?: boolean;
-  vendorBusiness?: boolean;
   purchaseProducts: PurchaseProductInput[];
   generateBackendData?: Boolean;
 }) => {
@@ -47,33 +42,17 @@ export const purchaseSummation = ({
 
   let purchaseProductData: Prisma.PurchaseProductCreateManyPurchaseInput[] = [];
 
-  const VAT_RATE = hasVat ? new Decimal("0.15") : new Decimal("0"); // 15% VAT rate
-  let SERVICE_WITHHOLDING_RATE = new Decimal("0");
-  let LOCAL_GOOD_WITHHOLDING_RATE = new Decimal("0");
-  let IMPORTED_GOOD_WITHHOLDING_RATE = new Decimal("0");
+  let importedGoodWithholding = new Decimal(0);
+  let localGoodWithholding = new Decimal(0);
+  let serviceWithholding = new Decimal(0);
 
-  if (hasWithholding) {
-    if (vendorBusiness) {
-      SERVICE_WITHHOLDING_RATE = new Decimal("0.02");
-      LOCAL_GOOD_WITHHOLDING_RATE = new Decimal("0.02");
-      IMPORTED_GOOD_WITHHOLDING_RATE = new Decimal("0.03");
-    } else {
-      SERVICE_WITHHOLDING_RATE = new Decimal("0.30");
-      LOCAL_GOOD_WITHHOLDING_RATE = new Decimal("0.30");
-      IMPORTED_GOOD_WITHHOLDING_RATE = new Decimal("0.30");
-    }
-  }
-
-  let inventoryUpdate: Prisma.Prisma__InventoryClient<
-    {
-      id: string;
-      productId: string;
-      quantity: number;
-      lastUpdated: Date;
-    },
-    never,
-    DefaultArgs
-  >[] = [];
+  let inventoryUpdate: Prisma.Prisma__InventoryClient<{
+    id: string;
+    productId: string;
+    quantity: Prisma.Decimal;
+    lastUpdated: Date;
+    chartOfAccountId: string;
+  }>[] = [];
 
   // Calculate sums and prepare data for bulk updates
 
@@ -81,14 +60,17 @@ export const purchaseSummation = ({
     const totalValue = new Decimal(product.unitPrice || 0).times(
       product.quantity || 0,
     );
-    const vat = totalValue.times(VAT_RATE);
-    let grossAmount = totalValue.plus(vat);
+    const tax = totalValue.times(VAT_RATE);
 
     let withholding = new Decimal(0);
+    let grossAmount = totalValue.plus(tax);
 
     if (product.type === "Service") {
       serviceSummaryAmount = serviceSummaryAmount.plus(totalValue);
-      withholding = totalValue.times(SERVICE_WITHHOLDING_RATE);
+      if (totalValue.greaterThan(3000)) {
+        withholding = totalValue.times(WITHHOLDING_RATE.local);
+        serviceWithholding = serviceWithholding.plus(withholding);
+      }
     }
 
     switch (product.purchaseType) {
@@ -96,70 +78,125 @@ export const purchaseSummation = ({
         localPurchaseCapitalAssets = localPurchaseCapitalAssets.plus(
           new Decimal(totalValue),
         );
-        vatOnLocalPurchaseCapitalAssets = vatOnLocalPurchaseCapitalAssets.plus(
-          new Decimal(vat),
-        );
+        vatOnLocalPurchaseCapitalAssets =
+          vatOnLocalPurchaseCapitalAssets.plus(tax);
         if (product.type === "Good") {
           localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
-          withholding = totalValue.times(LOCAL_GOOD_WITHHOLDING_RATE);
+          if (totalValue.greaterThan(10000)) {
+            withholding = totalValue.times(WITHHOLDING_RATE.local);
+            localGoodWithholding = localGoodWithholding.plus(withholding);
+            grossAmount.plus(withholding);
+          }
         }
         break;
       case "taxableImportedCapitalAssets":
         importedCapitalAssets = importedCapitalAssets.plus(
           new Decimal(totalValue),
         );
-        vatOnImportedCapitalAssets = vatOnImportedCapitalAssets.plus(
-          new Decimal(vat),
-        );
+        vatOnImportedCapitalAssets = vatOnImportedCapitalAssets.plus(tax);
         if (product.type === "Good") {
           importedGoodSummaryAmount =
             importedGoodSummaryAmount.plus(totalValue);
-          withholding = totalValue.times(IMPORTED_GOOD_WITHHOLDING_RATE);
+          if (totalValue.greaterThan(10000)) {
+            withholding = totalValue.times(WITHHOLDING_RATE.imported);
+            importedGoodWithholding = importedGoodWithholding.plus(withholding);
+            grossAmount.plus(withholding);
+          }
         }
         break;
       case "taxableLocalInputs":
-        localPurchaseInputs = localPurchaseInputs.plus(new Decimal(totalValue));
-        vatOnLocalPurchaseInputs = vatOnLocalPurchaseInputs.plus(
-          new Decimal(vat),
-        );
+        localPurchaseInputs = localPurchaseInputs.plus(totalValue);
+        vatOnLocalPurchaseInputs = vatOnLocalPurchaseInputs.plus(tax);
         if (product.type === "Good") {
           localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
-
-          withholding = totalValue.times(LOCAL_GOOD_WITHHOLDING_RATE);
+          if (totalValue.greaterThan(10000)) {
+            withholding = totalValue.times(WITHHOLDING_RATE.local);
+            localGoodWithholding = localGoodWithholding.plus(withholding);
+            grossAmount.plus(withholding);
+          }
         }
         break;
       case "taxableImportedInputs":
-        importedInputs = importedInputs.plus(new Decimal(totalValue));
-        vatOnImportedInputs = vatOnImportedInputs.plus(new Decimal(vat));
+        importedInputs = importedInputs.plus(totalValue);
+        vatOnImportedInputs = vatOnImportedInputs.plus(tax);
         if (product.type === "Good") {
           importedGoodSummaryAmount =
             importedGoodSummaryAmount.plus(totalValue);
-          withholding = totalValue.times(IMPORTED_GOOD_WITHHOLDING_RATE);
+
+          if (totalValue.greaterThan(10000)) {
+            withholding = totalValue.times(WITHHOLDING_RATE.imported);
+            importedGoodWithholding = importedGoodWithholding.plus(withholding);
+            grossAmount.plus(withholding);
+          }
         }
         break;
       case "taxableGeneralExpenseInputs":
         generalExpenseInputs = generalExpenseInputs.plus(
           new Decimal(totalValue),
         );
-        vatOnGeneralExpenseInputs = vatOnGeneralExpenseInputs.plus(
-          new Decimal(vat),
-        );
+        vatOnGeneralExpenseInputs = vatOnGeneralExpenseInputs.plus(tax);
         if (product.type === "Good") {
           localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
-          withholding = totalValue.times(LOCAL_GOOD_WITHHOLDING_RATE);
+          if (totalValue.greaterThan(10000)) {
+            withholding = totalValue.times(WITHHOLDING_RATE.local);
+            localGoodWithholding = localGoodWithholding.plus(withholding);
+            grossAmount.plus(withholding);
+          }
         }
         break;
       case "taxExemptedPurchase":
-        purchaseWithNoVat = purchaseWithNoVat.plus(new Decimal(totalValue));
+        purchaseWithNoVat = purchaseWithNoVat.plus(totalValue);
         grossAmount = totalValue;
         if (product.type === "Good") {
           localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
-          withholding = totalValue.times(LOCAL_GOOD_WITHHOLDING_RATE);
+
+          if (totalValue.greaterThan(10000)) {
+            withholding = totalValue.times(WITHHOLDING_RATE.local);
+            localGoodWithholding = localGoodWithholding.plus(withholding);
+            grossAmount.plus(withholding);
+          }
         }
         break;
     }
 
     if (generateBackendData) {
+      product.unitPrice;
+      let updateInventory: Prisma.InventoryUpdateInput = {};
+
+      if (
+        product.initialProductPrice.unit !== product.unit ||
+        product.initialProductPrice.unitPrice !== new Decimal(product.unitPrice)
+      ) {
+        updateInventory = {
+          quantity: {
+            increment: product.quantity,
+          },
+          productPrice: {
+            create: {
+              unit: product.unit,
+              unitPrice: product.unitPrice,
+              active: true,
+            },
+            updateMany: {
+              where: {
+                inventoryId: product.inventoryId,
+              },
+              data: {
+                active: false,
+              },
+            },
+          },
+          lastUpdated: new Date(),
+        };
+      } else {
+        updateInventory = {
+          quantity: {
+            increment: product.quantity,
+          },
+          lastUpdated: new Date(),
+        };
+      }
+
       inventoryUpdate = [
         ...inventoryUpdate,
         prisma.inventory.upsert({
@@ -170,26 +207,22 @@ export const purchaseSummation = ({
             quantity: product.quantity,
             productId: product.productId,
             lastUpdated: new Date(),
+            chartOfAccountId: product.chartOfAccountId,
           },
-          update: {
-            quantity: {
-              increment: product.quantity,
-            },
-            lastUpdated: new Date(),
-          },
+          update: updateInventory,
         }),
       ];
 
       purchaseProductData = [
         ...purchaseProductData,
         {
-          vat: vat,
-          grossAmount: grossAmount,
+          tax,
+          grossAmount,
           inventoryId: product.inventoryId,
           purchaseType: product.purchaseType,
           type: product.type,
           unit: product.unit,
-          unitPrice: new Decimal(product.unitPrice),
+          unitPrice: product.unitPrice,
           quantity: product.quantity,
           totalValue: totalValue,
           order: index + 1,
@@ -215,26 +248,6 @@ export const purchaseSummation = ({
   let nonTaxableAmount: Decimal = purchaseWithNoVat;
   let totalVat: Decimal = vatOnTotalAssets.plus(vatOnTotalInputs);
 
-  let importedGoodWithholding = new Decimal(0);
-  let localGoodWithholding = new Decimal(0);
-  let serviceWithholding = new Decimal(0);
-
-  if (localGoodSummaryAmount.greaterThan(10000)) {
-    localGoodWithholding = localGoodSummaryAmount.times(
-      LOCAL_GOOD_WITHHOLDING_RATE,
-    );
-  }
-
-  if (importedGoodSummaryAmount.greaterThan(10000)) {
-    importedGoodWithholding = importedGoodSummaryAmount.times(
-      IMPORTED_GOOD_WITHHOLDING_RATE,
-    );
-  }
-
-  if (serviceSummaryAmount.greaterThan(3000)) {
-    serviceWithholding = serviceSummaryAmount.times(SERVICE_WITHHOLDING_RATE);
-  }
-
   const withholding = serviceWithholding
     .plus(localGoodWithholding)
     .plus(importedGoodWithholding);
@@ -244,10 +257,10 @@ export const purchaseSummation = ({
     .plus(totalVat)
     .minus(withholding);
 
-  const totalBeforeVat = taxableAmount.plus(nonTaxableAmount);
+  const totalAmount = taxableAmount.plus(nonTaxableAmount);
 
   let totalQuantity: number = 1;
-  let averagePrice = totalBeforeVat;
+  let averagePrice = totalAmount;
 
   if (purchaseProducts.length === 1) {
     totalQuantity = purchaseProducts[0].quantity;
@@ -260,29 +273,35 @@ export const purchaseSummation = ({
       vatOnLocalPurchaseCapitalAssets,
       importedCapitalAssets,
       vatOnImportedCapitalAssets,
+
       localPurchaseInputs,
       vatOnLocalPurchaseInputs,
       importedInputs,
       vatOnImportedInputs,
       generalExpenseInputs,
       vatOnGeneralExpenseInputs,
+
       purchaseWithNoVat,
+
       totalCapitalAssets,
       vatOnTotalAssets,
       totalNonCapitalInputs,
       vatOnTotalInputs,
+
       importedGoodSummaryAmount,
       importedGoodWithholding,
       localGoodSummaryAmount,
+
       localGoodWithholding,
       serviceSummaryAmount,
       serviceWithholding,
+
       taxableAmount,
       nonTaxableAmount,
+      totalAmount,
       totalVat,
       withholding,
       grossAmount,
-      totalBeforeVat,
       totalQuantity,
       averagePrice,
     },
