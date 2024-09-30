@@ -1,134 +1,466 @@
 "use server";
+
 import { getPrisma } from "@/lib/utils/database";
-import { Purchase } from "@prisma/client";
-import { findVendorByIdAction } from "../vendor/fetchById";
+import { Prisma, Purchase } from "@prisma/client";
 import { VendorType } from "@/types/vendor";
-import { purchaseSummation } from "@/lib/utils/purchase/summation";
+import {
+  totPurchaseSummation,
+  UnregisteredPurchaseSummation,
+  vatPurchaseSummation,
+} from "@/lib/utils/purchase";
 import { monthYearGetter } from "@/lib/utils/calendar/monthYearGetter";
 import { PurchaseInputType } from "@/types/purchase";
+import Decimal from "decimal.js";
+import { getWeekOrder } from "@/lib/utils/calendar/date";
+import { PurchaseReportType } from "@/types/report";
+import { vendorIncludeData } from "../vendor/common/include";
+import { v4 } from "uuid";
 const prisma = getPrisma();
 
 export const createPurchaseAction = async (
   data: PurchaseInputType,
 ): Promise<{
   purchase: Purchase;
+  purchaseDailyReport: PurchaseReportType;
+  purchaseWeeklyReport: PurchaseReportType;
+  purchaseAccountPeriodReport: PurchaseReportType;
+  purchaseFiscalYearReport: PurchaseReportType;
 } | null> => {
-  // validate vendor
-  const vendor = (await findVendorByIdAction(data.vendorId)) as VendorType;
-  if (!vendor) throw new Error("Vendor is no setup");
+  const [vendorData, fiscalYear] = await prisma.$transaction([
+    prisma.vendor.findUnique({
+      where: { id: data.vendorId },
+      include: vendorIncludeData,
+    }),
+    prisma.fiscalYear.findUnique({
+      where: {
+        companyId_year: {
+          companyId: data.companyId,
+          year: new Date().getFullYear(),
+        },
+      },
+    }),
+  ]);
 
+  const vendor = vendorData as VendorType;
+  if (!vendor) throw new Error("Vendor is no setup");
+  if (!fiscalYear) throw new Error("fiscal Year is no setup");
+
+  const [
+    accountPeriods,
+    paymentChartOfAccount,
+    vatChartOfAccount,
+    withholdingChartOfAccount,
+  ] = await prisma.$transaction([
+    prisma.accountPeriod.findMany({
+      where: {
+        fiscalYearId: fiscalYear?.id,
+        startDate: {
+          gte: new Date(),
+        },
+        endDate: {
+          lte: new Date(),
+        },
+      },
+    }),
+    prisma.chartOfAccount.findUnique({
+      where: {
+        id: data.chartOfAccount.paymentChartOfAccount?.id,
+      },
+      include: {
+        chartOfAccountBalance: true,
+      },
+    }),
+    prisma.chartOfAccount.findUnique({
+      where: {
+        id: data.chartOfAccount.vatChartOfAccount?.id,
+      },
+      include: {
+        chartOfAccountBalance: true,
+      },
+    }),
+    prisma.chartOfAccount.findUnique({
+      where: {
+        id: data.chartOfAccount.withholdingChartOfAccount?.id,
+      },
+      include: {
+        chartOfAccountBalance: true,
+      },
+    }),
+  ]);
+
+  if (accountPeriods.length != 1)
+    throw new Error("Account Period is not setup right");
+
+  const accountPeriod = accountPeriods[0];
   // extract month and year from the current date
   let { month, year } = await monthYearGetter(data.date);
   if (!month || !year) throw new Error("date is not setup right");
 
-  // generate summation data
+  let chartOfAccountTransactions: Prisma.Prisma__ChartOfAccountTransactionClient<{}>[] =
+    [];
+  let createPurchaseProductData: Prisma.Prisma__PurchaseProductClient<{}>[] =
+    [];
+  let inventoryUpdate: Prisma.Prisma__InventoryClient<{
+    id: string;
+    productId: string;
+    quantity: Prisma.Decimal;
+    lastUpdated: Date;
+    chartOfAccountId: string;
+  }>[] = [];
 
-  const sum = purchaseSummation({
-    hasVat: data.hasVat,
-    hasWithholding: data.hasWithholding,
-    vendorBusiness: data.vendorBusiness,
-    purchaseProducts: data.purchaseProducts,
-    generateBackendData: true,
-  });
+  let createData: Prisma.PurchaseCreateInput = {
+    company: {
+      connect: {
+        id: data.companyId,
+      },
+    },
+    vendor: {
+      connect: {
+        id: data.vendorId,
+      },
+    },
+    date: data.date,
+    receiptNumber: data.receiptNumber,
+    cashReceiptVoucher: data.cashReceiptVoucher,
+    withholdingNumber: data.withholdingNumber,
+    mrcNumber: data.mrcNumber,
+    description: data.gebiwoch.description,
+    productType: data.gebiwoch.productCategoryType,
+    purchaseType: data.gebiwoch.purchaseType,
+  };
 
-  const {
-    generalExpenseInputs,
-    importedCapitalAssets,
-    importedGoodSummaryAmount,
-    importedGoodWithholding,
-    importedInputs,
-    localGoodSummaryAmount,
-    localGoodWithholding,
-    localPurchaseCapitalAssets,
-    localPurchaseInputs,
-    nonTaxableAmount,
-    purchaseWithNoVat,
-    serviceSummaryAmount,
-    serviceWithholding,
-    taxableAmount,
-    totalCapitalAssets,
-    totalNonCapitalInputs,
-    totalVat,
-    vatOnGeneralExpenseInputs,
-    vatOnImportedCapitalAssets,
-    vatOnImportedInputs,
-    vatOnLocalPurchaseCapitalAssets,
-    vatOnLocalPurchaseInputs,
-    vatOnTotalAssets,
-    vatOnTotalInputs,
-    withholding,
-    totalBeforeVat,
-    grossAmount,
-    totalQuantity,
-    averagePrice,
-  } = sum.summation;
+  let localPurchaseCapitalAssets = new Decimal(0);
+  let vatOnLocalPurchaseCapitalAssets = new Decimal(0);
+  let importedCapitalAssets = new Decimal(0);
+  let vatOnImportedCapitalAssets = new Decimal(0);
+  let localPurchaseInputs = new Decimal(0);
+  let vatOnLocalPurchaseInputs = new Decimal(0);
+  let importedInputs = new Decimal(0);
+  let vatOnImportedInputs = new Decimal(0);
+  let generalExpenseInputs = new Decimal(0);
+  let vatOnGeneralExpenseInputs = new Decimal(0);
+  let purchaseWithNoVat = new Decimal(0);
+  let totalCapitalAssets = new Decimal(0);
+  let vatOnTotalAssets = new Decimal(0);
+  let totalNonCapitalInputs = new Decimal(0);
+  let vatOnTotalInputs = new Decimal(0);
+  let importedGoodSummaryAmount = new Decimal(0);
+  let importedGoodWithholding = new Decimal(0);
+  let localGoodSummaryAmount = new Decimal(0);
+  let localGoodWithholding = new Decimal(0);
+  let serviceSummaryAmount = new Decimal(0);
+  let serviceWithholding = new Decimal(0);
+  let taxableAmount = new Decimal(0);
+  let nonTaxableAmount = new Decimal(0);
+  let totalAmount = new Decimal(0);
+  let taxAmount = new Decimal(0);
+  let withholdingAmount = new Decimal(0);
+  let grossAmount = new Decimal(0);
+  let totalQuantity = 0;
+  let averagePrice = new Decimal(0);
+  let goodSummaryAmount = new Decimal(0);
+  let goodWithholdingAmount = new Decimal(0);
+  let serviceWithholdingAmount = new Decimal(0);
+  let totAmount = new Decimal(0);
+  let vatAmount = new Decimal(0);
 
-  let vendorTin = null;
-  let vendorVat = vendor.vat;
-  let vendorName = vendor.name;
-  if (vendor.business) {
-    vendorTin = vendor.business.tinNumber;
-  }
+  const purchaseId = v4();
+  if (vendor && vendor.business && vendor.business?.tin) {
+    createData.vendorTin = vendor.business?.tin;
+    if (data.taxType === "VAT") {
+      const sum = vatPurchaseSummation({
+        purchaseProducts: data.purchaseProducts,
+        databaseGenerator: {
+          accountPeriodId: accountPeriod.id,
+          companyId: data.companyId,
+          date: data.date,
+          purchaseId,
+          creatorId: data.creatorId,
+        },
+      });
+      createPurchaseProductData = sum.createPurchaseProductData;
+      inventoryUpdate = sum.inventoryUpdate;
+      chartOfAccountTransactions = sum.chartOfAccountTransactions;
 
-  const allData = await prisma.$transaction([
-    prisma.purchase.create({
-      data: {
-        companyId: data.companyId,
-        vendorId: data.vendorId,
-        VatReceiptNumber: data.VatReceiptNumber,
-        MRCNumber: data.MRCNumber,
-        description: data.description,
-        vendorTin,
-        vendorName,
-        vendorVat,
-        localPurchaseCapitalAssets,
-        vatOnLocalPurchaseCapitalAssets,
-        importedCapitalAssets,
-        vatOnImportedCapitalAssets,
-        totalCapitalAssets,
-        vatOnTotalAssets,
-        localPurchaseInputs,
-        vatOnLocalPurchaseInputs,
-        importedInputs,
-        vatOnImportedInputs,
-        generalExpenseInputs,
-        vatOnGeneralExpenseInputs,
-        purchaseWithNoVat,
-        totalNonCapitalInputs,
-        vatOnTotalInputs,
-        importedGoodSummaryAmount,
-        importedGoodWithholding,
-        localGoodSummaryAmount,
-        localGoodWithholding,
-        serviceSummaryAmount,
-        serviceWithholding,
-        taxableAmount,
-        nonTaxableAmount,
-        totalVat,
-        withholding,
-        grossAmount,
-        year,
-        month,
-        totalQuantity: totalQuantity,
-        averagePrice: averagePrice,
-        totalBeforeVat,
-        hasVat: data.hasVat,
-        hasWithholding: data.hasWithholding,
-        withholdingNumber: data.withholdingNumber,
-        productType: data.productType,
-        unit: data.unit,
-        purchaseType: data.purchaseType,
-        date: data.date,
-        PurchaseProduct: {
-          createMany: {
-            data: sum.purchaseProductData,
-            skipDuplicates: true,
+      localPurchaseCapitalAssets = sum.summation.localPurchaseCapitalAssets;
+      vatOnLocalPurchaseCapitalAssets =
+        sum.summation.vatOnLocalPurchaseCapitalAssets;
+      importedCapitalAssets = sum.summation.importedCapitalAssets;
+      vatOnImportedCapitalAssets = sum.summation.vatOnImportedCapitalAssets;
+      localPurchaseInputs = sum.summation.localPurchaseInputs;
+      vatOnLocalPurchaseInputs = sum.summation.vatOnLocalPurchaseInputs;
+      importedInputs = sum.summation.importedInputs;
+      vatOnImportedInputs = sum.summation.vatOnImportedInputs;
+      generalExpenseInputs = sum.summation.generalExpenseInputs;
+      vatOnGeneralExpenseInputs = sum.summation.vatOnGeneralExpenseInputs;
+      purchaseWithNoVat = sum.summation.purchaseWithNoVat;
+      totalCapitalAssets = sum.summation.totalCapitalAssets;
+      vatOnTotalAssets = sum.summation.vatOnTotalAssets;
+      totalNonCapitalInputs = sum.summation.totalNonCapitalInputs;
+      vatOnTotalInputs = sum.summation.vatOnTotalInputs;
+      importedGoodSummaryAmount = sum.summation.importedGoodSummaryAmount;
+      importedGoodWithholding = sum.summation.importedGoodWithholding;
+      localGoodSummaryAmount = sum.summation.localGoodSummaryAmount;
+      localGoodWithholding = sum.summation.localGoodWithholding;
+      serviceSummaryAmount = sum.summation.serviceSummaryAmount;
+      serviceWithholding = sum.summation.serviceWithholding;
+      taxableAmount = sum.summation.taxableAmount;
+      nonTaxableAmount = sum.summation.nonTaxableAmount;
+      totalAmount = sum.summation.totalAmount;
+      taxAmount = sum.summation.taxAmount;
+      withholdingAmount = sum.summation.withholdingAmount;
+      grossAmount = sum.summation.grossAmount;
+      totalQuantity = sum.summation.totalQuantity;
+      averagePrice = sum.summation.averagePrice;
+
+      vatAmount = taxAmount;
+      createData.unitPrice = averagePrice;
+      createData.quantity = totalQuantity;
+      createData.taxableAmount = taxableAmount;
+      createData.nonTaxableAmount = nonTaxableAmount;
+      createData.totalAmount = totalAmount;
+      createData.withholdingAmount = withholdingAmount;
+      createData.grossAmount = grossAmount;
+
+      createData.vatDetail = {
+        create: {
+          localPurchaseInputs,
+          vatOnLocalPurchaseInputs,
+          importedInputs,
+          vatOnImportedInputs,
+          generalExpenseInputs,
+          vatOnGeneralExpenseInputs,
+          totalNonCapitalInputs,
+          vatOnTotalInputs,
+          localPurchaseCapitalAssets,
+          vatOnLocalPurchaseCapitalAssets,
+          importedCapitalAssets,
+          vatOnImportedCapitalAssets,
+          totalCapitalAssets,
+          vatOnTotalAssets,
+          purchaseWithNoVat,
+          nonTaxableAmount,
+          taxableAmount,
+          taxAmount,
+          totalAmount,
+          chartOfAccountTransaction: {
+            create: {
+              transactionType: "TAX",
+              accountPeriodId: accountPeriod.id,
+              companyId: data.companyId,
+              date: data.date,
+              chartOfAccountId: vatChartOfAccount!.id,
+              credit:
+                data.chartOfAccount.vatChartOfAccount?.balanceType === "credit"
+                  ? taxAmount
+                  : 0,
+              debit:
+                data.chartOfAccount.vatChartOfAccount?.balanceType === "debit"
+                  ? taxAmount
+                  : 0,
+              status: "CONFIRMED",
+              createdById: data.creatorId,
+            },
           },
         },
+      };
+      if (withholdingAmount.greaterThan(0))
+        createData.withholdingDetail = {
+          create: {
+            importedGoodSummaryAmount: importedGoodSummaryAmount,
+            importedGoodWithholding: importedGoodWithholding,
+            serviceSummaryAmount: serviceSummaryAmount,
+            serviceWithholding: serviceWithholding,
+            localGoodSummaryAmount: localGoodSummaryAmount,
+            localGoodWithholding: localGoodWithholding,
+            taxableAmount: totalAmount,
+            totalWithholding: withholdingAmount,
+            chartOfAccountTransaction: {
+              create: {
+                transactionType: "TAX",
+                accountPeriodId: accountPeriod.id,
+                companyId: data.companyId,
+                date: data.date,
+                chartOfAccountId: withholdingChartOfAccount!.id,
+                credit:
+                  data.chartOfAccount.withholdingChartOfAccount?.balanceType ===
+                  "credit"
+                    ? withholdingAmount
+                    : 0,
+                debit:
+                  data.chartOfAccount.withholdingChartOfAccount?.balanceType ===
+                  "debit"
+                    ? withholdingAmount
+                    : 0,
+                status: "CONFIRMED",
+                createdById: data.creatorId,
+              },
+            },
+          },
+        };
+    } else {
+      totAmount = taxAmount;
+      const sum = totPurchaseSummation({
+        purchaseProducts: data.purchaseProducts,
+        databaseGenerator: {
+          accountPeriodId: accountPeriod.id,
+          companyId: data.companyId,
+          date: data.date,
+          purchaseId,
+          creatorId: data.creatorId,
+        },
+      });
+      createPurchaseProductData = sum.createPurchaseProductData;
+      inventoryUpdate = sum.inventoryUpdate;
+      chartOfAccountTransactions = sum.chartOfAccountTransactions;
+
+      goodSummaryAmount = sum.summation.goodSummaryAmount;
+      serviceSummaryAmount = sum.summation.serviceSummaryAmount;
+      totalAmount = sum.summation.totalAmount;
+      goodWithholdingAmount = sum.summation.goodWithholdingAmount;
+      serviceWithholdingAmount = sum.summation.serviceWithholdingAmount;
+      withholdingAmount = sum.summation.withholdingAmount;
+      taxAmount = sum.summation.taxAmount;
+      grossAmount = sum.summation.grossAmount;
+      totalQuantity = sum.summation.totalQuantity;
+      averagePrice = sum.summation.averagePrice;
+      createData.unitPrice = averagePrice;
+      createData.quantity = totalQuantity;
+      createData.grossAmount = grossAmount;
+      createData.taxableAmount = totalAmount;
+      createData.totalAmount = totalAmount;
+      createData.taxAmount = taxAmount;
+      createData.withholdingAmount = withholdingAmount;
+
+      createData.totDetail = {
+        create: {
+          goodSummaryAmount: goodSummaryAmount,
+          serviceSummaryAmount: serviceSummaryAmount,
+          totalAmount: totalAmount,
+          taxAmount: taxAmount,
+        },
+      };
+      if (withholdingAmount.greaterThan(0))
+        createData.withholdingDetail = {
+          create: {
+            serviceSummaryAmount: serviceSummaryAmount,
+            serviceWithholding: serviceWithholdingAmount,
+            localGoodSummaryAmount: goodSummaryAmount,
+            localGoodWithholding: goodWithholdingAmount,
+            taxableAmount: totalAmount,
+            totalWithholding: withholdingAmount,
+            chartOfAccountTransaction: {
+              create: {
+                transactionType: "TAX",
+                accountPeriodId: accountPeriod.id,
+                companyId: data.companyId,
+                date: data.date,
+                chartOfAccountId: withholdingChartOfAccount!.id,
+                credit:
+                  data.chartOfAccount.withholdingChartOfAccount?.balanceType ===
+                  "credit"
+                    ? withholdingAmount
+                    : 0,
+                debit:
+                  data.chartOfAccount.withholdingChartOfAccount?.balanceType ===
+                  "debit"
+                    ? withholdingAmount
+                    : 0,
+                status: "PENDING",
+                createdById: data.creatorId,
+              },
+            },
+          },
+        };
+    }
+  } else {
+    createData.vendorName = vendor.name ?? "";
+    const sum = UnregisteredPurchaseSummation({
+      purchaseProducts: data.purchaseProducts,
+      hasWithholding: data.withholdingType === "hasWithholding",
+      databaseGenerator: {
+        accountPeriodId: accountPeriod.id,
+        companyId: data.companyId,
+        date: data.date,
+        purchaseId,
+        creatorId: data.creatorId,
       },
-    }),
-    ...sum.inventoryUpdate,
-  ]);
+    });
+
+    createPurchaseProductData = sum.createPurchaseProductData;
+    inventoryUpdate = sum.inventoryUpdate;
+    chartOfAccountTransactions = sum.chartOfAccountTransactions;
+
+    averagePrice = sum.summation.averagePrice;
+    totalAmount = sum.summation.totalAmount;
+    grossAmount = sum.summation.grossAmount;
+    totalQuantity = sum.summation.totalQuantity;
+    withholdingAmount = sum.summation.withholdingAmount;
+    createData.unitPrice = averagePrice;
+    createData.quantity = totalQuantity;
+    createData.grossAmount = grossAmount;
+    createData.taxableAmount = totalAmount;
+    createData.totalAmount = totalAmount;
+    createData.taxAmount = 0;
+    createData.withholdingAmount = withholdingAmount;
+
+    if (withholdingAmount.greaterThan(0))
+      createData.withholdingDetail = {
+        create: {
+          taxableAmount: totalAmount,
+          totalWithholding: withholdingAmount,
+          chartOfAccountTransaction: {
+            create: {
+              transactionType: "TAX",
+              accountPeriodId: accountPeriod.id,
+              companyId: data.companyId,
+              date: data.date,
+              chartOfAccountId: withholdingChartOfAccount!.id,
+              credit:
+                data.chartOfAccount.withholdingChartOfAccount?.balanceType ===
+                "credit"
+                  ? withholdingAmount
+                  : 0,
+              debit:
+                data.chartOfAccount.withholdingChartOfAccount?.balanceType ===
+                "debit"
+                  ? withholdingAmount
+                  : 0,
+              status: "PENDING",
+              createdById: data.creatorId,
+            },
+          },
+        },
+      };
+  }
+
+  createData.id = purchaseId;
+
+  createData.chartOfAccountTransaction = {
+    create: {
+      transactionType: "PAYMENT",
+      accountPeriodId: accountPeriod.id,
+      companyId: data.companyId,
+      date: data.date,
+      chartOfAccountId: paymentChartOfAccount!.id,
+      credit:
+        data.chartOfAccount.paymentChartOfAccount?.balanceType === "credit"
+          ? totalAmount.plus(taxAmount)
+          : 0,
+      debit:
+        data.chartOfAccount.paymentChartOfAccount?.balanceType === "debit"
+          ? totalAmount.plus(taxAmount)
+          : 0,
+      status: "PENDING",
+      createdById: data.creatorId,
+    },
+  };
+
+  const order = getWeekOrder({
+    date: data.date,
+    endDate: accountPeriod.endDate,
+    startDate: accountPeriod.startDate,
+  });
 
   const purchaseReport = prisma.purchaseDailyReport.upsert({
     where: {
@@ -141,95 +473,33 @@ export const createPurchaseAction = async (
       companyId: data.companyId,
       nonTaxableAmount,
       taxableAmount,
-      totalBeforeTax: totalBeforeVat,
+      totalAmount,
       totAmount,
       vatAmount,
       date: data.date,
       withholdingAmount,
-      totalVat,
       grossAmount,
       count: 1,
-      Purchase: {
-        connect: {
-          id: allData[0].id,
-        },
-      },
     },
     update: {
-      localPurchaseCapitalAssets: {
-        increment: localPurchaseCapitalAssets,
-      },
-      vatOnLocalPurchaseCapitalAssets: {
-        increment: vatOnLocalPurchaseCapitalAssets,
-      },
-      importedCapitalAssets: {
-        increment: importedCapitalAssets,
-      },
-      vatOnImportedCapitalAssets: {
-        increment: vatOnImportedCapitalAssets,
-      },
-      totalCapitalAssets: {
-        increment: totalCapitalAssets,
-      },
-      vatOnTotalAssets: {
-        increment: vatOnTotalAssets,
-      },
-      localPurchaseInputs: {
-        increment: localPurchaseInputs,
-      },
-      vatOnLocalPurchaseInputs: {
-        increment: vatOnLocalPurchaseInputs,
-      },
-      importedInputs: {
-        increment: importedInputs,
-      },
-      vatOnImportedInputs: {
-        increment: vatOnImportedInputs,
-      },
-      generalExpenseInputs: {
-        increment: generalExpenseInputs,
-      },
-      vatOnGeneralExpenseInputs: {
-        increment: vatOnGeneralExpenseInputs,
-      },
-      purchaseWithNoVat: {
-        increment: purchaseWithNoVat,
-      },
-      totalNonCapitalInputs: {
-        increment: totalNonCapitalInputs,
-      },
-      vatOnTotalInputs: {
-        increment: vatOnTotalInputs,
+      companyId: data.companyId,
+      nonTaxableAmount: {
+        increment: nonTaxableAmount,
       },
       taxableAmount: {
         increment: taxableAmount,
       },
-      nonTaxableAmount: {
-        increment: nonTaxableAmount,
+      totalAmount: {
+        increment: totalAmount,
       },
-      totalVat: {
-        increment: totalVat,
+      totAmount: {
+        increment: totAmount,
       },
-      importedGoodSummaryAmount: {
-        increment: importedGoodSummaryAmount,
+      vatAmount: {
+        increment: vatAmount,
       },
-      importedGoodWithholding: {
-        increment: importedGoodWithholding,
-      },
-      serviceSummaryAmount: {
-        increment: serviceSummaryAmount,
-      },
-      serviceWithholding: {
-        increment: serviceWithholding,
-      },
-      localGoodSummaryAmount: {
-        increment: localGoodSummaryAmount,
-      },
-      localGoodWithholding: {
-        increment: localGoodWithholding,
-      },
-      withholding: {
-        increment: withholding,
+      withholdingAmount: {
+        increment: withholdingAmount,
       },
       grossAmount: {
         increment: grossAmount,
@@ -237,17 +507,174 @@ export const createPurchaseAction = async (
       count: {
         increment: 1,
       },
-      month: month,
-      year: year,
-      Purchase: {
-        connect: {
-          id: allData[0].id,
+    },
+  });
+  const purchaseWeeklyReport = prisma.purchaseWeeklyReport.upsert({
+    where: {
+      accountPeriodId_order_companyId: {
+        order,
+        companyId: data.companyId,
+        accountPeriodId: accountPeriod.id,
+      },
+    },
+    create: {
+      companyId: data.companyId,
+      nonTaxableAmount,
+      taxableAmount,
+      totalAmount,
+      totAmount,
+      vatAmount,
+      order,
+      accountPeriodId: accountPeriod.id,
+      withholdingAmount,
+      grossAmount,
+      count: 1,
+    },
+    update: {
+      companyId: data.companyId,
+      nonTaxableAmount: {
+        increment: nonTaxableAmount,
+      },
+      taxableAmount: {
+        increment: taxableAmount,
+      },
+      totalAmount: {
+        increment: totalAmount,
+      },
+      totAmount: {
+        increment: totAmount,
+      },
+      vatAmount: {
+        increment: vatAmount,
+      },
+      withholdingAmount: {
+        increment: withholdingAmount,
+      },
+      grossAmount: {
+        increment: grossAmount,
+      },
+      count: {
+        increment: 1,
+      },
+    },
+  });
+  const purchaseAccountPeriodReport = prisma.purchaseAccountPeriodReport.upsert(
+    {
+      where: {
+        accountPeriodId_companyId: {
+          companyId: data.companyId,
+          accountPeriodId: accountPeriod.id,
         },
+      },
+      create: {
+        companyId: data.companyId,
+        nonTaxableAmount,
+        taxableAmount,
+        totalAmount,
+        totAmount,
+        vatAmount,
+        accountPeriodId: accountPeriod.id,
+        withholdingAmount,
+        grossAmount,
+        count: 1,
+      },
+      update: {
+        companyId: data.companyId,
+        nonTaxableAmount: {
+          increment: nonTaxableAmount,
+        },
+        taxableAmount: {
+          increment: taxableAmount,
+        },
+        totalAmount: {
+          increment: totalAmount,
+        },
+        totAmount: {
+          increment: totAmount,
+        },
+        vatAmount: {
+          increment: vatAmount,
+        },
+        withholdingAmount: {
+          increment: withholdingAmount,
+        },
+        grossAmount: {
+          increment: grossAmount,
+        },
+        count: {
+          increment: 1,
+        },
+      },
+    },
+  );
+  const purchaseFiscalYearReport = prisma.purchaseFiscalYearReport.upsert({
+    where: {
+      fiscalYearId_companyId: {
+        companyId: data.companyId,
+        fiscalYearId: fiscalYear.id,
+      },
+    },
+    create: {
+      companyId: data.companyId,
+      nonTaxableAmount,
+      taxableAmount,
+      totalAmount,
+      totAmount,
+      vatAmount,
+      fiscalYearId: fiscalYear.id,
+      withholdingAmount,
+      grossAmount,
+      count: 1,
+    },
+    update: {
+      companyId: data.companyId,
+      nonTaxableAmount: {
+        increment: nonTaxableAmount,
+      },
+      taxableAmount: {
+        increment: taxableAmount,
+      },
+      totalAmount: {
+        increment: totalAmount,
+      },
+      totAmount: {
+        increment: totAmount,
+      },
+      vatAmount: {
+        increment: vatAmount,
+      },
+      withholdingAmount: {
+        increment: withholdingAmount,
+      },
+      grossAmount: {
+        increment: grossAmount,
+      },
+      count: {
+        increment: 1,
       },
     },
   });
 
+  const allData = await prisma.$transaction([
+    prisma.purchase.create({
+      data: createData,
+    }),
+    ...chartOfAccountTransactions,
+    ...createPurchaseProductData,
+    ...inventoryUpdate,
+    purchaseReport,
+    purchaseWeeklyReport,
+    purchaseAccountPeriodReport,
+    purchaseFiscalYearReport,
+  ]);
+
   return {
     purchase: allData[0],
+    purchaseDailyReport: allData[allData.length - 4] as PurchaseReportType,
+    purchaseWeeklyReport: allData[allData.length - 3] as PurchaseReportType,
+    purchaseAccountPeriodReport: allData[
+      allData.length - 2
+    ] as PurchaseReportType,
+    purchaseFiscalYearReport: allData[allData.length - 1] as PurchaseReportType,
   };
 };

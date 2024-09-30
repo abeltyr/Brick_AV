@@ -62,7 +62,7 @@ export const VendorDrawerTable = ({
                         if (searchWord.length > 0 && finalVendors) {
                             const localResults = finalVendors.filter((vendor) => {
                                 return (
-                                    vendor?.profile?.tinNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                    vendor?.profile?.tin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                     vendor?.profile?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                     vendor?.profile?.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                     vendor?.profile?.vatNumber?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -119,7 +119,7 @@ export const VendorDrawerTable = ({
                                             </TableCell>
                                             <TableCell>
                                                 <div className="font-medium">
-                                                    {vendor.profile && vendor.profile.tinNumber ? vendor.profile.tinNumber : "---"}
+                                                    {vendor.profile && vendor.profile.tin ? vendor.profile.tin : "---"}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="hidden sm:table-cell text-center">

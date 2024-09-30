@@ -7,6 +7,12 @@ import {
 export type PurchaseInputType = {
   companyId: string;
   vendorId: string;
+  creatorId?: string;
+  chartOfAccount: {
+    paymentChartOfAccount?: ChartOfAccountInput;
+    vatChartOfAccount?: ChartOfAccountInput;
+    withholdingChartOfAccount?: ChartOfAccountInput;
+  };
   date: Date;
   taxType: "VAT" | "TOT" | "NONE";
   withholdingType: "noWithholding" | "hasWithholding";
@@ -31,8 +37,13 @@ export type PurchaseProductInput = {
   productId: string;
   type: ProductCategoryType;
   purchaseType: ProductPurchaseType;
-  chartOfAccountId: string;
+  chartOfAccount: ChartOfAccountInput;
   unit: ProductUnitType;
   unitPrice: number;
   quantity: number;
+};
+
+export type ChartOfAccountInput = {
+  id: string;
+  balanceType: "credit" | "debit";
 };

@@ -45,7 +45,7 @@ export const GeneralCompanyIntakeForm = ({ form, title = "Company Name", readOnl
             </div>
             <FormField
                 control={form.control}
-                name="tinNumber"
+                name="tin"
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel className='text-sm'>Company Tin</FormLabel>

@@ -57,12 +57,12 @@ export function OnboardingCompanyInTakeForm({ className, ...props }: OnboardingC
             setIsLoading(true)
             try {
                 setCompanyIntake(values)
-                if (business && business.tinNumber === values.tinNumber) {
+                if (business && business.tin === values.tin) {
                     setBusinessFetched(business);
                     setIsOpen(true)
                     setIsLoading(false)
                 } else {
-                    const businessData = await fetchBusiness(values.tinNumber)
+                    const businessData = await fetchBusiness(values.tin)
                     setBusinessFetched(businessData);
                     setIsOpen(true)
                     setIsLoading(false)
@@ -117,7 +117,7 @@ export function OnboardingCompanyInTakeForm({ className, ...props }: OnboardingC
 
 
 // const businessDetail = {
-//     tinNumber: '0090866119',
+//     tin: '0090866119',
 //     email: 'acme@gmail.com',
 //     website: 'acme@gmail.com',
 //     email2: 'acme.com',

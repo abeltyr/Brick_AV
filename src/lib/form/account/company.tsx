@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 export const companyInTakeSchema = z.object({
     companyName: z.string().min(1, 'Company name is required'),
-    tinNumber: z.string().min(10, 'TIN number is required'),
+    tin: z.string().min(10, 'TIN number is required'),
 })
 
 export const companySchema = z.object({

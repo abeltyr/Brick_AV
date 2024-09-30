@@ -19,7 +19,7 @@ import PurchaseProductsForm from '../components/add/purchaseProductsForm'
 import TotalPurchaseData from '../components/add/total'
 import PurchaseVendorForm from '../components/add/purchaseVendorForm'
 import { purchaseFormSchema } from '@/lib/form/purchase'
-import { useCompany } from '@/lib/context/account'
+import { useCompany, useProfile } from '@/lib/context/account'
 import { VendorType } from '@/types/vendor'
 import { totPurchaseSummation, UnregisteredPurchaseSummation, vatPurchaseSummation } from '@/lib/utils/purchase'
 
@@ -33,9 +33,9 @@ export const AddPurchaseSection = () => {
     const [totalQuantity, setTotalQuantity] = useState<number>(0);
     const [taxableAmount, setTaxableAmount] = useState<Decimal>(new Decimal(0));
     const [nonTaxableAmount, setNonTaxableAmount] = useState<Decimal>(new Decimal(0));
-    const [totalVat, setTotalVat] = useState<Decimal>(new Decimal(0));
+    const [taxTotal, setTaxTotal] = useState<Decimal>(new Decimal(0));
     const [grossAmount, setGrossAmount] = useState<Decimal>(new Decimal(0));
-    const [beforeTax, setBeforeTax] = useState<Decimal>(new Decimal(0));
+    const [totalAmount, setTotalAmount] = useState<Decimal>(new Decimal(0));
     const [importedGoodSummaryAmount, setImportedGoodSummaryAmount] = useState<Decimal>(new Decimal(0));
     const [importedGoodWithholding, setImportedGoodWithholding] = useState<Decimal>(new Decimal(0));
     const [localGoodSummaryAmount, setLocalGoodSummaryAmount] = useState<Decimal>(new Decimal(0));
@@ -48,6 +48,7 @@ export const AddPurchaseSection = () => {
     const { toast } = useToast()
 
     const { currentCompany } = useCompany();
+    const { profile } = useProfile();
     const { createPurchase } = usePurchases();
     const form = useForm<z.infer<typeof purchaseFormSchema>>({
         resolver: zodResolver(purchaseFormSchema),
@@ -61,51 +62,46 @@ export const AddPurchaseSection = () => {
     });
 
     useEffect(() => {
-        if (vendor && vendor.business?.tinNumber) {
+        if (vendor && vendor.business?.tin) {
             if (form.getValues("taxType") === "VAT") {
                 const {
                     summation
                 } = vatPurchaseSummation({
                     purchaseProducts: watchedProducts,
-                    generateBackendData: false,
                 });
-                const {
-                    averagePrice,
-                    grossAmount,
-                    serviceSummaryAmount,
-                    totalAmount,
-                    totalQuantity,
-                    nonTaxableAmount,
-                    taxableAmount,
-                    withholding,
-                    serviceWithholding,
-                    totalVat,
-                    localGoodSummaryAmount,
-                    importedGoodSummaryAmount,
-                    localGoodWithholding,
-                    importedGoodWithholding,
-                } = summation
 
+
+                setTotalQuantity(summation.totalQuantity)
+                setTaxableAmount(summation.taxableAmount)
+                setNonTaxableAmount(summation.nonTaxableAmount)
+                setGrossAmount(summation.grossAmount)
+                setTotalAmount(summation.totalAmount)
+                setTaxTotal(summation.taxAmount)
+                setWithholding(summation.withholdingAmount)
+                setImportedGoodSummaryAmount(summation.importedGoodSummaryAmount)
+                setImportedGoodWithholding(summation.importedGoodWithholding)
+                setLocalGoodSummaryAmount(summation.localGoodSummaryAmount)
+                setLocalGoodWithholding(summation.localGoodWithholding)
+                setServiceSummaryAmount(summation.serviceSummaryAmount)
+                setServiceWithholding(summation.serviceWithholding)
+                setGrossAmount(summation.grossAmount)
             } else {
                 const {
                     summation
                 } = totPurchaseSummation({
                     purchaseProducts: watchedProducts,
-                    generateBackendData: false,
                 });
-                const {
-                    averagePrice,
-                    grossAmount,
-                    serviceSummaryAmount,
-                    totalAmount,
-                    totalQuantity,
-                    goodSummaryAmount,
-                    goodWithholdingAmount,
-                    serviceWithholdingAmount,
-                    taxAmount,
-                    withholdingAmount
-                } = summation
 
+                setTotalQuantity(summation.totalQuantity)
+                setGrossAmount(summation.grossAmount)
+                setTotalAmount(summation.totalAmount)
+                setTaxTotal(summation.taxAmount)
+                setWithholding(summation.withholdingAmount)
+                setLocalGoodSummaryAmount(summation.goodSummaryAmount)
+                setLocalGoodWithholding(summation.goodWithholdingAmount)
+                setServiceSummaryAmount(summation.serviceSummaryAmount)
+                setServiceWithholding(summation.serviceWithholdingAmount)
+                setGrossAmount(summation.grossAmount)
             }
 
         } else {
@@ -113,16 +109,16 @@ export const AddPurchaseSection = () => {
                 summation
             } = UnregisteredPurchaseSummation({
                 purchaseProducts: watchedProducts,
-                generateBackendData: false,
                 hasWithholding: form.getValues("withholdingType") === "hasWithholding"
             });
-            const {
-                totalAmount,
-                withholdingAmount,
-                grossAmount,
-                totalQuantity,
-                averagePrice,
-            } = summation
+
+            setTotalQuantity(summation.totalQuantity)
+            setGrossAmount(summation.grossAmount)
+            setTotalAmount(summation.totalAmount)
+            setTaxTotal(new Decimal(0))
+            setWithholding(summation.withholdingAmount)
+            setGrossAmount(summation.grossAmount)
+
         }
 
 
@@ -133,19 +129,21 @@ export const AddPurchaseSection = () => {
         if (!isLoading) {
             setIsLoading(true)
             try {
-                if (currentCompany) {
+                if (currentCompany && profile) {
                     const purchase = await createPurchase({
+                        mrcNumber: values.mrcNumber,
                         companyId: currentCompany.companyId,
+                        vendorId: values.vendorId,
                         date: values.date,
                         taxType: values.taxType,
                         receiptNumber: values.receiptNumber,
-                        mrcNumber: values.mrcNumber,
                         withholdingType: values.withholdingType,
                         withholdingNumber: values.withholdingNumber,
                         cashReceiptVoucher: values.cashReceiptVoucher,
-                        vendorId: values.vendorId,
+                        chartOfAccount: values.chartOfAccount,
                         gebiwoch: values.gebiwoch,
-                        purchaseProducts: watchedProducts,
+                        purchaseProducts: values.purchaseProducts,
+                        creatorId: profile.id,
                     })
                     toast({
                         title: "Purchase Created",
@@ -193,7 +191,7 @@ export const AddPurchaseSection = () => {
                                 <PurchaseDeclarationAdjustmentForm
                                     form={form}
                                     totalQuantity={totalQuantity}
-                                    beforeTax={beforeTax}
+                                    taxTotal={taxTotal}
                                 />
 
                             </div>
@@ -205,7 +203,7 @@ export const AddPurchaseSection = () => {
                                         nonTaxableAmount={nonTaxableAmount.toNumber()}
                                         purchaseProducts={watchedProducts}
                                         taxableAmount={taxableAmount.toNumber()}
-                                        totalVat={totalVat.toNumber()}
+                                        taxTotal={taxTotal.toNumber()}
                                         importedGoodSummaryAmount={importedGoodSummaryAmount.toNumber()}
                                         importedGoodWithholding={importedGoodWithholding.toNumber()}
                                         localGoodSummaryAmount={localGoodSummaryAmount.toNumber()}

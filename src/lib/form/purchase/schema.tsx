@@ -1,18 +1,25 @@
 import { zProductInputTaxType, zProductInputType, zProductInputUnit, zProductInputWithholdingType, zPurchaseInputType } from '@/lib/form/product/data';
 import { z } from 'zod';
 
+
+export const ChartOfAccountInput = z.object({
+    id: z.string(),
+    balanceType: z.enum(["credit", "debit"]),
+});
+
 export const purchaseProducts = z.object({
     initialProductPriceUnit: zProductInputUnit,
     initialProductPriceUnitPrice: z.number(),
     inventoryId: z.string(),
     productId: z.string(),
     type: zProductInputType,
+    chartOfAccount: ChartOfAccountInput,
     purchaseType: zPurchaseInputType,
-    chartOfAccountId: z.string(),
     unit: zProductInputUnit,
     unitPrice: z.number(),
     productCode: z.string(),
     quantity: z.number(),
+    name: z.string(),
 })
 
 export const purchaseFormSchema = z.object({
@@ -24,6 +31,11 @@ export const purchaseFormSchema = z.object({
     withholdingType: zProductInputWithholdingType,
     withholdingNumber: z.string().optional(),
     cashReceiptVoucher: z.string().optional(),
+    chartOfAccount: z.object({
+        paymentChartOfAccount: ChartOfAccountInput.optional(),
+        vatChartOfAccountId: ChartOfAccountInput.optional(),
+        withholdingChartOfAccountId: ChartOfAccountInput.optional(),
+    }),
     gebiwoch: z.object({
         purchaseType: zPurchaseInputType,
         productCategoryType: zProductInputType,

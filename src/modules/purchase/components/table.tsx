@@ -75,8 +75,8 @@ export default function PurchasesTableList({ companyId }: { companyId: string })
                                             purchase &&
                                                 purchase.vendor &&
                                                 purchase.vendor.profile &&
-                                                purchase.vendor.profile.tinNumber ?
-                                                purchase.vendor.profile.tinNumber :
+                                                purchase.vendor.profile.tin ?
+                                                purchase.vendor.profile.tin :
                                                 "---"
                                         }
                                     </div>

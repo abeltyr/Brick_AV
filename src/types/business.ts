@@ -19,7 +19,7 @@ export type BusinessTradeType = BusinessTrade & {
 export type MRCRegistrationType = MRCRegistration;
 
 export type BusinessInputType = {
-  tinNumber: string;
+  tin: string;
   legalCondition: BusinessLegalCondition;
   registrationNo?: string;
   dateRegistered?: Date;

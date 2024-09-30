@@ -59,16 +59,16 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [], hideForm = [] }:
                     />
                 </div>
                 }
-                {!hideForm.includes("tinNumber") && <div className='flex-1 min-w-[200px]'>
+                {!hideForm.includes("tin") && <div className='flex-1 min-w-[200px]'>
                     <FormField
                         control={form.control}
-                        name="tinNumber"
+                        name="tin"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel className='text-sm'>Personal Tin number</FormLabel>
                                 <FormControl>
                                     <Input
-                                        disabled={readOnlyValues.includes("tinNumber")}
+                                        disabled={readOnlyValues.includes("tin")}
                                         placeholder="Enter TIN number"
                                         {...field}
                                     />

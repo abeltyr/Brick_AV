@@ -115,7 +115,7 @@ export const DetailCard = ({ companyId }: { companyId: string }) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-semibold">
-                            {purchasesReportData && purchasesReportData.totalBeforeTax ? new Decimal(purchasesReportData.totalBeforeTax).toNumber().toLocaleString('en-US') : 0}
+                            {purchasesReportData && purchasesReportData.totalAmount ? new Decimal(purchasesReportData.totalAmount).toNumber().toLocaleString('en-US') : 0}
                             {" "}
                             <LanguageTranslator>
                                 Birr

@@ -23,7 +23,7 @@ export const createProfileAction = async (data: {
       name: data.profile.name,
       phoneNumber: data.profile.phoneNumber,
       preferredName: data.profile.preferredName,
-      tinNumber: data.profile.tinNumber,
+      tin: data.profile.tin,
       address,
     },
     include: profileIncludeData,

@@ -52,7 +52,7 @@ export const fetchVendorsByCompanyIdAction = async ({
                 },
               },
               {
-                tinNumber: {
+                tin: {
                   contains: keyTerm,
                   mode: "insensitive",
                 },

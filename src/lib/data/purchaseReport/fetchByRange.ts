@@ -13,12 +13,12 @@ export const fetchDailyPurchaseReportAction = async ({
   companyId: string;
   date: DateRangeType;
 }): Promise<PurchaseReportType | null> => {
-  const weeklyReport = await prisma.dailyPurchaseReport.aggregate({
+  const weeklyReport = await prisma.purchaseDailyReport.aggregate({
     _sum: {
       count: true,
       grossAmount: true,
       vatAmount: true,
-      totalBeforeTax: true,
+      totalAmount: true,
       nonTaxableAmount: true,
       taxableAmount: true,
       withholdingAmount: true,
@@ -53,12 +53,12 @@ export const fetchMonthlyPurchaseReportAction = async ({
     end: number;
   };
 }): Promise<PurchaseReportType | null> => {
-  const monthReport = await prisma.monthlyPurchaseReport.aggregate({
+  const monthReport = await prisma.purchaseAccountPeriodReport.aggregate({
     _sum: {
       count: true,
       grossAmount: true,
       vatAmount: true,
-      totalBeforeTax: true,
+      totalAmount: true,
       nonTaxableAmount: true,
       taxableAmount: true,
       withholdingAmount: true,
@@ -66,14 +66,6 @@ export const fetchMonthlyPurchaseReportAction = async ({
     },
     where: {
       companyId,
-      year: {
-        gte: year.start,
-        lte: year.end,
-      },
-      month: {
-        gte: month.start,
-        lte: month.end,
-      },
     },
   });
 
@@ -92,12 +84,12 @@ export const fetchYearlyPurchaseReportAction = async ({
     end: number;
   };
 }): Promise<PurchaseReportType | null> => {
-  const yearReport = await prisma.yearPurchaseReport.aggregate({
+  const yearReport = await prisma.purchaseFiscalYearReport.aggregate({
     _sum: {
       count: true,
       grossAmount: true,
       vatAmount: true,
-      totalBeforeTax: true,
+      totalAmount: true,
       nonTaxableAmount: true,
       taxableAmount: true,
       withholdingAmount: true,
@@ -105,10 +97,6 @@ export const fetchYearlyPurchaseReportAction = async ({
     },
     where: {
       companyId,
-      year: {
-        gte: year.start,
-        lte: year.end,
-      },
     },
   });
 

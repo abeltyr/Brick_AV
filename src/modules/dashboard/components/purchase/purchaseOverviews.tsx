@@ -67,7 +67,7 @@ export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
                     <TableBody>
                         {purchases[companyId] && purchases[companyId].slice(0, 10).map((purchase, index) => {
                             let companyName = "---";
-                            let tinNumber = "---";
+                            let tin = "---";
 
                             if (purchase &&
                                 purchase.vendor &&
@@ -78,8 +78,8 @@ export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
                             if (purchase &&
                                 purchase.vendor &&
                                 purchase.vendor.business &&
-                                purchase.vendor.business.tinNumber)
-                                tinNumber = purchase.vendor.business.tinNumber
+                                purchase.vendor.business.tin)
+                                tin = purchase.vendor.business.tin
 
 
 
@@ -99,7 +99,7 @@ export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
                                             </p>
                                             <p className="text-sm text-muted-foreground">
                                                 {
-                                                    tinNumber
+                                                    tin
                                                 }
                                             </p>
                                         </div>
@@ -121,7 +121,7 @@ export const PurchaseOverview = ({ companyId }: { companyId: string }) => {
                                     {purchase && purchase.purchaseType ? `${purchase.purchaseType}` : "---"}
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-center">
-                                    {purchase && purchase.totalBeforeTax ? `${purchase.totalBeforeTax}` : "---"}
+                                    {purchase && purchase.totalAmount ? `${purchase.totalAmount}` : "---"}
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-center">
                                     {purchase && purchase.taxAmount ? `${purchase.taxAmount}` : "---"}

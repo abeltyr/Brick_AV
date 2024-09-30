@@ -20,7 +20,7 @@ const initialValues: {
     initialLoading: boolean,
     createVendor: ({ }: VendorInputType) => Promise<VendorType | null>,
     searchVendor: ({ companyId, keyTerm }: { companyId: string, keyTerm: string }) => Promise<VendorType[]>
-    fetchBusiness: (tinNumber: string) => Promise<BusinessType | null>
+    fetchBusiness: (tin: string) => Promise<BusinessType | null>
     business: BusinessType | null,
     setBusiness: (business: BusinessType | null) => void,
 } = {
@@ -33,7 +33,7 @@ const initialValues: {
     initialLoading: true,
     createVendor: async ({ }: VendorInputType): Promise<VendorType | null> => { return null },
     searchVendor: async ({ companyId, keyTerm }: { companyId: string, keyTerm: string }): Promise<VendorType[]> => { return [] },
-    fetchBusiness: async (tinNumber: string) => { return null },
+    fetchBusiness: async (tin: string) => { return null },
     business: null,
     setBusiness: (business) => { },
 };
@@ -56,9 +56,9 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
 
 
 
-    const fetchBusiness = async (tinNumber: string): Promise<BusinessType | null> => {
+    const fetchBusiness = async (tin: string): Promise<BusinessType | null> => {
         try {
-            const businessData = await fetchBusinessApi(tinNumber);
+            const businessData = await fetchBusinessApi(tin);
             setBusiness(businessData);
             return businessData
         } catch (e: any) {

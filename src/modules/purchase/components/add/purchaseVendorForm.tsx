@@ -125,7 +125,7 @@ export default function PurchaseVendorForm({ form, setVendor, vendor }: {
                 <CardContent className=" flex gap-3 justify-between items-center">
                     <div className="space-y-2 flex-1">
                         <Label htmlFor="tin">TIN (Tax Identification Number)</Label>
-                        <Input value={vendor.business && vendor.business.tinNumber ? vendor.business.tinNumber : "---"} readOnly />
+                        <Input value={vendor.business && vendor.business.tin ? vendor.business.tin : "---"} readOnly />
                     </div>
                     <div className="space-y-2 flex-1">
                         <Label htmlFor="vat">VAT Number</Label>

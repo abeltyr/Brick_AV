@@ -68,7 +68,7 @@ const initialValues: {
     setOwnerAddress: (ownerAddress: z.infer<typeof addressSchema> | null) => void,
     ownerProfile: z.infer<typeof profileSchema> | null,
     setOwnerProfile: (ownerProfile: z.infer<typeof profileSchema> | null) => void,
-    fetchBusiness: (tinNumber: string) => Promise<BusinessType | null>
+    fetchBusiness: (tin: string) => Promise<BusinessType | null>
     createUser: ({ ownerAddressData, userId }: { ownerAddressData?: z.infer<typeof addressSchema>, userId: string }) => Promise<ProfileType | null>
 } = {
     onBoardingId: 0,
@@ -92,7 +92,7 @@ const initialValues: {
     ownerProfile: null,
     setOwnerProfile: (ownerProfile) => { },
     createUser: async ({ ownerAddressData, userId }: { ownerAddressData?: z.infer<typeof addressSchema>, userId: string }) => { return null },
-    fetchBusiness: async (tinNumber: string) => { return null }
+    fetchBusiness: async (tin: string) => { return null }
 };
 
 type Props = {
@@ -136,7 +136,7 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
         //     {
         //     companyName: "Ethio Tel",
         //     isRegistered: "yes",
-        //     "tinNumber": "0000030603"
+        //     "tin": "0000030603"
         // }
 
         null
@@ -172,7 +172,7 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
                 dateBirth,
                 gender: ownerProfile.gender === "male" ? "Male" : "Female",
                 phoneNumber: ownerProfile.phoneNumber ?? "",
-                tinNumber: ownerProfile.tinNumber ?? "",
+                tin: ownerProfile.tin ?? "",
                 address: {
                     ...ownerAddressData
                 }
@@ -191,7 +191,7 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
             dateBirth: profileDateBirth,
             gender: profile.gender === "male" ? "Male" : "Female",
             phoneNumber: profile.phoneNumber ?? "",
-            tinNumber: profile.tinNumber ?? "",
+            tin: profile.tin ?? "",
             address: {
                 description: address.description,
                 houseNumber: address.houseNumber,
@@ -233,9 +233,9 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
 
 
 
-    const fetchBusiness = async (tinNumber: string): Promise<BusinessType | null> => {
+    const fetchBusiness = async (tin: string): Promise<BusinessType | null> => {
         try {
-            const businessData = await fetchBusinessApi(tinNumber);
+            const businessData = await fetchBusinessApi(tin);
             setBusiness(businessData);
             return businessData
         } catch (e: any) {

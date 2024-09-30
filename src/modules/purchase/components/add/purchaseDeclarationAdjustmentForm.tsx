@@ -24,10 +24,10 @@ import { z } from 'zod'
 
 
 
-export default function PurchaseDeclarationAdjustmentForm({ form, beforeTax, totalQuantity }: {
+export default function PurchaseDeclarationAdjustmentForm({ form, taxTotal, totalQuantity }: {
     form: UseFormReturn<z.infer<typeof purchaseFormSchema>>
     totalQuantity: number,
-    beforeTax: Decimal
+    taxTotal: Decimal
 }) {
     return (
         <Card className=''>
@@ -219,7 +219,7 @@ export default function PurchaseDeclarationAdjustmentForm({ form, beforeTax, tot
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                value={beforeTax.toString()}
+                                                value={taxTotal.toString()}
                                                 readOnly
                                                 type="text"
                                                 step="0.01"

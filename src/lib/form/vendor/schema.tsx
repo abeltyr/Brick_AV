@@ -18,5 +18,5 @@ export const vendorSchema = z.object({
     return true;
 }, {
     message: "TIN number is required for registered businesses",
-    path: ['tinNumber']
+    path: ['tin']
 })

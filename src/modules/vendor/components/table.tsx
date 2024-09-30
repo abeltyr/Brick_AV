@@ -87,7 +87,7 @@ export default function VendorsTableList({ vendors }: { vendors: VendorType[] })
                                 </TableCell>
                                 <TableCell className="text-left">
                                     <div className="font-medium">
-                                        {data.business && data.business.tinNumber ? data.business.tinNumber : "---"}
+                                        {data.business && data.business.tin ? data.business.tin : "---"}
                                     </div>
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-left">

@@ -1,18 +1,21 @@
 import { Prisma } from "@prisma/client";
 import Decimal from "decimal.js";
-import { getPrisma } from "@/lib/utils/database";
 import { PurchaseProductInput } from "@/types/purchase";
 import { TOT_RATE, WITHHOLDING_RATE } from "@/types/shared";
-const prisma = getPrisma();
+import { dbCodeGenerator } from "./backend";
+import { DatabaseGeneratorType } from "./type";
 
 export const totPurchaseSummation = ({
   purchaseProducts,
-  generateBackendData = false,
+  databaseGenerator,
 }: {
   purchaseProducts: PurchaseProductInput[];
-  generateBackendData?: Boolean;
+  databaseGenerator?: DatabaseGeneratorType;
 }) => {
-  let purchaseProductData: Prisma.PurchaseProductCreateManyPurchaseInput[] = [];
+  let chartOfAccountTransactions: Prisma.Prisma__ChartOfAccountTransactionClient<{}>[] =
+    [];
+  let createPurchaseProductData: Prisma.Prisma__PurchaseProductClient<{}>[] =
+    [];
 
   let goodSummaryAmount = new Decimal(0);
   let serviceSummaryAmount = new Decimal(0);
@@ -53,75 +56,29 @@ export const totPurchaseSummation = ({
       goodWithholdingAmount = goodWithholdingAmount.plus(withholding);
     }
 
-    if (generateBackendData) {
-      let updateInventory: Prisma.InventoryUpdateInput = {};
+    if (databaseGenerator) {
+      const {
+        inventoryUpdateData,
+        purchaseProductData,
+        chartOfAccountTransaction,
+      } = dbCodeGenerator({
+        product,
+        tax,
+        grossAmount,
+        index,
+        totalValue,
+        withholding,
+        ...databaseGenerator,
+      });
 
-      if (
-        product.initialProductPriceUnit !== product.unit ||
-        new Decimal(product.initialProductPriceUnitPrice) !==
-          new Decimal(product.unitPrice)
-      ) {
-        updateInventory = {
-          quantity: {
-            increment: product.quantity,
-          },
-          productPrice: {
-            create: {
-              unit: product.unit,
-              unitPrice: product.unitPrice,
-              active: true,
-            },
-            updateMany: {
-              where: {
-                inventoryId: product.inventoryId,
-              },
-              data: {
-                active: false,
-              },
-            },
-          },
-          lastUpdated: new Date(),
-        };
-      } else {
-        updateInventory = {
-          quantity: {
-            increment: product.quantity,
-          },
-          lastUpdated: new Date(),
-        };
-      }
-
-      inventoryUpdate = [
-        ...inventoryUpdate,
-        prisma.inventory.upsert({
-          where: {
-            id: product.inventoryId,
-          },
-          create: {
-            quantity: product.quantity,
-            productId: product.productId,
-            lastUpdated: new Date(),
-            chartOfAccountId: product.chartOfAccountId,
-          },
-          update: updateInventory,
-        }),
+      chartOfAccountTransactions = [
+        ...chartOfAccountTransactions,
+        chartOfAccountTransaction,
       ];
-
-      purchaseProductData = [
-        ...purchaseProductData,
-        {
-          grossAmount: grossAmount,
-          inventoryId: product.inventoryId,
-          purchaseType: product.purchaseType,
-          type: product.type,
-          unit: product.unit,
-          unitPrice: product.unitPrice,
-          quantity: product.quantity,
-          totalValue: totalValue,
-          order: index + 1,
-          withholding,
-          tax: 0,
-        },
+      inventoryUpdate = [...inventoryUpdate, inventoryUpdateData];
+      createPurchaseProductData = [
+        ...createPurchaseProductData,
+        purchaseProductData,
       ];
     }
   });
@@ -155,7 +112,8 @@ export const totPurchaseSummation = ({
       totalQuantity,
       averagePrice,
     },
-    purchaseProductData,
+    createPurchaseProductData,
+    chartOfAccountTransactions,
     inventoryUpdate,
   };
 };

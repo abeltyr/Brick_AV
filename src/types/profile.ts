@@ -16,7 +16,7 @@ export type ProfileInputType = {
   phoneNumber?: string;
   gender?: Gender;
   dateBirth?: Date;
-  tinNumber?: string;
+  tin?: string;
   addressId?: string;
   address?: AddressInputType;
 };
@@ -28,5 +28,5 @@ export type UpdateProfileInputType = {
   phoneNumber?: string;
   gender?: Gender;
   dateBirth?: Date;
-  tinNumber?: string;
+  tin?: string;
 };

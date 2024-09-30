@@ -71,7 +71,7 @@ model Profile {
   phoneNumber      String?
   gender           Gender?
   dateBirth        DateTime?
-  tinNumber        String?
+  tin              String?
   vatNumber        String?
   addressId        String?
   address          Address?  @relation(fields: [addressId], references: [id])
@@ -86,7 +86,7 @@ model Profile {
   Vendor        Vendor[]
   Customer      Customer[]
 
-  @@index([tinNumber], type: Hash)
+  @@index([tin], type: Hash)
   @@index([vatNumber], type: Hash)
 }
 
@@ -97,7 +97,7 @@ enum Gender {
 
 model Business {
   id              String    @id @default(uuid())
-  tinNumber       String
+  tin             String
   legalCondition  String?
   registrationNo  String?
   dateRegistered  DateTime?

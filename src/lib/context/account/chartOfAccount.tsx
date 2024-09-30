@@ -67,17 +67,17 @@ const ChartOfAccountProvider: React.FC<Props> = ({ children }) => {
             try {
 
                 let fetchData = true;
-                const data = localStorage.getItem("ChartOfAccount")
+                // const data = localStorage.getItem("ChartOfAccount")
 
-                if (data && !refetch) {
-                    const extractData = JSON.parse(data);
-                    const minSinceLastPull = (new Date().getTime() - extractData.date) / 60000;
-                    if (minSinceLastPull < 60 && extractData.chartOfAccountsData[companyId] && extractData.chartOfAccountsData[companyId].length > 100) {
-                        setChartOfAccounts(extractData.chartOfAccountsData);
-                        fetchData = false;
-                        console.log("local data, chartOfAccountsData");
-                    }
-                }
+                // if (data && !refetch) {
+                //     const extractData = JSON.parse(data);
+                //     const minSinceLastPull = (new Date().getTime() - extractData.date) / 60000;
+                //     if (minSinceLastPull < 60 && extractData.chartOfAccountsData[companyId] && extractData.chartOfAccountsData[companyId].length > 100) {
+                //         setChartOfAccounts(extractData.chartOfAccountsData);
+                //         fetchData = false;
+                //         console.log("local data, chartOfAccountsData");
+                //     }
+                // }
 
                 if (fetchData) {
                     const newChartOfAccountsData = await fetchChartOfAccountAction({

@@ -5,7 +5,7 @@ import Decimal from "decimal.js";
 import { stringify } from "csv-stringify/sync";
 
 type gebiwochWithholdingReport = {
-  tinNumber: string;
+  tin: string;
   name: string;
   withholdingNumber: string;
   date: string;
@@ -33,7 +33,7 @@ export const GebiwochWithHoldingCSV = async ({
     });
 
     const columnTitles: { [key: string]: string } = {
-      tinNumber: `Withholdee TIN:(Not Mandatory)`,
+      tin: `Withholdee TIN:(Not Mandatory)`,
       name: `Withholdee Full Name:(If Withholdee has TIN,Withholdee Full Name can be empty,otherwise it is mandatory)`,
       withholdingNumber: `Receipt No: (Mandatory)`,
       date: `Withhold Date: (Mandatory)`,
@@ -47,7 +47,7 @@ export const GebiwochWithHoldingCSV = async ({
       arrayData = [
         ...arrayData,
         {
-          tinNumber: purchase.vendorTin ?? "",
+          tin: purchase.vendorTin ?? "",
           name: purchase.vendorTin ? "" : purchase.vendorName ?? "",
           withholdingNumber: purchase.withholdingNumber ?? "",
           date: purchase.date.toLocaleDateString("en-GB"),

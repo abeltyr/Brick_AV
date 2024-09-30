@@ -57,7 +57,7 @@ import { BusinessLegalCondition } from '@prisma/client'
 //         },
 //     ],
 //     businessNameAmh: "",
-//     tinNumber: '0090866119',
+//     tin: '0090866119',
 //     legalCondition: BusinessLegalCondition.GeneralPartnership,
 //     registrationNo: 'MT/AA/5/006147584',
 //     dateRegistered: new Date('2/1/12'),
@@ -120,7 +120,7 @@ export function BusinessDetailModal({
                                         <span className="font-medium text-[#09090B] text-base">
                                             TIN Number : {" "}
                                         </span>
-                                        {businessFetched.tinNumber}
+                                        {businessFetched.tin}
                                     </p>
                                     <p className='text-[#616161]'>
                                         <span className="font-medium text-[#09090B] text-base">

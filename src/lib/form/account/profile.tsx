@@ -12,5 +12,5 @@ export const profileSchema = z.object({
         month: z.string().optional(),
         year: z.string().optional(),
     }),
-    tinNumber: z.string().optional(),
+    tin: z.string().optional(),
 })

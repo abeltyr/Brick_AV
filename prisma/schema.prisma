@@ -58,7 +58,7 @@ model Profile {
   phoneNumber   String?
   gender        Gender?
   dateBirth     DateTime?
-  tinNumber     String?
+  tin           String?
   addressId     String?
   address       Address?  @relation(fields: [addressId], references: [id])
 
@@ -70,7 +70,7 @@ model Profile {
   chartOfAccount            ChartOfAccount[]
   chartOfAccountBalance     ChartOfAccountBalance[]
 
-  @@index([tinNumber], type: Hash)
+  @@index([tin], type: Hash)
 }
 
 enum Gender {
@@ -80,7 +80,7 @@ enum Gender {
 
 model Business {
   id                    String                 @id @default(uuid())
-  tinNumber             String                 @unique
+  tin                   String                 @unique
   legalCondition        BusinessLegalCondition
   registrationNo        String?
   dateRegistered        DateTime?
@@ -299,6 +299,7 @@ enum ChartOfAccountTransactionType {
   TRANSFER
   DEPOSIT
   WITHDRAWAL
+  TAX
 }
 
 enum ChartOfAccountTransactionStatus {
@@ -327,12 +328,10 @@ model ChartOfAccountTransaction {
   referenceFileId   String?
   referenceFile     File?                         @relation(fields: [referenceFileId], references: [id])
 
-  credit        Decimal  @default(0)
-  debit         Decimal  @default(0)
-  currency      String   @default("ETB")
-  exchangeRate  Decimal  @default(1)
-  balanceBefore Decimal? // Balance after this entry
-  balanceAfter  Decimal? // Balance after this entry
+  credit       Decimal @default(0)
+  debit        Decimal @default(0)
+  currency     String  @default("ETB")
+  exchangeRate Decimal @default(1)
 
   isReconciled Boolean                         @default(false) // Reconciliation status
   status       ChartOfAccountTransactionStatus @default(CONFIRMED) // Status (pending, confirmed)
@@ -476,6 +475,7 @@ model Vendor {
 
   name        String?
   vat         String?
+  taxType     TaxType @default(NONE)
   email       String?
   phoneNumber String?
   vatNumber   String?
@@ -491,13 +491,21 @@ model Vendor {
   @@index([createdAt])
 }
 
+enum TaxType {
+  VAT
+  TOT
+  NONE
+}
+
 // Invoices or sales
 model Purchase {
-  id        String  @id @default(uuid())
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
-  vendorId  String
-  vendor    Vendor  @relation(fields: [vendorId], references: [id])
+  id         String  @id @default(uuid())
+  companyId  String
+  company    Company @relation(fields: [companyId], references: [id])
+  vendorId   String
+  vendor     Vendor  @relation(fields: [vendorId], references: [id])
+  vendorTin  String?
+  vendorName String?
 
   // for the cash payment
   chartOfAccountTransactionId String?
@@ -511,10 +519,6 @@ model Purchase {
 
   withholdingDetailId String?            @unique
   withholdingDetail   WithholdingDetail? @relation(fields: [withholdingDetailId], references: [id])
-
-  hasVatDetail         Boolean @default(true)
-  hasTotDetail         Boolean @default(false)
-  hasWithholdingDetail Boolean @default(true)
 
   receiptNumber      String
   cashReceiptVoucher String?
@@ -531,9 +535,8 @@ model Purchase {
 
   taxableAmount    Decimal @default(0)
   nonTaxableAmount Decimal @default(0)
-  totalBeforeTax   Decimal @default(0)
+  totalAmount      Decimal @default(0)
 
-  taxRate           Int     @default(15)
   taxAmount         Decimal @default(0)
   withholdingAmount Decimal @default(0)
   grossAmount       Decimal @default(0)
@@ -569,6 +572,7 @@ model PurchaseProduct {
   grossAmount  Decimal             @default(0)
   order        Int                 @default(0)
 
+  @@unique([purchaseId, inventoryId])
   @@index([purchaseId], type: Hash)
   @@index([inventoryId], type: Hash)
 }
@@ -599,9 +603,8 @@ model VatDetail {
 
   taxableAmount    Decimal @default(0)
   nonTaxableAmount Decimal @default(0)
-  totalBeforeTax   Decimal @default(0)
+  totalAmount      Decimal @default(0)
 
-  taxRate   Int?
   taxAmount Decimal @default(0)
 
   purchase Purchase?
@@ -613,9 +616,11 @@ model TotDetail {
   chartOfAccountTransactionId String?
   chartOfAccountTransaction   ChartOfAccountTransaction? @relation(fields: [chartOfAccountTransactionId], references: [id])
 
-  taxableAmount Decimal
-  taxRate       Int?
-  taxAmount     Decimal
+  goodSummaryAmount    Decimal @default(0)
+  serviceSummaryAmount Decimal @default(0)
+  totalAmount          Decimal @default(0)
+
+  taxAmount Decimal @default(0)
 
   purchase Purchase?
 }
@@ -650,7 +655,7 @@ model PurchaseDailyReport {
   // General purchase information
   taxableAmount    Decimal @default(0)
   nonTaxableAmount Decimal @default(0)
-  totalBeforeTax   Decimal @default(0)
+  totalAmount      Decimal @default(0)
 
   vatAmount         Decimal? @default(0)
   totAmount         Decimal? @default(0)
@@ -676,7 +681,7 @@ model PurchaseWeeklyReport {
   // General purchase information
   taxableAmount    Decimal @default(0)
   nonTaxableAmount Decimal @default(0)
-  totalBeforeTax   Decimal @default(0)
+  totalAmount      Decimal @default(0)
 
   vatAmount         Decimal? @default(0)
   totAmount         Decimal? @default(0)
@@ -688,7 +693,7 @@ model PurchaseWeeklyReport {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([accountPeriodId, companyId])
+  @@unique([accountPeriodId, order, companyId])
 }
 
 model PurchaseAccountPeriodReport {
@@ -702,7 +707,7 @@ model PurchaseAccountPeriodReport {
   // General purchase information
   taxableAmount    Decimal @default(0)
   nonTaxableAmount Decimal @default(0)
-  totalBeforeTax   Decimal @default(0)
+  totalAmount      Decimal @default(0)
 
   vatAmount         Decimal? @default(0)
   totAmount         Decimal? @default(0)
@@ -727,7 +732,7 @@ model PurchaseFiscalYearReport {
   // General purchase information
   taxableAmount    Decimal @default(0)
   nonTaxableAmount Decimal @default(0)
-  totalBeforeTax   Decimal @default(0)
+  totalAmount      Decimal @default(0)
 
   vatAmount         Decimal? @default(0)
   totAmount         Decimal? @default(0)

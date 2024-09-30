@@ -31,7 +31,7 @@ export const onBoardingAction = async (data: {
         gender: data.profile.gender,
         name: data.profile.name,
         phoneNumber: data.profile.phoneNumber,
-        tinNumber: data.profile.tinNumber,
+        tin: data.profile.tin,
         address: {
           create: {
             ...data.profile.address,
@@ -88,7 +88,7 @@ export const onBoardingAction = async (data: {
           gender: data.ownerProfile.gender,
           name: data.ownerProfile.name,
           phoneNumber: data.ownerProfile.phoneNumber,
-          tinNumber: data.ownerProfile.tinNumber,
+          tin: data.ownerProfile.tin,
           address: {
             create: {
               ...data.ownerProfile.address,

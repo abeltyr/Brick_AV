@@ -7,12 +7,10 @@ import axios from "axios";
 import { BusinessIncludeData } from "./common/include";
 const prisma = getPrisma();
 
-export const fetchBusinessApi = async (
-  tinNumber: string,
-): Promise<BusinessType> => {
+export const fetchBusinessApi = async (tin: string): Promise<BusinessType> => {
   try {
     const business = await prisma.business.findUnique({
-      where: { tinNumber },
+      where: { tin },
       include: BusinessIncludeData,
     });
 
@@ -27,10 +25,10 @@ export const fetchBusinessApi = async (
 
     const businessResponse = await axios({
       method: "get",
-      url: `https://etrade.gov.et/api/Registration/GetRegistrationInfoByTin/${tinNumber}/en`,
+      url: `https://etrade.gov.et/api/Registration/GetRegistrationInfoByTin/${tin}/en`,
       headers: {
         Host: "etrade.gov.et",
-        Referer: `https://etrade.gov.et/business-license-checker?tin=${tinNumber}`,
+        Referer: `https://etrade.gov.et/business-license-checker?tin=${tin}`,
       },
     });
 
@@ -56,7 +54,7 @@ export const fetchBusinessApi = async (
           url: `https://etrade.gov.et/api/BusinessMain/GetBusinessByLicenseNo?LicenseNo=${trade.LicenceNumber}&Tin=null&Lang=en`,
           headers: {
             Host: "etrade.gov.et",
-            Referer: `https://etrade.gov.et/business-license-checker?tin=${tinNumber}`,
+            Referer: `https://etrade.gov.et/business-license-checker?tin=${tin}`,
           },
         });
 
@@ -123,7 +121,7 @@ export const fetchBusinessApi = async (
 
     const newBusiness = await prisma.business.upsert({
       where: {
-        tinNumber: businessData.Tin,
+        tin: businessData.Tin,
       },
       update: {
         paidUpCapital: businessData.PaidUpCapital,
@@ -140,7 +138,7 @@ export const fetchBusinessApi = async (
         },
       },
       create: {
-        tinNumber: businessData.Tin,
+        tin: businessData.Tin,
         legalCondition: getBusinessLegalCondition(businessData.LegalCondtion),
         registrationNo: businessData.RegNo,
         dateRegistered: new Date(businessData.RegDate),

@@ -1,17 +1,16 @@
-import { ProductInputType } from "@/types/product";
 import { Prisma } from "@prisma/client";
 import Decimal from "decimal.js";
-import { getPrisma } from "@/lib/utils/database";
 import { PurchaseProductInput } from "@/types/purchase";
 import { VAT_RATE, WITHHOLDING_RATE } from "@/types/shared";
-const prisma = getPrisma();
+import { dbCodeGenerator } from "./backend";
+import { DatabaseGeneratorType } from "./type";
 
 export const vatPurchaseSummation = ({
   purchaseProducts,
-  generateBackendData = false,
+  databaseGenerator,
 }: {
   purchaseProducts: PurchaseProductInput[];
-  generateBackendData?: Boolean;
+  databaseGenerator?: DatabaseGeneratorType;
 }) => {
   let localGoodSummaryAmount = new Decimal(0);
   let importedGoodSummaryAmount = new Decimal(0);
@@ -40,7 +39,10 @@ export const vatPurchaseSummation = ({
   let totalNonCapitalInputs: Decimal = new Decimal(0);
   let vatOnTotalInputs: Decimal = new Decimal(0);
 
-  let purchaseProductData: Prisma.PurchaseProductCreateManyPurchaseInput[] = [];
+  let chartOfAccountTransactions: Prisma.Prisma__ChartOfAccountTransactionClient<{}>[] =
+    [];
+  let createPurchaseProductData: Prisma.Prisma__PurchaseProductClient<{}>[] =
+    [];
 
   let importedGoodWithholding = new Decimal(0);
   let localGoodWithholding = new Decimal(0);
@@ -159,76 +161,29 @@ export const vatPurchaseSummation = ({
         break;
     }
 
-    if (generateBackendData) {
-      product.unitPrice;
-      let updateInventory: Prisma.InventoryUpdateInput = {};
+    if (databaseGenerator) {
+      const {
+        inventoryUpdateData,
+        purchaseProductData,
+        chartOfAccountTransaction,
+      } = dbCodeGenerator({
+        product,
+        tax,
+        grossAmount,
+        index,
+        totalValue,
+        withholding,
+        ...databaseGenerator,
+      });
 
-      if (
-        product.initialProductPriceUnit !== product.unit ||
-        new Decimal(product.initialProductPriceUnitPrice) !==
-          new Decimal(product.unitPrice)
-      ) {
-        updateInventory = {
-          quantity: {
-            increment: product.quantity,
-          },
-          productPrice: {
-            create: {
-              unit: product.unit,
-              unitPrice: product.unitPrice,
-              active: true,
-            },
-            updateMany: {
-              where: {
-                inventoryId: product.inventoryId,
-              },
-              data: {
-                active: false,
-              },
-            },
-          },
-          lastUpdated: new Date(),
-        };
-      } else {
-        updateInventory = {
-          quantity: {
-            increment: product.quantity,
-          },
-          lastUpdated: new Date(),
-        };
-      }
-
-      inventoryUpdate = [
-        ...inventoryUpdate,
-        prisma.inventory.upsert({
-          where: {
-            id: product.inventoryId,
-          },
-          create: {
-            quantity: product.quantity,
-            productId: product.productId,
-            lastUpdated: new Date(),
-            chartOfAccountId: product.chartOfAccountId,
-          },
-          update: updateInventory,
-        }),
+      chartOfAccountTransactions = [
+        ...chartOfAccountTransactions,
+        chartOfAccountTransaction,
       ];
-
-      purchaseProductData = [
-        ...purchaseProductData,
-        {
-          tax,
-          grossAmount,
-          inventoryId: product.inventoryId,
-          purchaseType: product.purchaseType,
-          type: product.type,
-          unit: product.unit,
-          unitPrice: product.unitPrice,
-          quantity: product.quantity,
-          totalValue: totalValue,
-          order: index + 1,
-          withholding,
-        },
+      inventoryUpdate = [...inventoryUpdate, inventoryUpdateData];
+      createPurchaseProductData = [
+        ...createPurchaseProductData,
+        purchaseProductData,
       ];
     }
   });
@@ -247,16 +202,16 @@ export const vatPurchaseSummation = ({
   // sum up the tax and gross amount
   let taxableAmount: Decimal = totalCapitalAssets.plus(totalNonCapitalInputs);
   let nonTaxableAmount: Decimal = purchaseWithNoVat;
-  let totalVat: Decimal = vatOnTotalAssets.plus(vatOnTotalInputs);
+  let taxAmount: Decimal = vatOnTotalAssets.plus(vatOnTotalInputs);
 
-  const withholding = serviceWithholding
+  const withholdingAmount = serviceWithholding
     .plus(localGoodWithholding)
     .plus(importedGoodWithholding);
 
   let grossAmount: Decimal = taxableAmount
     .plus(nonTaxableAmount)
-    .plus(totalVat)
-    .minus(withholding);
+    .plus(taxAmount)
+    .minus(withholdingAmount);
 
   const totalAmount = taxableAmount.plus(nonTaxableAmount);
 
@@ -300,13 +255,14 @@ export const vatPurchaseSummation = ({
       taxableAmount,
       nonTaxableAmount,
       totalAmount,
-      totalVat,
-      withholding,
+      taxAmount,
+      withholdingAmount,
       grossAmount,
       totalQuantity,
       averagePrice,
     },
-    purchaseProductData,
+    createPurchaseProductData,
+    chartOfAccountTransactions,
     inventoryUpdate,
   };
 };
