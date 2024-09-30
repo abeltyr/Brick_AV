@@ -42,6 +42,12 @@ export const fetchChartOfAccountAction = async ({
       },
     ],
     skip,
-    include: chartOfAccountIncludeData,
+    include: {
+      chartOfAccountBalance: {
+        include: {
+          fiscalYear: true,
+        },
+      },
+    },
   })) as ChartOfAccountType[];
 };

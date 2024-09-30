@@ -58,135 +58,138 @@ export const vatPurchaseSummation = ({
 
   // Calculate sums and prepare data for bulk updates
 
-  purchaseProducts.map(async (product, index) => {
-    const totalValue = new Decimal(product.unitPrice || 0).times(
-      product.quantity || 0,
-    );
-    const tax = totalValue.times(VAT_RATE);
+  purchaseProducts &&
+    purchaseProducts.map(async (product, index) => {
+      const totalValue = new Decimal(product.unitPrice || 0).times(
+        product.quantity || 0,
+      );
+      const tax = totalValue.times(VAT_RATE);
 
-    let withholding = new Decimal(0);
-    let grossAmount = totalValue.plus(tax);
+      let withholding = new Decimal(0);
+      let grossAmount = totalValue.plus(tax);
 
-    if (product.type === "Service") {
-      serviceSummaryAmount = serviceSummaryAmount.plus(totalValue);
-      if (totalValue.greaterThan(3000)) {
-        withholding = totalValue.times(WITHHOLDING_RATE.local);
-        serviceWithholding = serviceWithholding.plus(withholding);
+      if (product.type === "Service") {
+        serviceSummaryAmount = serviceSummaryAmount.plus(totalValue);
+        if (totalValue.greaterThan(3000)) {
+          withholding = totalValue.times(WITHHOLDING_RATE.local);
+          serviceWithholding = serviceWithholding.plus(withholding);
+        }
       }
-    }
 
-    switch (product.purchaseType) {
-      case "taxableLocalCapitalAssets":
-        localPurchaseCapitalAssets = localPurchaseCapitalAssets.plus(
-          new Decimal(totalValue),
-        );
-        vatOnLocalPurchaseCapitalAssets =
-          vatOnLocalPurchaseCapitalAssets.plus(tax);
-        if (product.type === "Good") {
-          localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
-          if (totalValue.greaterThan(10000)) {
-            withholding = totalValue.times(WITHHOLDING_RATE.local);
-            localGoodWithholding = localGoodWithholding.plus(withholding);
-            grossAmount.plus(withholding);
+      switch (product.purchaseType) {
+        case "taxableLocalCapitalAssets":
+          localPurchaseCapitalAssets = localPurchaseCapitalAssets.plus(
+            new Decimal(totalValue),
+          );
+          vatOnLocalPurchaseCapitalAssets =
+            vatOnLocalPurchaseCapitalAssets.plus(tax);
+          if (product.type === "Good") {
+            localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
+            if (totalValue.greaterThan(10000)) {
+              withholding = totalValue.times(WITHHOLDING_RATE.local);
+              localGoodWithholding = localGoodWithholding.plus(withholding);
+              grossAmount.plus(withholding);
+            }
           }
-        }
-        break;
-      case "taxableImportedCapitalAssets":
-        importedCapitalAssets = importedCapitalAssets.plus(
-          new Decimal(totalValue),
-        );
-        vatOnImportedCapitalAssets = vatOnImportedCapitalAssets.plus(tax);
-        if (product.type === "Good") {
-          importedGoodSummaryAmount =
-            importedGoodSummaryAmount.plus(totalValue);
-          if (totalValue.greaterThan(10000)) {
-            withholding = totalValue.times(WITHHOLDING_RATE.imported);
-            importedGoodWithholding = importedGoodWithholding.plus(withholding);
-            grossAmount.plus(withholding);
+          break;
+        case "taxableImportedCapitalAssets":
+          importedCapitalAssets = importedCapitalAssets.plus(
+            new Decimal(totalValue),
+          );
+          vatOnImportedCapitalAssets = vatOnImportedCapitalAssets.plus(tax);
+          if (product.type === "Good") {
+            importedGoodSummaryAmount =
+              importedGoodSummaryAmount.plus(totalValue);
+            if (totalValue.greaterThan(10000)) {
+              withholding = totalValue.times(WITHHOLDING_RATE.imported);
+              importedGoodWithholding =
+                importedGoodWithholding.plus(withholding);
+              grossAmount.plus(withholding);
+            }
           }
-        }
-        break;
-      case "taxableLocalInputs":
-        localPurchaseInputs = localPurchaseInputs.plus(totalValue);
-        vatOnLocalPurchaseInputs = vatOnLocalPurchaseInputs.plus(tax);
-        if (product.type === "Good") {
-          localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
-          if (totalValue.greaterThan(10000)) {
-            withholding = totalValue.times(WITHHOLDING_RATE.local);
-            localGoodWithholding = localGoodWithholding.plus(withholding);
-            grossAmount.plus(withholding);
+          break;
+        case "taxableLocalInputs":
+          localPurchaseInputs = localPurchaseInputs.plus(totalValue);
+          vatOnLocalPurchaseInputs = vatOnLocalPurchaseInputs.plus(tax);
+          if (product.type === "Good") {
+            localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
+            if (totalValue.greaterThan(10000)) {
+              withholding = totalValue.times(WITHHOLDING_RATE.local);
+              localGoodWithholding = localGoodWithholding.plus(withholding);
+              grossAmount.plus(withholding);
+            }
           }
-        }
-        break;
-      case "taxableImportedInputs":
-        importedInputs = importedInputs.plus(totalValue);
-        vatOnImportedInputs = vatOnImportedInputs.plus(tax);
-        if (product.type === "Good") {
-          importedGoodSummaryAmount =
-            importedGoodSummaryAmount.plus(totalValue);
+          break;
+        case "taxableImportedInputs":
+          importedInputs = importedInputs.plus(totalValue);
+          vatOnImportedInputs = vatOnImportedInputs.plus(tax);
+          if (product.type === "Good") {
+            importedGoodSummaryAmount =
+              importedGoodSummaryAmount.plus(totalValue);
 
-          if (totalValue.greaterThan(10000)) {
-            withholding = totalValue.times(WITHHOLDING_RATE.imported);
-            importedGoodWithholding = importedGoodWithholding.plus(withholding);
-            grossAmount.plus(withholding);
+            if (totalValue.greaterThan(10000)) {
+              withholding = totalValue.times(WITHHOLDING_RATE.imported);
+              importedGoodWithholding =
+                importedGoodWithholding.plus(withholding);
+              grossAmount.plus(withholding);
+            }
           }
-        }
-        break;
-      case "taxableGeneralExpenseInputs":
-        generalExpenseInputs = generalExpenseInputs.plus(
-          new Decimal(totalValue),
-        );
-        vatOnGeneralExpenseInputs = vatOnGeneralExpenseInputs.plus(tax);
-        if (product.type === "Good") {
-          localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
-          if (totalValue.greaterThan(10000)) {
-            withholding = totalValue.times(WITHHOLDING_RATE.local);
-            localGoodWithholding = localGoodWithholding.plus(withholding);
-            grossAmount.plus(withholding);
+          break;
+        case "taxableGeneralExpenseInputs":
+          generalExpenseInputs = generalExpenseInputs.plus(
+            new Decimal(totalValue),
+          );
+          vatOnGeneralExpenseInputs = vatOnGeneralExpenseInputs.plus(tax);
+          if (product.type === "Good") {
+            localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
+            if (totalValue.greaterThan(10000)) {
+              withholding = totalValue.times(WITHHOLDING_RATE.local);
+              localGoodWithholding = localGoodWithholding.plus(withholding);
+              grossAmount.plus(withholding);
+            }
           }
-        }
-        break;
-      case "taxExemptedPurchase":
-        purchaseWithNoVat = purchaseWithNoVat.plus(totalValue);
-        grossAmount = totalValue;
-        if (product.type === "Good") {
-          localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
+          break;
+        case "taxExemptedPurchase":
+          purchaseWithNoVat = purchaseWithNoVat.plus(totalValue);
+          grossAmount = totalValue;
+          if (product.type === "Good") {
+            localGoodSummaryAmount = localGoodSummaryAmount.plus(totalValue);
 
-          if (totalValue.greaterThan(10000)) {
-            withholding = totalValue.times(WITHHOLDING_RATE.local);
-            localGoodWithholding = localGoodWithholding.plus(withholding);
-            grossAmount.plus(withholding);
+            if (totalValue.greaterThan(10000)) {
+              withholding = totalValue.times(WITHHOLDING_RATE.local);
+              localGoodWithholding = localGoodWithholding.plus(withholding);
+              grossAmount.plus(withholding);
+            }
           }
-        }
-        break;
-    }
+          break;
+      }
 
-    if (databaseGenerator) {
-      const {
-        inventoryUpdateData,
-        purchaseProductData,
-        chartOfAccountTransaction,
-      } = dbCodeGenerator({
-        product,
-        tax,
-        grossAmount,
-        index,
-        totalValue,
-        withholding,
-        ...databaseGenerator,
-      });
+      if (databaseGenerator) {
+        const {
+          inventoryUpdateData,
+          purchaseProductData,
+          chartOfAccountTransaction,
+        } = dbCodeGenerator({
+          product,
+          tax,
+          grossAmount,
+          index,
+          totalValue,
+          withholding,
+          ...databaseGenerator,
+        });
 
-      chartOfAccountTransactions = [
-        ...chartOfAccountTransactions,
-        chartOfAccountTransaction,
-      ];
-      inventoryUpdate = [...inventoryUpdate, inventoryUpdateData];
-      createPurchaseProductData = [
-        ...createPurchaseProductData,
-        purchaseProductData,
-      ];
-    }
-  });
+        chartOfAccountTransactions = [
+          ...chartOfAccountTransactions,
+          chartOfAccountTransaction,
+        ];
+        inventoryUpdate = [...inventoryUpdate, inventoryUpdateData];
+        createPurchaseProductData = [
+          ...createPurchaseProductData,
+          purchaseProductData,
+        ];
+      }
+    });
 
   totalCapitalAssets = localPurchaseCapitalAssets.plus(importedCapitalAssets);
   vatOnTotalAssets = vatOnLocalPurchaseCapitalAssets.plus(
@@ -218,7 +221,7 @@ export const vatPurchaseSummation = ({
   let totalQuantity: number = 1;
   let averagePrice = totalAmount;
 
-  if (purchaseProducts.length === 1) {
+  if (purchaseProducts && purchaseProducts.length === 1) {
     totalQuantity = purchaseProducts[0].quantity;
     averagePrice = new Decimal(purchaseProducts[0].unitPrice);
   }

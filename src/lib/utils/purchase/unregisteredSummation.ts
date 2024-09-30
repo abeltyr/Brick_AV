@@ -36,49 +36,50 @@ export const UnregisteredPurchaseSummation = ({
 
   // Calculate sums and prepare data for bulk updates
 
-  purchaseProducts.map(async (product, index) => {
-    const totalValue = new Decimal(product.unitPrice || 0).times(
-      product.quantity || 0,
-    );
-    let withholding = totalValue.mul(withholdingRate);
-    let grossAmount = totalValue.plus(withholding);
+  purchaseProducts &&
+    purchaseProducts.map(async (product, index) => {
+      const totalValue = new Decimal(product.unitPrice || 0).times(
+        product.quantity || 0,
+      );
+      let withholding = totalValue.mul(withholdingRate);
+      let grossAmount = totalValue.plus(withholding);
 
-    totalAmount = totalAmount.plus(totalValue);
-    withholdingAmount = withholdingAmount.plus(withholding);
+      totalAmount = totalAmount.plus(totalValue);
+      withholdingAmount = withholdingAmount.plus(withholding);
 
-    if (databaseGenerator) {
-      const {
-        inventoryUpdateData,
-        purchaseProductData,
-        chartOfAccountTransaction,
-      } = dbCodeGenerator({
-        product,
-        tax: new Decimal(0),
-        grossAmount,
-        index,
-        totalValue,
-        withholding,
-        ...databaseGenerator,
-      });
+      if (databaseGenerator) {
+        const {
+          inventoryUpdateData,
+          purchaseProductData,
+          chartOfAccountTransaction,
+        } = dbCodeGenerator({
+          product,
+          tax: new Decimal(0),
+          grossAmount,
+          index,
+          totalValue,
+          withholding,
+          ...databaseGenerator,
+        });
 
-      chartOfAccountTransactions = [
-        ...chartOfAccountTransactions,
-        chartOfAccountTransaction,
-      ];
-      inventoryUpdate = [...inventoryUpdate, inventoryUpdateData];
-      createPurchaseProductData = [
-        ...createPurchaseProductData,
-        purchaseProductData,
-      ];
-    }
-  });
+        chartOfAccountTransactions = [
+          ...chartOfAccountTransactions,
+          chartOfAccountTransaction,
+        ];
+        inventoryUpdate = [...inventoryUpdate, inventoryUpdateData];
+        createPurchaseProductData = [
+          ...createPurchaseProductData,
+          purchaseProductData,
+        ];
+      }
+    });
 
   let grossAmount: Decimal = totalAmount.plus(withholdingAmount);
 
   let totalQuantity: number = 1;
   let averagePrice = totalAmount;
 
-  if (purchaseProducts.length === 1) {
+  if (purchaseProducts && purchaseProducts.length === 1) {
     totalQuantity = purchaseProducts[0].quantity;
     averagePrice = new Decimal(purchaseProducts[0].unitPrice);
   }
