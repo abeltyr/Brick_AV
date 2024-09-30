@@ -75,7 +75,7 @@ export const dbCodeGenerator = ({
       quantity: product.quantity,
       productId: product.productId,
       lastUpdated: new Date(),
-      chartOfAccountId: product.chartOfAccountId,
+      chartOfAccountId: product.chartOfAccount.id,
     },
     update: updateInventory,
   });
@@ -100,15 +100,15 @@ export const dbCodeGenerator = ({
   const chartOfAccountTransaction = prisma.chartOfAccountTransaction.create({
     data: {
       id: chartOfAccountTransactionId,
-      chartOfAccountId: product.chartOfAccountId,
+      chartOfAccountId: product.chartOfAccount.id,
       transactionType: "DEPOSIT",
       status: "PENDING",
       accountPeriodId: accountPeriodId,
       companyId: companyId,
       date: date,
       createdById: creatorId,
-      credit: product.chartOfAccountBalanceType === "credit" ? totalValue : 0,
-      debit: product.chartOfAccountBalanceType === "debit" ? totalValue : 0,
+      credit: product.chartOfAccount.balanceType === "credit" ? totalValue : 0,
+      debit: product.chartOfAccount.balanceType === "debit" ? totalValue : 0,
     },
   });
   const purchaseProductData = prisma.purchaseProduct.upsert({

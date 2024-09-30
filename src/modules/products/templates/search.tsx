@@ -2,7 +2,7 @@
 
 import { DrawerSheetHeader } from '@/modules/common/components/drawer/header'
 import { ProductListing } from '@/modules/products/components/search'
-import { ProductType } from '@/lib/form/product/data'
+import { ProductType } from '@/types/product'
 
 
 export const SearchProductSection = ({ updateProduct }: { updateProduct: (product: ProductType[]) => void }) => {

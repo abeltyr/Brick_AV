@@ -83,23 +83,23 @@ export default function ProductsTableList({ companyId }: { companyId: string }) 
                                     {product && product.purchaseType ? product.purchaseType : "---"}
                                 </TableCell>
                                 <TableCell className="table-cell text-center">
-                                    {product && product.Inventory && product.Inventory.length > 0 && product.Inventory[0].ProductPrice && product.Inventory[0].ProductPrice.length > 0 && product.Inventory[0].ProductPrice[0].unit ? product.Inventory[0].ProductPrice[0].unit : "---"}
+                                    {/* {product && product.Inventory && product.Inventory.length > 0 && product.Inventory[0].ProductPrice && product.Inventory[0].ProductPrice.length > 0 && product.Inventory[0].ProductPrice[0].unit ? product.Inventory[0].ProductPrice[0].unit : "---"} */}
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-center">
-                                    {product && product.Inventory && product.Inventory.length > 0 && product.Inventory[0].ProductPrice && product.Inventory[0].ProductPrice.length > 0 && product.Inventory[0].ProductPrice[0].unitPrice ?
+                                    {/* {product && product.Inventory && product.Inventory.length > 0 && product.Inventory[0].ProductPrice && product.Inventory[0].ProductPrice.length > 0 && product.Inventory[0].ProductPrice[0].unitPrice ?
                                         new Decimal(product.Inventory[0].ProductPrice[0].unitPrice).toNumber().toLocaleString('en-US')
-                                        : "---"}
+                                        : "---"} */}
                                 </TableCell>
 
                                 <TableCell className="hidden md:table-cell text-center ">
-                                    {
+                                    {/* {
                                         product &&
                                             product.Inventory &&
                                             product.Inventory.length > 0 &&
                                             product.Inventory[0].quantity ?
                                             product.Inventory[0].quantity :
                                             "---"
-                                    }
+                                    } */}
                                 </TableCell>
 
                                 <TableCell className="hidden md:table-cell text-center ">

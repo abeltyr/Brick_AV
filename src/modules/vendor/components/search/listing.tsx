@@ -1,5 +1,6 @@
 import AddSVG from '@/assets/icons/add'
 import LoadingSVG from '@/assets/icons/loading'
+import { useCompany } from '@/lib/context/account'
 import { useAuth } from '@/lib/context/auth/user'
 import { useVendors } from '@/lib/context/vendor'
 import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
@@ -21,7 +22,7 @@ export const VendorDrawerTable = ({
 }) => {
 
     const { getVendor, vendors, loadMoreData, fetchingVendors, fetchVendors, searchVendor, initialLoading } = useVendors();
-    const { currentCompany } = useAuth();
+    const { currentCompany } = useCompany();
 
     const [searchTerm, setSearchTerm] = useState("")
     const [currentVendors, setCurrentVendors] = useState<VendorType[] | null>()
@@ -62,10 +63,9 @@ export const VendorDrawerTable = ({
                         if (searchWord.length > 0 && finalVendors) {
                             const localResults = finalVendors.filter((vendor) => {
                                 return (
-                                    vendor?.profile?.tin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                    vendor?.profile?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                    vendor?.profile?.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                    vendor?.profile?.vatNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+                                    vendor?.business?.tin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                    vendor?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                    vendor?.business?.businessName?.toLowerCase().includes(searchTerm.toLowerCase())
                                 )
                             })
                             setCurrentVendors(localResults)
@@ -112,18 +112,18 @@ export const VendorDrawerTable = ({
                                                 />
                                             </TableCell>
                                             <TableCell className="table-cell text-center">
-                                                {vendor.profile && vendor.profile.companyName ? vendor.profile.companyName : "---"}
+                                                {vendor && vendor.name ? vendor.name : "---"}
                                             </TableCell>
                                             <TableCell className="hidden sm:table-cell text-center">
-                                                {vendor.profile && vendor.profile.name ? vendor.profile.name : "---"}
+                                                {vendor.business && vendor.business.businessName ? vendor.business.businessName : "---"}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="font-medium">
-                                                    {vendor.profile && vendor.profile.tin ? vendor.profile.tin : "---"}
+                                                    {vendor.business && vendor.business.tin ? vendor.business.tin : "---"}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="hidden sm:table-cell text-center">
-                                                {vendor.profile && vendor.profile.vatNumber ? vendor.profile.vatNumber : "---"}
+                                                {vendor && vendor.vat ? vendor.vat : "---"}
                                             </TableCell>
                                         </TableRow>
                                     ))

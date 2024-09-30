@@ -42,25 +42,25 @@ export const GebiwochWithHoldingCSV = async ({
 
     let arrayData: gebiwochWithholdingReport[] = [];
 
-    for (const purchase of purchases) {
-      arrayData = [
-        ...arrayData,
-        {
-          tin: purchase.vendorTin ?? "",
-          name: purchase.vendorTin ? "" : purchase.vendorName ?? "",
-          withholdingNumber: purchase.withholdingNumber ?? "",
-          date: purchase.date.toLocaleDateString("en-GB"),
-          totalTaxableAmount: new Decimal(purchase.localGoodSummaryAmount)
-            .plus(
-              new Decimal(purchase.importedGoodSummaryAmount).plus(
-                new Decimal(purchase.serviceSummaryAmount),
-              ),
-            )
-            .toString(),
-          withholding: purchase.withholding.toString(),
-        },
-      ];
-    }
+    // for (const purchase of purchases) {
+    //   arrayData = [
+    //     ...arrayData,
+    //     {
+    //       tin: purchase.vendorTin ?? "",
+    //       name: purchase.vendorTin ? "" : purchase.vendorName ?? "",
+    //       withholdingNumber: purchase.withholdingNumber ?? "",
+    //       date: purchase.date.toLocaleDateString("en-GB"),
+    //       totalTaxableAmount: new Decimal(purchase.localGoodSummaryAmount)
+    //         .plus(
+    //           new Decimal(purchase.importedGoodSummaryAmount).plus(
+    //             new Decimal(purchase.serviceSummaryAmount),
+    //           ),
+    //         )
+    //         .toString(),
+    //       withholding: purchase.withholding.toString(),
+    //     },
+    //   ];
+    // }
 
     const data = Object.values(arrayData);
     const csv = stringify(data);

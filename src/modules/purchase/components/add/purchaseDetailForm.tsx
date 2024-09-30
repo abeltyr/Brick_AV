@@ -42,7 +42,7 @@ export default function PurchaseDetailForm({ form }: { form: UseFormReturn<z.inf
                     </LanguageTranslator>
                 </CardDescription>
             </CardHeader>
-            <CardContent>
+            {/* <CardContent>
                 <div className="grid gap-6">
                     <div className="gap-3 flex">
                         <div className='flex-1'>
@@ -168,7 +168,7 @@ export default function PurchaseDetailForm({ form }: { form: UseFormReturn<z.inf
                     </div>
                 </div>
 
-            </CardContent>
+            </CardContent> */}
         </Card>
     )
 }

@@ -10,9 +10,11 @@ import { Card, CardContent, CardFooter } from '@/modules/ui/card'
 import { Checkbox } from '@/modules/ui/checkbox'
 import { Input } from '@/modules/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/modules/ui/table'
-import { ProductType, purchaseInputType, purchaseTypeConvertor } from '@/lib/form/product/data'
+import { purchaseInputType, purchaseTypeConvertor } from '@/lib/form/product/data'
 import { CirclePlus } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
+import { useCompany } from '@/lib/context/account'
+import { ProductType } from '@/types/product'
 
 export const ProductDrawerTable = ({
     setIsAddingProduct,
@@ -22,9 +24,9 @@ export const ProductDrawerTable = ({
     updateProduct: (product: ProductType[]) => void
 }) => {
 
-    const { getProduct, products, loadMoreData, fetchingProducts, fetchProducts, initialLoading } = useProducts();
+    const { getProduct, products, loadMoreData, fetchProducts, isLoading, loading } = useProducts();
     const { setPurchaseProductListingDrawer } = useDrawerManager();
-    const { currentCompany } = useAuth();
+    const { currentCompany } = useCompany();
 
     const [searchTerm, setSearchTerm] = useState("")
     const [currentProducts, setCurrentProducts] = useState<ProductType[] | null>()
@@ -141,11 +143,11 @@ export const ProductDrawerTable = ({
                                             </TableCell>
                                             <TableCell className="table-cell text-center">
                                                 <div className="font-medium">
-                                                    {product.ProductPrice && product.ProductPrice.unit ? product.ProductPrice.unit : "---"}
+                                                    {/* {product.ProductPrice && product.ProductPrice.unit ? product.ProductPrice.unit : "---"} */}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="hidden sm:table-cell text-center">
-                                                {product.ProductPrice && product.ProductPrice.unitPrice ? product.ProductPrice.unitPrice.toString() : "---"}
+                                                {/* {product.ProductPrice && product.ProductPrice.unitPrice ? product.ProductPrice.unitPrice.toString() : "---"} */}
                                             </TableCell>
                                             <TableCell className="hidden sm:table-cell text-center">
                                                 <Badge>
@@ -166,7 +168,7 @@ export const ProductDrawerTable = ({
                             <div className='w-full flex justify-center'>
                                 <div className='w-full flex justify-center'>
                                     <Button
-                                        disabled={fetchingProducts}
+                                        disabled={isLoading}
                                         variant={"outline"}
                                         className='px-5 py-2'
                                         onClick={() => {
@@ -174,7 +176,7 @@ export const ProductDrawerTable = ({
                                                 fetchProducts({ companyId: currentCompany?.companyId });
                                         }}>
 
-                                        {fetchingProducts && <div className='animate-spin '>
+                                        {isLoading && <div className='animate-spin '>
                                             <LoadingSVG className="h-5 w-5 stroke-[1]" />
                                         </div>}
                                         Load More
@@ -184,7 +186,7 @@ export const ProductDrawerTable = ({
                         </CardFooter>}
                     </Card>) :
                     <Card className='min-h-[600px] w-full flex justify-center items-center'>
-                        {initialLoading ?
+                        {loading ?
                             <div className='animate-bounce'>
                                 Searching...
                             </div> :

@@ -25,7 +25,7 @@ export function CalendarDateRangePicker({
         to: addDays(new Date(2023, 0, 20), 20),
     })
 
-    const { updateMonth, updateYear, month, year } = usePurchases()
+    const { } = usePurchases()
 
 
     return (
@@ -41,7 +41,7 @@ export function CalendarDateRangePicker({
                         )}
                     >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {monthConverter(month)}
+                        {/* {monthConverter(month)} */}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
@@ -52,18 +52,18 @@ export function CalendarDateRangePicker({
                                     <CommandItem
                                         key={index}
                                         onSelect={() => {
-                                            updateMonth(date)
+                                            // updateMonth(date)
                                         }}
-                                        className={`text-sm group gap-3 min-w-[150px] cursor-pointer ${month === date ? "bg-foreground/80 data-[selected='true']:bg-foreground data-[selected='true']:text-background text-background" : ""}`}
+                                    // className={`text-sm group gap-3 min-w-[150px] cursor-pointer ${month === date ? "bg-foreground/80 data-[selected='true']:bg-foreground data-[selected='true']:text-background text-background" : ""}`}
                                     >
 
                                         {monthConverter(date)}
                                         <CheckIcon
                                             className={cn(
                                                 "ml-auto h-4 w-4",
-                                                month === date
-                                                    ? "opacity-100"
-                                                    : "opacity-0"
+                                                // month === date
+                                                //     ? "opacity-100"
+                                                //     : "opacity-0"
                                             )}
                                         />
                                     </CommandItem>
@@ -84,7 +84,7 @@ export function CalendarDateRangePicker({
                         )}
                     >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {year}
+                        {/* {year} */}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
@@ -95,18 +95,18 @@ export function CalendarDateRangePicker({
                                     <CommandItem
                                         key={index}
                                         onSelect={() => {
-                                            updateYear(date)
+                                            // updateYear(date)
                                         }}
-                                        className={`text-sm group gap-3 min-w-[150px] cursor-pointer ${month === date ? "bg-foreground/80 data-[selected='true']:bg-foreground data-[selected='true']:text-background text-background" : ""}`}
+                                    // className={`text-sm group gap-3 min-w-[150px] cursor-pointer ${month === date ? "bg-foreground/80 data-[selected='true']:bg-foreground data-[selected='true']:text-background text-background" : ""}`}
                                     >
 
                                         {date}
                                         <CheckIcon
                                             className={cn(
                                                 "ml-auto h-4 w-4",
-                                                year === date
-                                                    ? "opacity-100"
-                                                    : "opacity-0"
+                                                // year === date
+                                                //     ? "opacity-100"
+                                                //     : "opacity-0"
                                             )}
                                         />
                                     </CommandItem>

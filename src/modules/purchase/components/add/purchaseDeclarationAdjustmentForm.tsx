@@ -43,7 +43,7 @@ export default function PurchaseDeclarationAdjustmentForm({ form, taxTotal, tota
                     </LanguageTranslator>
                 </CardDescription>
             </CardHeader>
-            <CardContent>
+            {/* <CardContent>
                 <div className="grid gap-6">
                     <div className=" gap-3 flex justify-between">
 
@@ -232,7 +232,7 @@ export default function PurchaseDeclarationAdjustmentForm({ form, taxTotal, tota
                         </div>
                     </div>
                 </div>
-            </CardContent>
+            </CardContent> */}
         </Card>
     )
 }

@@ -89,30 +89,30 @@ This field is  mandatory.`,
 
     let arrayData: gebiwochPurchaseReport[] = [];
 
-    for (const purchase of purchases) {
-      arrayData = [
-        ...arrayData,
-        {
-          productType: purchase.productType === "Good" ? "G" : "S",
-          calendar: "G",
-          purchaseType: purchaseTypeConvertor(purchase.purchaseType),
-          vendorTin: purchase.vatDetail ?? "",
-          sellerName: "",
-          date: purchase.date.toLocaleDateString("en-GB"),
-          MRCNumber: purchase.MRCNumber ?? "",
-          VatReceiptNumber: purchase.VatReceiptNumber ?? "",
-          description: purchase.description,
-          unit: purchase.unit,
-          totalQuantity: purchase.totalQuantity.toString(),
-          averagePrice: purchase.averagePrice.toString(),
-          totalValue: new Decimal(purchase.taxableAmount)
-            .plus(new Decimal(purchase.nonTaxableAmount))
-            .toString(),
-          totalVat: purchase.totalVat.toString(),
-          grossAmount: purchase.grossAmount.toString(),
-        },
-      ];
-    }
+    // for (const purchase of purchases) {
+    //   arrayData = [
+    //     ...arrayData,
+    //     {
+    //       productType: purchase.productType === "Good" ? "G" : "S",
+    //       calendar: "G",
+    //       purchaseType: purchaseTypeConvertor(purchase.purchaseType),
+    //       vendorTin: purchase.vatDetail ?? "",
+    //       sellerName: "",
+    //       date: purchase.date.toLocaleDateString("en-GB"),
+    //       MRCNumber: purchase.MRCNumber ?? "",
+    //       VatReceiptNumber: purchase.VatReceiptNumber ?? "",
+    //       description: purchase.description,
+    //       unit: purchase.unit,
+    //       totalQuantity: purchase.totalQuantity.toString(),
+    //       averagePrice: purchase.averagePrice.toString(),
+    //       totalValue: new Decimal(purchase.taxableAmount)
+    //         .plus(new Decimal(purchase.nonTaxableAmount))
+    //         .toString(),
+    //       totalVat: purchase.totalVat.toString(),
+    //       grossAmount: purchase.grossAmount.toString(),
+    //     },
+    //   ];
+    // }
 
     const data = Object.values(arrayData);
     const csv = stringify(data);

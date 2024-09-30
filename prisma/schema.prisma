@@ -478,7 +478,6 @@ model Vendor {
   taxType     TaxType @default(NONE)
   email       String?
   phoneNumber String?
-  vatNumber   String?
   description String? @db.Text()
 
   createdAt DateTime   @default(now())

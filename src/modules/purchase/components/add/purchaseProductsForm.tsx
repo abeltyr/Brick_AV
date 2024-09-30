@@ -22,7 +22,7 @@ import {
 } from "@/modules/ui/select"
 import { Sheet, SheetContent, SheetTrigger } from '@/modules/ui/sheet'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/modules/ui/table'
-import { productInputType, productInputUnit, ProductType, purchaseInputType, purchaseTypeConvertor } from '@/lib/form/product/data'
+import { productInputType, productInputUnit, purchaseInputType, purchaseTypeConvertor } from '@/lib/form/product/data'
 import Decimal from 'decimal.js'
 import { PlusCircle, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -44,7 +44,7 @@ export default function PurchaseProductsForm({ form }: { form: UseFormReturn<z.i
     useEffect(() => {
         setError(form.formState.errors.purchaseProducts != undefined)
 
-    }, [form.formState.errors.purchaseType])
+    }, [form.formState.errors.purchaseProducts])
 
 
 
@@ -56,7 +56,7 @@ export default function PurchaseProductsForm({ form }: { form: UseFormReturn<z.i
                     Add products to your purchase
                 </CardDescription>
             </CardHeader>
-            <CardContent className='overflow-hidden'>
+            {/* <CardContent className='overflow-hidden'>
                 {fields.length > 0 ? <Table className='overflow-hidden'>
                     <TableHeader>
                         <TableRow>
@@ -322,7 +322,7 @@ export default function PurchaseProductsForm({ form }: { form: UseFormReturn<z.i
                         />
                     </SheetContent>
                 </Sheet>
-            </CardFooter>
+            </CardFooter> */}
         </Card>
 
     )

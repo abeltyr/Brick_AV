@@ -4,14 +4,14 @@ import React, { useEffect } from 'react'
 import { PurchaseHeader } from '../components/header'
 import { PurchaseEmptyState } from '@/modules/empty/templates/purchase'
 import { usePurchases } from '@/lib/context/purchase'
-import { useAuth } from '@/lib/context/auth/user'
 import PurchasesTableList from '../components/table'
 import { Skeleton } from '@/modules/ui/skeleton'
+import { useCompany } from '@/lib/context/account'
 
 export const PurchaseListTempo = () => {
 
-    const { purchases, getPurchase, initialLoading } = usePurchases()
-    const { currentCompany } = useAuth();
+    const { purchases, getPurchase, isLoading, loading } = usePurchases()
+    const { currentCompany } = useCompany();
 
 
     useEffect(() => {
@@ -27,7 +27,7 @@ export const PurchaseListTempo = () => {
             <div className='min-h-[92dvh] w-full screen-padding flex flex-col gap-8 pt-10'>
                 <PurchaseHeader />
 
-                {initialLoading ?
+                {loading ?
                     <div className='w-full h-full'>
                         <Skeleton className='w-full h-[12.5%] rounded-md' />
                         <div className='w-full py-1' />
