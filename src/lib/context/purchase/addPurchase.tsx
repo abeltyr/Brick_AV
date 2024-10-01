@@ -1,8 +1,8 @@
 'use client'
 
 import { createPurchaseAction } from '@/lib/data/purchase/create';
-import { purchaseSchema } from '@/lib/form/purchase';
-import { PurchaseInputType } from '@/types/purchase';
+import { purchaseProducts, purchaseSchema } from '@/lib/form/purchase';
+import { ChartOfAccountType, PurchaseInputType } from '@/types/purchase';
 import React, { useContext, useEffect, useState } from "react";
 import { useForm, UseFormReturn, useWatch } from 'react-hook-form';
 import { z } from 'zod';
@@ -11,6 +11,25 @@ import { VendorType } from '@/types/vendor';
 import Decimal from 'decimal.js';
 import { totPurchaseSummation, UnregisteredPurchaseSummation, vatPurchaseSummation } from '@/lib/utils/purchase';
 
+
+type ChartOfAccountUpdatesType = {
+    id: string,
+    name: string,
+    code: string,
+    amount: number,
+    quantity: number
+}
+
+type ChartOfAccountListType = {
+    paymentAccount: ChartOfAccountType | null;
+    vatAccount: ChartOfAccountUpdatesType | null;
+    withHolding: ChartOfAccountUpdatesType | null;
+    productsChartAccount: {
+        [id: string]: ChartOfAccountUpdatesType;
+    }
+};
+
+type purchaseProductsType = z.infer<typeof purchaseProducts>
 const initialValues: {
     createPurchase: ({ }: PurchaseInputType) => void;
     form: UseFormReturn<z.infer<typeof purchaseSchema>> | null
@@ -29,6 +48,9 @@ const initialValues: {
     serviceSummaryAmount: Decimal;
     serviceWithholding: Decimal;
     withholding: Decimal;
+    purchaseProducts: purchaseProductsType[] | null
+    chartOfAccount: ChartOfAccountListType
+    setChartOfAccount: React.Dispatch<React.SetStateAction<ChartOfAccountListType>>
 } = {
     createPurchase: ({ }: PurchaseInputType) => { },
     form: null,
@@ -47,6 +69,14 @@ const initialValues: {
     serviceSummaryAmount: new Decimal(0),
     serviceWithholding: new Decimal(0),
     withholding: new Decimal(0),
+    purchaseProducts: null,
+    chartOfAccount: {
+        paymentAccount: null,
+        vatAccount: null,
+        withHolding: null,
+        productsChartAccount: {}
+    },
+    setChartOfAccount: () => { }
 };
 
 type Props = {
@@ -63,6 +93,12 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
 
 
     const [totalQuantity, setTotalQuantity] = useState<number>(0);
+    const [chartOfAccount, setChartOfAccount] = useState<ChartOfAccountListType>({
+        paymentAccount: null,
+        vatAccount: null,
+        withHolding: null,
+        productsChartAccount: {}
+    });
     const [taxableAmount, setTaxableAmount] = useState<Decimal>(new Decimal(0));
     const [nonTaxableAmount, setNonTaxableAmount] = useState<Decimal>(new Decimal(0));
     const [taxTotal, setTaxTotal] = useState<Decimal>(new Decimal(0));
@@ -103,6 +139,27 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
     });
 
     useEffect(() => {
+
+        if (watchedProducts) {
+            let chartOfAccountData: { [id: string]: ChartOfAccountUpdatesType } = {}
+            for (let data of watchedProducts) {
+                let code = data.chartOfAccount.code;
+                chartOfAccountData[code] = {
+                    id: data.chartOfAccount.id,
+                    name: data.chartOfAccount.name,
+                    code: data.chartOfAccount.code,
+                    amount: chartOfAccountData[code] && chartOfAccountData[code].amount ?
+                        chartOfAccountData[code].amount + data.chartOfAccount.balance :
+                        data.chartOfAccount.balance,
+                    quantity: chartOfAccountData[code] && chartOfAccountData[code].quantity ?
+                        chartOfAccountData[code].quantity + 1 : 0
+                }
+            }
+            setChartOfAccount((prevState) => ({
+                ...prevState, // Keep other properties unchanged
+                productsChartAccount: chartOfAccountData, // Update productsChartAccount
+            }));
+        }
         if (vendor && vendor.business?.tin) {
             if (form.getValues("taxType") === "VAT") {
                 const {
@@ -181,7 +238,10 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                 serviceWithholding,
                 withholding,
                 taxableAmount,
-                totalAmount
+                totalAmount,
+                purchaseProducts: watchedProducts,
+                chartOfAccount,
+                setChartOfAccount
             }}
         >
             {children}

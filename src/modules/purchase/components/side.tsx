@@ -1,7 +1,10 @@
 import React from 'react'
-import PurchaseVendorForm from './side/purchaseVendorForm'
 import { Card, CardContent } from '@/modules/ui/card';
 import { Separator } from '@/modules/ui/separator';
+import PurchaseVendorForm from './side/purchaseVendorForm';
+import ChartOfAccountListSection from './side/chartOfAccountList';
+import PurchaseSummationSection from './side/purchaseSummation';
+import WithholdingBreakdownSection from './side/withholdingBreakdown';
 
 const AddPurchaseSideSection = () => {
 
@@ -11,7 +14,11 @@ const AddPurchaseSideSection = () => {
             <CardContent className='pt-8 px-6'>
                 <PurchaseVendorForm />
                 <Separator className='my-8' />
-                <PurchaseVendorForm />
+                <ChartOfAccountListSection />
+                <Separator className='my-8' />
+                <PurchaseSummationSection />
+                <Separator className='my-8' />
+                <WithholdingBreakdownSection />
             </CardContent>
         </Card>
     )
