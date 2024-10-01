@@ -15,7 +15,7 @@ import {
 } from "@/modules/ui/popover"
 import { useChartOfAccount } from '@/lib/context/account/chartOfAccount';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/modules/ui/dialog';
-import { File } from 'lucide-react'
+import { File, FileChartColumnIncreasing } from 'lucide-react'
 import { useCompany, useProfile } from '@/lib/context/account'
 import { GeneralChartAccountForm } from '../form/generalChartOfAccountForm'
 import { chartOfAccountSchema } from '@/lib/form/account/chartOfAccount'
@@ -37,10 +37,12 @@ export const ChartOfAccountInput = ({
     companyId,
     setChartOfAccount,
     formData,
+    title = "Chart of Account",
     ...props
 }: {
     companyId: string
     formData: any,
+    title?: string,
     setChartOfAccount: (data: ChartOfAccountType) => void
 } & TeamSwitcherProps) => {
 
@@ -57,7 +59,6 @@ export const ChartOfAccountInput = ({
     const { toast } = useToast()
 
     useEffect(() => {
-        console.log("lloing")
         if (currentCompany && currentCompany.companyId) {
             if (!chartOfAccounts[currentCompany.companyId] || chartOfAccounts[currentCompany.companyId] && chartOfAccounts[currentCompany.companyId].length === 0)
                 getChartOfAccounts({
@@ -156,15 +157,21 @@ export const ChartOfAccountInput = ({
                 <PopoverTrigger asChild>
                     <div>
                         <Button
-                            variant="outline"
+                            variant="secondary"
                             role="combobox"
                             aria-expanded={open}
                             aria-label="Select a team"
-                            className={cn("w-full justify-between", props.className)}
+                            className={cn("w-full justify-between ", props.className)}
                         >
-                            <File className='mr-2 h-5 w-5' />
-                            {chartOfAccountIndex != null && chartOfAccounts && chartOfAccounts[companyId] && chartOfAccounts[companyId].length > chartOfAccountIndex ? chartOfAccounts[companyId][chartOfAccountIndex].name : "Chart of Account"}
-                            <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                            <FileChartColumnIncreasing className="mr-2 h-4 w-4" />
+                            {chartOfAccountIndex != null &&
+                                chartOfAccounts && chartOfAccounts[companyId] &&
+                                chartOfAccounts[companyId].length > chartOfAccountIndex ?
+                                chartOfAccounts[companyId][chartOfAccountIndex].name :
+                                <p className='opacity-65'>
+                                    {title}
+                                </p>}
+                            {/* <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" /> */}
                         </Button>
                         {formData && formData.formState.errors.chartOfAccountId && <p className='text-red-600 mt-4 text-left'>
                             {formData.formState.errors.chartOfAccountId.message}

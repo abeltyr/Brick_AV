@@ -1,9 +1,8 @@
 'use client'
 
-import { createPurchaseAction } from '@/lib/data/purchase/create';
 import { fetchPurchasesByCompanyIdAction } from '@/lib/data/purchase/fetchByCompanyId';
 import { filter, Filter, loadLimit } from '@/types/shared';
-import { PurchaseInputType, PurchaseType } from '@/types/purchase';
+import { PurchaseType } from '@/types/purchase';
 import React, { useCallback, useContext, useState } from "react";
 import { DateRangeType } from '@/types/shared';
 import { defaultDateRange } from '@/lib/utils/calendar/date';
@@ -18,7 +17,6 @@ const initialValues: {
     getPurchase: ({ companyId }: {
         companyId: string,
     }) => void;
-    createPurchase: ({ }: PurchaseInputType) => void;
     dateRange: DateRangeType,
     setDateRange: (date: DateRangeType,) => void
 } = {
@@ -31,7 +29,6 @@ const initialValues: {
     getPurchase: ({ }: {
         companyId: string,
     }) => { },
-    createPurchase: ({ }: PurchaseInputType) => { },
     dateRange: { ...defaultDateRange },
     setDateRange: (date: DateRangeType,) => { }
 };
@@ -54,30 +51,6 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
     const [dateRange, setDateRange] = useState<DateRangeType>({ ...defaultDateRange });
-
-
-    const createPurchase = async (data: PurchaseInputType) => {
-        try {
-            const purchasesData = { ...purchases };
-            const newPurchase = await createPurchaseAction({
-                ...data
-            });
-            if (newPurchase) {
-
-                if (purchasesData[data.companyId]) {
-                    purchasesData[data.companyId] = [newPurchase.purchase, ...purchasesData[data.companyId]];
-                } else {
-                    purchasesData[data.companyId] = [newPurchase.purchase];
-                }
-                setPurchases(purchasesData);
-
-                return newPurchase;
-            }
-        } catch (e) {
-            console.log(e)
-            throw new Error("Error Creating the purchase");
-        }
-    };
 
     const getPurchase = useCallback(
         async ({ companyId }: {
@@ -154,7 +127,6 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                 error,
                 loadMoreData,
                 fetchPurchases,
-                createPurchase,
                 getPurchase,
                 dateRange,
                 setDateRange,

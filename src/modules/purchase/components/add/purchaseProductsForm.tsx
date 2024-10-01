@@ -1,6 +1,6 @@
 
 import { useDrawerManager } from '@/lib/context/drawer/drawer'
-import { purchaseFormSchema } from '@/lib/form/purchase'
+import { purchaseSchema } from '@/lib/form/purchase'
 import { SearchProductSection } from '@/modules/products/templates'
 import { Button } from '@/modules/ui/button'
 import {
@@ -30,7 +30,7 @@ import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { z } from 'zod'
 
 
-export default function PurchaseProductsForm({ form }: { form: UseFormReturn<z.infer<typeof purchaseFormSchema>> }) {
+export default function PurchaseProductsForm({ form }: { form: UseFormReturn<z.infer<typeof purchaseSchema>> }) {
 
     const { fields, append, remove, update } = useFieldArray({
         control: form.control,

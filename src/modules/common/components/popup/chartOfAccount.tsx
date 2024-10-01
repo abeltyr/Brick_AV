@@ -73,10 +73,10 @@ export const ChartOfAccountPopup: React.FC<ChartOfAccountPopupProps> = ({
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className='text-left w-6 sticky top-0 bg-popover z-10'>Name</TableHead>
-                                    <TableHead className='w-32 sticky top-0 bg-popover z-10'>Account Id</TableHead>
-                                    <TableHead className='w-40 sticky top-0 bg-popover z-10'>Account Type</TableHead>
-                                    <TableHead className="text-right w-10 sticky top-0 bg-popover z-10">Selected</TableHead>
+                                    <TableHead className='w-10 bg-popover z-10'>Account Id</TableHead>
+                                    <TableHead className='w-32 text-left bg-popover z-10'>Name</TableHead>
+                                    <TableHead className='w-32 bg-popover z-10'>Account Type</TableHead>
+                                    <TableHead className="w-10 text-right bg-popover z-10">Selected</TableHead>
                                 </TableRow>
                             </TableHeader>
 
@@ -99,7 +99,7 @@ export const ChartOfAccountPopup: React.FC<ChartOfAccountPopupProps> = ({
                                         </TableRow>
                                     ))
                                 ) : (
-                                    filteredChartOfAccounts.map((chartOfAccount, index) => (
+                                    [...filteredChartOfAccounts].map((chartOfAccount, index) => (
                                         <TableRow
                                             key={chartOfAccount.id}
                                             className="cursor-pointer"
@@ -109,10 +109,10 @@ export const ChartOfAccountPopup: React.FC<ChartOfAccountPopupProps> = ({
                                                 setOpen(false)
                                             }}
                                         >
+                                            <TableCell className='w-10'>{chartOfAccount.code}</TableCell>
                                             <TableCell className="table-cell w-6 text-left">
                                                 {chartOfAccount.name}
                                             </TableCell>
-                                            <TableCell className='w-10'>{chartOfAccount.code}</TableCell>
                                             <TableCell className="table-cell w-32">
                                                 {accountTypeObject[chartOfAccount.accountType].data}
                                             </TableCell>

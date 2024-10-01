@@ -22,12 +22,12 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/modules/ui/popover"
-import { purchaseFormSchema } from '@/lib/form/purchase'
+import { purchaseSchema } from '@/lib/form/purchase'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 
 
-export default function PurchaseDetailForm({ form }: { form: UseFormReturn<z.infer<typeof purchaseFormSchema>> }) {
+export default function PurchaseDetailForm({ form }: { form: UseFormReturn<z.infer<typeof purchaseSchema>> }) {
     return (
         <Card>
             <CardHeader>

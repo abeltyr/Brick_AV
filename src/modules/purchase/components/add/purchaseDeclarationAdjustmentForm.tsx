@@ -1,5 +1,5 @@
 
-import { purchaseFormSchema } from '@/lib/form/purchase'
+import { purchaseSchema } from '@/lib/form/purchase'
 import { LanguageTranslator } from '@/modules/language/components'
 import {
     Card,
@@ -25,7 +25,7 @@ import { z } from 'zod'
 
 
 export default function PurchaseDeclarationAdjustmentForm({ form, taxTotal, totalQuantity }: {
-    form: UseFormReturn<z.infer<typeof purchaseFormSchema>>
+    form: UseFormReturn<z.infer<typeof purchaseSchema>>
     totalQuantity: number,
     taxTotal: Decimal
 }) {

@@ -2,7 +2,7 @@ import { zProductInputTaxType, zProductInputType, zProductInputUnit, zProductInp
 import { z } from 'zod';
 
 
-export const ChartOfAccountInput = z.object({
+export const ChartOfAccountValueInput = z.object({
     id: z.string(),
     balanceType: z.enum(["credit", "debit"]),
 });
@@ -13,7 +13,7 @@ export const purchaseProducts = z.object({
     inventoryId: z.string(),
     productId: z.string(),
     type: zProductInputType,
-    chartOfAccount: ChartOfAccountInput,
+    chartOfAccount: ChartOfAccountValueInput,
     purchaseType: zPurchaseInputType,
     unit: zProductInputUnit,
     unitPrice: z.number(),
@@ -22,7 +22,7 @@ export const purchaseProducts = z.object({
     name: z.string(),
 })
 
-export const purchaseFormSchema = z.object({
+export const purchaseSchema = z.object({
     vendorId: z.string(),
     date: z.date(),
     taxType: zProductInputTaxType,
@@ -32,9 +32,9 @@ export const purchaseFormSchema = z.object({
     withholdingNumber: z.string().optional(),
     cashReceiptVoucher: z.string().optional(),
     chartOfAccount: z.object({
-        paymentChartOfAccount: ChartOfAccountInput.optional(),
-        vatChartOfAccountId: ChartOfAccountInput.optional(),
-        withholdingChartOfAccountId: ChartOfAccountInput.optional(),
+        paymentChartOfAccount: ChartOfAccountValueInput.optional(),
+        vatChartOfAccountId: ChartOfAccountValueInput.optional(),
+        withholdingChartOfAccountId: ChartOfAccountValueInput.optional(),
     }),
     gebiwoch: z.object({
         purchaseType: zPurchaseInputType,
