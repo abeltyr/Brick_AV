@@ -1,11 +1,6 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import {
-    CaretSortIcon,
-    PlusCircledIcon,
-} from "@radix-ui/react-icons"
-
 import { cn } from "@/lib/utils"
 import { Button } from "@/modules/ui/button"
 import {
@@ -15,7 +10,7 @@ import {
 } from "@/modules/ui/popover"
 import { useChartOfAccount } from '@/lib/context/account/chartOfAccount';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/modules/ui/dialog';
-import { File, FileChartColumnIncreasing } from 'lucide-react'
+import { FileChartColumnIncreasing } from 'lucide-react'
 import { useCompany, useProfile } from '@/lib/context/account'
 import { GeneralChartAccountForm } from '../form/generalChartOfAccountForm'
 import { chartOfAccountSchema } from '@/lib/form/account/chartOfAccount'
@@ -27,7 +22,6 @@ import { accountTypeObject } from '@/lib/utils/chartOfAccount/values'
 import { useToast } from '@/modules/ui/use-toast'
 import { ChartOfAccountType } from '@/types/purchase'
 import { ChartOfAccountPopup } from '../popup/chartOfAccount'
-import { ScrollArea } from '@/modules/ui/scroll-area'
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<typeof PopoverTrigger>
 

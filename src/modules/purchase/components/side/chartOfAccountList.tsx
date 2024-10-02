@@ -9,6 +9,7 @@ import {
 } from "@/modules/ui/collapsible"
 import { useAddPurchases } from '@/lib/context/purchase/addPurchase'
 import Decimal from 'decimal.js'
+import { useEffect, useState } from 'react'
 
 
 
@@ -18,10 +19,18 @@ export default function ChartOfAccountListSection() {
 
     const { chartOfAccount, taxTotal, withholding } = useAddPurchases()
 
+    const [opened, setOpened] = useState(false)
+
+    useEffect(() => {
+        if (chartOfAccount.paymentAccount && !opened) {
+            setOpened(true)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [chartOfAccount.paymentAccount])
 
 
     return (
-        <Collapsible>
+        <Collapsible open={opened}>
             <div>
                 <div className='w-full flex justify-between'>
                     <div className='text-2xl font-bold'>
@@ -30,15 +39,22 @@ export default function ChartOfAccountListSection() {
                         </LanguageTranslator>
                     </div>
                     <CollapsibleTrigger>
-                        <Button variant={"ghost"} size={"sm"}>
-                            <ChevronDown />
+                        <Button
+                            variant={"ghost"}
+                            size={"sm"}
+                            onClick={() => { setOpened(!opened) }}
+                        >
+                            <ChevronDown
+                                className={`${opened && chartOfAccount.paymentAccount ? "rotate-180" : "rotate-0"} duration-300 transition-all`}
+                            />
+
                         </Button>
                     </CollapsibleTrigger>
                 </div>
                 <CollapsibleContent>
-                    <div className="flex flex-col gap-0 mt-3">
-                        <div className="text-sm font-medium">Payment account</div>
-                        <ul className="grid gap-2 mt-3">
+                    <div className={`flex flex-col gap-0 ${chartOfAccount.paymentAccount ? "mt-3" : ""}`}>
+                        {chartOfAccount.paymentAccount && <div className="text-sm font-medium">Payment account</div>}
+                        {chartOfAccount.paymentAccount && <ul className="grid gap-2 mt-3">
                             <li className="flex items-center justify-between">
                                 <span className="text-[#828282] text-sm">
                                     Category
@@ -66,7 +82,7 @@ export default function ChartOfAccountListSection() {
                                         new Decimal(chartOfAccount.paymentAccount.chartOfAccountBalance.balance).toNumber().toLocaleString('en-US') : 0}
                                 </span>
                             </li>
-                        </ul>
+                        </ul>}
 
                         <div className={`
                             flex flex-col gap-3 
@@ -88,17 +104,17 @@ export default function ChartOfAccountListSection() {
                                         }
                                     </li>
                                 })}
-                                {taxTotal.greaterThan(0) && <li className="flex items-center justify-between">
+                                {taxTotal.greaterThan(0) && chartOfAccount.vatAccount && <li className="flex items-center justify-between">
                                     <span className="text-[#828282] text-sm">
-                                        Vat Receivable
+                                        {chartOfAccount.vatAccount?.name}
                                     </span>
                                     <span className="text-primary text-sm">
                                         {taxTotal && taxTotal.toNumber().toLocaleString('en-US')}
                                     </span>
                                 </li>}
-                                {withholding.greaterThan(0) && <li className="flex items-center justify-between">
+                                {withholding.greaterThan(0) && chartOfAccount.withHolding && <li className="flex items-center justify-between">
                                     <span className="text-[#828282] text-sm">
-                                        Withholding Payable
+                                        {chartOfAccount.withHolding?.name}
                                     </span>
                                     <span className="text-primary text-sm">
                                         {withholding && withholding.toNumber().toLocaleString('en-US')}
@@ -106,7 +122,7 @@ export default function ChartOfAccountListSection() {
                                 </li>}
                             </ul>
                             }
-                            {taxTotal.greaterThan(0) && <ul className="flex flex-col gap-3 ">
+                            {/* {taxTotal.greaterThan(0) && <ul className="flex flex-col gap-3 ">
                                 <li className="flex items-center justify-between">
                                     <span className="text-[#828282] text-sm">
                                         Vat Receivable
@@ -125,7 +141,7 @@ export default function ChartOfAccountListSection() {
                                         {withholding && withholding.toNumber().toLocaleString('en-US')}
                                     </span>
                                 </li>
-                            </ul>}
+                            </ul>} */}
                         </div>
                     </div>
                 </CollapsibleContent>

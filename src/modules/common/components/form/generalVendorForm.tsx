@@ -91,7 +91,7 @@ export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: U
             {!business && <div className="space-y-2">
                 <RadioInput
                     form={form}
-                    title='Is it the vendor registered Business?'
+                    title='Is the Vendor registered Business?'
                     name='isRegistered'
                     alignment='horizontal'
                     values={[
@@ -110,7 +110,7 @@ export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: U
             </div>}
 
             {!business && watchedRegisteredData === "yes" &&
-                <ZeroAdjustableInput title={"Vendor Tin *"} name="tin" form={form} />
+                <ZeroAdjustableInput title={"Vendor TIN"} name="tin" form={form} placeholder='Enter Tax Identification Number (TIN)' />
             }
 
             {business && <div className="flex gap-3 flex-wrap justify-between">

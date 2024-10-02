@@ -26,13 +26,13 @@ export const RadioInput = ({
         <FormField control={form.control}
             name={name}
             render={({ field }) => (
-                <FormItem>
-                    <FormLabel className='text-sm'>
+                <FormItem >
+                    <FormLabel className='text-sm font-medium'>
                         <LanguageTranslator>
                             {title}
                         </LanguageTranslator>
                     </FormLabel>
-                    <FormControl>
+                    <FormControl className='pt-2'>
                         <RadioGroup
                             className={`flex ${alignment === "vertical" ? "flex-col gap-4 " : "gap-6"}`}
                             {...field}
@@ -49,7 +49,7 @@ export const RadioInput = ({
                                             if (data.onClick) data.onClick()
                                         }}
                                     />
-                                    <Label htmlFor={data.value}>{data.data}</Label>
+                                    <Label htmlFor={data.value} className='text-sm font-medium'>{data.data}</Label>
                                 </div>
                             })}
                         </RadioGroup>

@@ -1,4 +1,4 @@
-import { zProductInputTaxType, zProductInputType, zProductInputUnit, zProductInputWithholdingType, zPurchaseInputType } from '@/lib/form/product/data';
+import { zProductInputType, zProductInputUnit, zProductInputWithholdingType, zPurchaseInputType } from '@/lib/form/product/data';
 import { z } from 'zod';
 
 
@@ -28,7 +28,6 @@ export const purchaseProducts = z.object({
 export const purchaseSchema = z.object({
     vendorId: z.string(),
     date: z.date(),
-    taxType: zProductInputTaxType,
     receiptNumber: z.string(),
     mrcNumber: z.string().optional(),
     withholdingType: zProductInputWithholdingType,

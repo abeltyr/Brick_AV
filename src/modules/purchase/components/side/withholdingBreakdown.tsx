@@ -7,7 +7,7 @@ import {
     CollapsibleTrigger,
 } from "@/modules/ui/collapsible"
 import { useAddPurchases } from '@/lib/context/purchase/addPurchase'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 
 
@@ -24,6 +24,17 @@ export default function WithholdingBreakdownSection() {
     } = useAddPurchases()
 
     const [opened, setOpened] = useState(false)
+
+
+    useEffect(() => {
+        if (withholding.greaterThan(0) && !opened) {
+            setOpened(true)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [withholding])
+
+
+
     return (
         <Collapsible open={opened}>
             <div>

@@ -11,7 +11,7 @@ import { useAddPurchases } from '@/lib/context/purchase/addPurchase'
 import { CardContent } from '@/modules/ui/card'
 import { Separator } from '@/modules/ui/separator'
 import Decimal from 'decimal.js'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 
 
@@ -30,8 +30,17 @@ export default function PurchaseSummationSection() {
     } = useAddPurchases()
 
     const [opened, setOpened] = useState(false)
+
+
+    useEffect(() => {
+        if (purchaseProducts && !opened) {
+            setOpened(true)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [purchaseProducts])
+
     return (
-        <Collapsible open={opened}  >
+        <Collapsible open={opened} >
             <div>
                 <div className='w-full flex justify-between'>
                     <div className='text-2xl font-bold'>

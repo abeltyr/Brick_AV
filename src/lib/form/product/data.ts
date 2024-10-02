@@ -86,7 +86,7 @@ export const zProductInputUnit = z.enum([
   "OTHER",
   "PC",
 ]);
-export const zProductInputTaxType = z.enum(["VAT", "TOT", "NONE"]);
+export const zVendorInputTaxType = z.enum(["VAT", "TOT", "NONE"]);
 
 export const zProductInputReceiptType = z.enum(["Machine", "Manual"]);
 
