@@ -170,13 +170,11 @@ export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: U
                     </div>
 
                     {watchedTaxType === "VAT" && <div className="flex-1 min-w-[200px] w-full">
-                        <NormalInput
+                        <ZeroAdjustableInput
                             form={form}
                             name='vat'
                             title="Vendor Vat"
-                            type='text'
-                            disabled={readOnlyValues.includes("vat")}
-                            placeholder="Enter your TIN number"
+                            placeholder="Enter Vendor Vat"
                         />
                     </div>}
                 </>}

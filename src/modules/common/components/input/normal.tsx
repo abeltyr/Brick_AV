@@ -4,6 +4,7 @@ import React from 'react'
 
 export const NormalInput = ({
     title,
+    description,
     form,
     name,
     placeholder,
@@ -11,6 +12,7 @@ export const NormalInput = ({
     type
 }: {
     title: string,
+    description?: string,
     form: any,
     name: string,
     placeholder?: string
@@ -24,7 +26,13 @@ export const NormalInput = ({
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel className='text-sm'>{title}</FormLabel>
+                    <FormLabel className='text-sm'>
+                        <p>{title}
+                        </p>
+                        {description && <p className='text-xs text-[#71717A] font-light'>
+                            {description}
+                        </p>}
+                    </FormLabel>
                     <FormControl>
                         <Input
                             type={type}

@@ -25,7 +25,7 @@ export const SelectInput = ({
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel className='text-sm'>
+                    <FormLabel className='text-sm '>
                         <LanguageTranslator>
                             {title}
                         </LanguageTranslator>
@@ -37,8 +37,8 @@ export const SelectInput = ({
                             defaultValue={field.value}
                             value={field.value}
                         >
-                            <SelectTrigger id={selectTitle.value} aria-label={selectTitle.name} >
-                                <SelectValue placeholder={selectTitle.name} />
+                            <SelectTrigger id={selectTitle.value} aria-label={selectTitle.name}  >
+                                <SelectValue placeholder={selectTitle.name} className='text-[#71717A] text-sm' />
                             </SelectTrigger>
                             <SelectContent>
                                 {values.map((value, index) => {

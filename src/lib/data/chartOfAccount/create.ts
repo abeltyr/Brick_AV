@@ -29,7 +29,7 @@ export const createChartOfAccountAction = async ({
 
   if (!fiscalYear) throw new Error("Financial period not found");
 
-  const accountPeriod = await prisma.accountPeriod.findMany({
+  const accountPeriods = await prisma.accountPeriod.findMany({
     where: {
       fiscalYearId: fiscalYear.id,
       startDate: {
@@ -41,7 +41,7 @@ export const createChartOfAccountAction = async ({
     },
   });
 
-  if (!accountPeriod || accountPeriod.length > 0)
+  if (!accountPeriods || accountPeriods.length === 0)
     throw new Error("Account period not found");
 
   const createChartOfAccount: Prisma.ChartOfAccountCreateInput = {
@@ -73,7 +73,7 @@ export const createChartOfAccountAction = async ({
         credit: data.balanceType === "credit" ? data.amount : 0,
         debit: data.balanceType === "debit" ? data.amount : 0,
         date: date,
-        accountPeriodId: accountPeriod[0].id,
+        accountPeriodId: accountPeriods[0].id,
       },
     };
   }

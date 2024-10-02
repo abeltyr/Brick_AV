@@ -2,6 +2,7 @@ import AddSVG from '@/assets/icons/add'
 import LoadingSVG from '@/assets/icons/loading'
 import { useCompany } from '@/lib/context/account'
 import { useAuth } from '@/lib/context/auth/user'
+import { useDrawerManager } from '@/lib/context/drawer/drawer'
 import { useVendors } from '@/lib/context/vendor'
 import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
 import { Button } from '@/modules/ui/button'
@@ -11,7 +12,7 @@ import { Input } from '@/modules/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/modules/ui/table'
 import { VendorType } from '@/types/vendor'
 import { CirclePlus } from 'lucide-react'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 export const VendorDrawerTable = ({
     setIsAddingVendor,
@@ -24,6 +25,7 @@ export const VendorDrawerTable = ({
     const { getVendor, vendors, loadMoreData, fetchingVendors, fetchVendors, searchVendor, initialLoading } = useVendors();
     const { currentCompany } = useCompany();
 
+    const { setPurchaseVendorListingDrawer } = useDrawerManager()
     const [searchTerm, setSearchTerm] = useState("")
     const [currentVendors, setCurrentVendors] = useState<VendorType[] | null>()
     const [finalVendors, setFinalVendors] = useState<VendorType[] | null>()
@@ -68,6 +70,7 @@ export const VendorDrawerTable = ({
                                     vendor?.business?.businessName?.toLowerCase().includes(searchTerm.toLowerCase())
                                 )
                             })
+                            // if (localResults.length > 0)
                             setCurrentVendors(localResults)
                         } else if (currentCompany)
                             setCurrentVendors(vendors[currentCompany.companyId])
@@ -164,9 +167,13 @@ export const VendorDrawerTable = ({
                 createSVG={<AddSVG />}
                 create='Insert'
                 disabled={selectedVendor === null}
+                closeFunction={() => {
+                    setPurchaseVendorListingDrawer(false)
+                }}
                 createFunction={() => {
                     if (selectedVendor)
                         updateVendor(selectedVendor)
+                    setPurchaseVendorListingDrawer(false)
                 }}
             />
         </div>

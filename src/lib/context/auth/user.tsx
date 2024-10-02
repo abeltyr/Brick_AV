@@ -44,8 +44,8 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                 setLoading(false);
             } catch (e) {
                 console.error(e)
-                setError(true)
                 setLoading(false);
+                setError(true)
             }
         },
         [],
@@ -73,13 +73,13 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                 setSession(data.session);
                 setLoading(false);
             } catch (e) {
-                await logout();
+                // await logout();
                 setSession(null);
                 setError(true)
                 setLoading(false);
             }
         },
-        [logout],
+        [],
     );
 
     useEffect(() => {
@@ -132,7 +132,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     else if (!loading && error)
         return <>
             <p className='text-3xl font-black text-black'>
-                Auth  Error Page
+                Auth Error Page
             </p>
             <LoadingTemplate />
         </>

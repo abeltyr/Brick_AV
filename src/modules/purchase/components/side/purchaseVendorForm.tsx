@@ -1,24 +1,19 @@
 
 import { LanguageTranslator } from '@/modules/language/components'
 import {
-    Card,
-    CardContent,
     CardDescription,
-    CardFooter,
-    CardHeader,
     CardTitle,
 } from "@/modules/ui/card"
 import { Sheet, SheetContent, SheetTrigger } from '@/modules/ui/sheet'
 import { VendorType } from '@/types/vendor'
 import { SearchVendorSection } from '@/modules/vendor/templates/search'
-import { Trash2 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/modules/ui/avatar'
-import { Label } from '@/modules/ui/label'
-import { Input } from '@/modules/ui/input'
 import { useDrawerManager } from '@/lib/context/drawer/drawer'
-import { Separator } from '@/modules/ui/separator'
 import { useAddPurchases } from '@/lib/context/purchase/addPurchase'
 import { Button } from '@/modules/ui/button'
+import { Badge } from '@/modules/ui/badge'
+import { BusinessDetailModal } from '@/modules/business/components/businessDetailModal'
+import { useState } from 'react'
 
 
 export default function PurchaseVendorForm() {
@@ -26,13 +21,106 @@ export default function PurchaseVendorForm() {
     const { form, vendor, setVendor } = useAddPurchases()
     const { purchaseVendorListingDrawer, setPurchaseVendorListingDrawer } = useDrawerManager()
 
-    if (!vendor)
-        return (
-            <Sheet
-                modal={purchaseVendorListingDrawer}
-                onOpenChange={setPurchaseVendorListingDrawer}
-            >
-                <div className='w-full flex flex-col'>
+
+
+    const [isOpen, setIsOpen] = useState(false)
+    // const [business, setBusinessFetched] = useState<BusinessType | null>(business)
+
+    const handleClose = () => {
+        setIsOpen(false)
+    }
+    const handleContinue = () => {
+        setIsOpen(false)
+    }
+
+    return (
+        <Sheet
+            modal={purchaseVendorListingDrawer}
+            onOpenChange={setPurchaseVendorListingDrawer}
+            open={purchaseVendorListingDrawer}
+        >
+            {vendor ? <div className='flex flex-col  mt-6'>
+                <div className='w-full flex text-2xl font-bold'>
+                    Selected a vendor
+                </div>
+                <div className='flex flex-col gap-6 mt-8'>
+                    <div className="flex items-center gap-x-4">
+                        <Avatar className="h-16 w-16">
+                            <AvatarFallback className='text-2xl text-[#71717A]'>{vendor.name?.slice(0, 2)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            {vendor.business ?
+                                <div>
+                                    {vendor.business.managerNameEng && <h2 className="text-xl font-bold">{vendor.business.managerNameEng}</h2>}
+                                    {vendor.business.businessName &&
+                                        vendor.business.businessName != vendor.business.managerNameEng &&
+                                        <p className="text-sm text-[#6D6D6D]">{vendor.business?.businessName}</p>}
+                                </div> :
+                                <div>
+                                    <h2 className="text-xl font-bold">{vendor.name}</h2>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    {vendor.business ? <div className='flex flex-col gap-2'>
+
+                        <div className="flex text-sm gap-1">
+                            <span className='font-medium'>Tin: </span>
+                            <span className=' text-[#747474]'>
+                                {vendor.business.tin}
+                            </span>
+                        </div>
+                        {vendor.vat && <div className="flex text-sm gap-1">
+                            <span className='font-medium'>Vat: </span>
+                            <span className=' text-[#747474]'>
+                                {vendor.vat}
+                            </span>
+                        </div>
+                        }
+                        <div>
+                            <Badge className='hover:bg-primary'>
+                                Vat Registered
+                            </Badge>
+                        </div>
+                    </div> : <div>
+                    </div>}
+                    <div className='flex gap-3'>
+
+                        <SheetTrigger asChild className='flex-1'>
+                            <Button variant={"secondary"}
+                                onClick={() => {
+                                    // form!.setValue("vendorId", "")
+                                    // setVendor(null)
+                                }}
+                            >
+                                Change Vendor
+                            </Button>
+                        </SheetTrigger>
+
+                        {vendor.business && <Button
+                            className='flex-1'
+                            variant={"secondary"}
+                            onClick={() => {
+                                setIsOpen(true)
+                            }}
+                        >
+                            View vendor detail
+                        </Button>}
+                    </div>
+
+                    {vendor.business && <BusinessDetailModal
+                        isOpen={isOpen}
+                        setIsOpen={setIsOpen}
+                        handleClose={handleClose}
+                        handleContinue={handleContinue}
+                        businessFetched={vendor.business}
+                        viewingOnly={true}
+                        name={vendor.business?.businessName ?? ""}
+                    />}
+                </div>
+
+            </div> :
+                <div className='w-full flex flex-col mt-8'>
                     <div className='w-full flex flex-col justify-start gap-8'>
                         <div className='flex flex-col'>
                             <CardTitle className='text-2xl font-bold'>
@@ -57,63 +145,17 @@ export default function PurchaseVendorForm() {
                             </p>
                         </div>
                     }
-                </div>
-                <SheetContent side="right" className="max-w-[400px] min-w-[50%] p-0 flex flex-col h-full ">
-                    <SearchVendorSection
-                        updateVendor={(vendor: VendorType) => {
-                            if (vendor) {
-                                form!.setValue("vendorId", vendor.id)
-                                setVendor(vendor)
-                            }
-                        }}
-                    />
-                </SheetContent>
-            </Sheet>
-        )
-    else
-        return (
-            <Card className="w-full ">
-                <CardHeader className="relative   ">
-                    <div className='w-full justify-center flex text-xl font-black'>
-                        Selected a vendor
-                    </div>
-                    <Separator className='my-3' />
-                    <div className='flex justify-between items-center'>
-
-                        <div className="flex items-center space-x-4">
-                            <Avatar className="h-20 w-20">
-                                {/* <AvatarImage src="/placeholder.svg?height=80&width=80" alt="Profile picture" /> */}
-                                <AvatarFallback className='text-3xl'>{vendor.name?.slice(0, 2)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <h2 className="text-2xl font-bold">{vendor.name}</h2>
-                                <p className="text-sm text-muted-foreground">{vendor.phoneNumber}</p>
-                            </div>
-                        </div>
-                        <button
-                            className="p-3 bg-red-100 rounded-md hover:bg-red-200 hover:scale-105 transition-colors duration-300"
-                            aria-label="Remove card"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                form!.setValue("vendorId", "")
-                                setVendor(null)
-                            }}
-                        >
-                            <Trash2 className="h-5 w-5 text-red-600" />
-                        </button>
-                    </div>
-                </CardHeader>
-                <CardContent className=" flex gap-3 justify-between items-center">
-                    <div className="space-y-2 flex-1">
-                        <Label htmlFor="tin">TIN (Tax Identification Number)</Label>
-                        <Input value={vendor.business && vendor.business.tin ? vendor.business.tin : "---"} readOnly />
-                    </div>
-                    <div className="space-y-2 flex-1">
-                        <Label htmlFor="vat">VAT Number</Label>
-                        <Input value={vendor && vendor.vat ? vendor.vat : "---"} readOnly />
-                    </div>
-                </CardContent>
-            </Card>
-
-        )
+                </div>}
+            <SheetContent side="right" className="max-w-[400px] min-w-[50%] p-0 flex flex-col h-full ">
+                <SearchVendorSection
+                    updateVendor={(vendor: VendorType) => {
+                        if (vendor) {
+                            form!.setValue("vendorId", vendor.id)
+                            setVendor(vendor)
+                        }
+                    }}
+                />
+            </SheetContent>
+        </Sheet>
+    )
 }

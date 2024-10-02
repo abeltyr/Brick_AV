@@ -11,7 +11,7 @@ const AddPurchaseSideSection = () => {
 
     return (
         <Card className=''>
-            <CardContent className='pt-8 px-6'>
+            <CardContent className=' px-6'>
                 <PurchaseVendorForm />
                 <Separator className='my-8' />
                 <ChartOfAccountListSection />

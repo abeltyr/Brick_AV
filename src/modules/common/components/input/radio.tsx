@@ -6,6 +6,7 @@ import React from 'react'
 
 export const RadioInput = ({
     title,
+    description,
     form,
     name,
     values,
@@ -14,6 +15,7 @@ export const RadioInput = ({
     title: string,
     form: any,
     name: string,
+    description?: string,
     values: {
         data: string,
         value: string,
@@ -31,6 +33,10 @@ export const RadioInput = ({
                         <LanguageTranslator>
                             {title}
                         </LanguageTranslator>
+
+                        {description && <p className='text-sm text-[#71717A] font-light'>
+                            {description}
+                        </p>}
                     </FormLabel>
                     <FormControl className='pt-2'>
                         <RadioGroup
