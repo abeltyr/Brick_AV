@@ -14,6 +14,7 @@ export const createVenderAction = async (
     name: data.name,
     vat: data.vat,
     email: data.email,
+    taxType: data.taxType,
     phoneNumber: data.phoneNumber,
     description: data.description,
     company: {

@@ -96,7 +96,7 @@ export function BusinessDetailModal({
                 <DialogHeader >
                     <div className='px-8 flex justify-between items-center w-full'>
                         <p className="text-3xl font-extrabold">
-                            {!viewingOnly ? "Does everything looks right?" : `${name} - Business Information`}
+                            {!viewingOnly ? "Does everything looks right?" : `Business Information`}
                         </p>
                         <div
                             className='cursor-pointer select-none'

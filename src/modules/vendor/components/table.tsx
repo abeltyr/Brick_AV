@@ -71,7 +71,7 @@ export default function VendorsTableList({ vendors }: { vendors: VendorType[] })
                         <TableRow>
                             <TableHead className="text-left">Company Name</TableHead>
                             <TableHead className="text-left">Tin Number</TableHead>
-                            <TableHead className="hidden sm:table-cell text-left">Vat</TableHead>
+                            <TableHead className="hidden sm:table-cell text-left">Tax Type</TableHead>
                             <TableHead className="hidden md:table-cell text-left">Email</TableHead>
                             <TableHead className="hidden md:table-cell text-left">Phone number</TableHead>
                             <TableHead className="text-right">Date</TableHead>
@@ -91,7 +91,7 @@ export default function VendorsTableList({ vendors }: { vendors: VendorType[] })
                                     </div>
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-left">
-                                    {data && data.vat ? data.vat : "---"}
+                                    {data && data.taxType ? data.taxType : "---"}
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-left">
                                     {data && data.email ? data.email : "---"}

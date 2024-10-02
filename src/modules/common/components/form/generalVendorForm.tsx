@@ -13,6 +13,7 @@ import { PhoneNumberInput } from '../input/phoneNumber'
 import { NormalInput } from '../input/normal'
 import { NormalTextAreaInput } from '../input/textArea'
 import { RadioInput } from '../input/radio'
+import { Edit, Edit2, Eye, Pencil } from 'lucide-react'
 
 
 export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: UseFormReturn<z.infer<typeof vendorSchema>>, readOnlyValues?: string[] }) => {
@@ -25,6 +26,12 @@ export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: U
     const watchedTin = useWatch({
         control: form.control,
         name: "tin",
+    });
+
+
+    const watchedTaxType = useWatch({
+        control: form.control,
+        name: "taxType",
     });
 
     const { business, setBusiness, fetchBusiness } = useVendors()
@@ -58,36 +65,10 @@ export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: U
 
 
 
+
     return (
         <div className='flex flex-col gap-5'>
-            {business && <Card>
-                <CardContent className='flex justify-between p-4 items-center '>
-                    <div className='flex gap-3 items-center'>
-                        <Avatar className="h-12 w-12">
-                            <AvatarImage
-                                src={`images/companyLogo.webp`}
-                                alt={"company logo"}
-                            />
-                            <AvatarFallback>{business.businessName?.slice(0, 2)?.toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                        <p className='text-base font-semibold text-foreground'>
-                            {business.businessName}
-                        </p>
-                    </div>
-                    <Button variant={"secondary"} onClick={(e) => {
-                        e.preventDefault()
-                        setIsOpen(true)
-                    }}>
-                        View Business Detail
-                    </Button>
-                    <Button variant={"secondary"} onClick={(e) => {
-                        e.preventDefault()
-                        setBusiness(null)
-                    }}>
-                        Change
-                    </Button>
-                </CardContent>
-            </Card>}
+
             {!business && <div className="space-y-2">
                 <RadioInput
                     form={form}
@@ -98,12 +79,14 @@ export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: U
                         {
                             data: "Yes",
                             value: "yes",
-                            onClick: () => { }
+                            onClick: () => {
+                            }
                         },
                         {
                             data: "No",
                             value: "no",
                             onClick: () => {
+                                form.setValue("taxType", "NONE")
                             }
                         }
                     ]} />
@@ -113,63 +96,129 @@ export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: U
                 <ZeroAdjustableInput title={"Vendor TIN"} name="tin" form={form} placeholder='Enter Tax Identification Number (TIN)' />
             }
 
-            {business && <div className="flex gap-3 flex-wrap justify-between">
-                <div className="flex-1 min-w-[200px]">
+            {business &&
+                <>
+                    <Card>
+                        <CardContent className='flex flex-col justify-start p-6 gap-6 '>
+                            <div className='flex gap-3 items-center'>
+                                <Avatar className="h-12 w-12">
+                                    <AvatarImage
+                                        alt={"company logo"}
+                                    />
+                                    <AvatarFallback>{business.businessName?.slice(0, 2)?.toUpperCase()}</AvatarFallback>
+                                </Avatar>
+                                <p className='text-base font-semibold text-foreground'>
+                                    {business.businessName}
+                                </p>
+                            </div>
+                            <div className='flex w-full gap-5'>
+                                <Button
+                                    className='flex gap-2'
+                                    variant={"secondary"}
+                                    onClick={(e) => {
+                                        e.preventDefault()
+                                        setIsOpen(true)
+                                    }}
+                                >
+                                    <Eye className='w-4 h-4' />
+                                    View Business Detail
+                                </Button>
+                                <Button
+                                    className='flex gap-2'
+                                    variant={"secondary"}
+                                    onClick={(e) => {
+                                        e.preventDefault()
+                                        setBusiness(null)
+                                    }}
+                                >
+                                    <Pencil className='w-4 h-4' />
+                                    Change Business
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <div className="flex gap-3 flex-wrap justify-between">
+                        <div className="flex-1 min-w-[200px]">
+                            <NormalInput
+                                form={form}
+                                name='name'
+                                title="Vendor Name"
+                                type='text'
+                                disabled={readOnlyValues.includes("fullName")}
+                                placeholder="Vendor name"
+                            />
+                        </div>
+                    </div>
+                    <div className='w-full flex gap-5'>
+
+                        <Button
+                            onClick={() => {
+                                form.setValue("taxType", "VAT")
+                            }}
+                            variant={watchedTaxType === "VAT" ? "default" : "secondary"}
+                            className='flex-1'>
+                            VAT
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                form.setValue("taxType", "TOT")
+                            }}
+                            variant={watchedTaxType === "TOT" ? "default" : "secondary"}
+                            className='flex-1'>
+                            TOT
+                        </Button>
+                    </div>
+
+                    {watchedTaxType === "VAT" && <div className="flex-1 min-w-[200px] w-full">
+                        <NormalInput
+                            form={form}
+                            name='vat'
+                            title="Vendor Vat"
+                            type='text'
+                            disabled={readOnlyValues.includes("vat")}
+                            placeholder="Enter your TIN number"
+                        />
+                    </div>}
+                </>}
+
+            {watchedRegisteredData === 'no' &&
+                <div className="flex-1 min-w-1/2">
                     <NormalInput
                         form={form}
                         name='name'
-                        title="Vendor Name"
+                        title='Seller name'
                         type='text'
                         disabled={readOnlyValues.includes("fullName")}
-                        placeholder="Vendor name"
+                        placeholder="Enter Vendor Full name"
                     />
                 </div>
-
-                <div className="flex-1 min-w-[200px] w-full">
-                    <NormalInput
-                        form={form}
-                        name='vat'
-                        title="Vendor Vat"
-                        type='text'
-                        disabled={readOnlyValues.includes("vat")}
-                        placeholder="Enter your TIN number"
-                    />
-                </div>
-            </div>}
-
-            {watchedRegisteredData === 'no' && <div className="flex-1 min-w-1/2">
-                <NormalInput
-                    form={form}
-                    name='name'
-                    title='Seller name'
-                    type='text'
-                    disabled={readOnlyValues.includes("fullName")}
-                    placeholder="Enter Vendor Full name"
-                />
-            </div>
             }
-            {business !== null && watchedRegisteredData === 'yes' || watchedRegisteredData === 'no' ? <div className="flex gap-3 flex-wrap justify-between">
-                <div className='flex-1 min-w-[200px]'>
-                    <NormalInput
-                        form={form}
-                        name='email'
-                        title='Vendor Email'
-                        type='email'
-                        disabled={readOnlyValues.includes("email")}
-                        placeholder="Enter email address"
-                    />
-                </div>
 
-                <div className="flex-1 min-w-[200px] w-full">
-                    <PhoneNumberInput
-                        title={"Phone number"}
-                        name="phoneNumber"
-                        form={form}
-                    />
-                </div>
-            </div> : <></>}
             {business !== null && watchedRegisteredData === 'yes' || watchedRegisteredData === 'no' ?
+                <div className="flex gap-3 flex-wrap justify-between">
+                    <div className='flex-1 min-w-[200px]'>
+                        <NormalInput
+                            form={form}
+                            name='email'
+                            title='Vendor Email'
+                            type='email'
+                            disabled={readOnlyValues.includes("email")}
+                            placeholder="Enter email address"
+                        />
+                    </div>
+                    <div className="flex-1 min-w-[200px] w-full">
+                        <PhoneNumberInput
+                            title={"Phone number"}
+                            name="phoneNumber"
+                            form={form}
+                        />
+                    </div>
+                </div> :
+                <></>
+            }
 
+
+            {business !== null && watchedRegisteredData === 'yes' || watchedRegisteredData === 'no' ?
                 <NormalTextAreaInput
                     form={form}
                     name='description'
@@ -182,11 +231,10 @@ export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: U
 
 
             {
-                watchedRegisteredData === 'yes' && !business && <Button
-
+                watchedRegisteredData === 'yes' && !business &&
+                <Button
                     disabled={isLoading}
                     onClick={async (e) => {
-
                         e.preventDefault();
                         if (!isLoading) {
                             setIsLoading(true)
@@ -201,6 +249,9 @@ export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: U
                                     form.setValue("name", businessData.businessName ?? "")
                                     form.setValue("phoneNumber", businessData.phoneNumber ?? "")
                                     form.clearErrors();
+                                    if (businessData.paidUpCapital && businessData.paidUpCapital > 100000)
+                                        form.setValue("taxType", "VAT")
+                                    else form.setValue("taxType", "TOT")
                                 } catch (e) {
                                     form.setError("tin", {
                                         message: "Given tin number, doesn't have a business with it"

@@ -7,12 +7,14 @@ export type VendorType = Vendor & {
   business?: BusinessType;
   purchase: PurchaseType[];
 };
+export type TaxType = "TOT" | "VAT" | "NONE";
 
 export type VendorInputType = {
   companyId: string;
   name: string;
   vat?: string;
   email?: string;
+  taxType: TaxType;
   phoneNumber?: string;
   description?: string;
   businessId?: string;

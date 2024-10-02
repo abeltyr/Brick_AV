@@ -10,7 +10,7 @@ import {
 } from "@/modules/ui/popover"
 import { useChartOfAccount } from '@/lib/context/account/chartOfAccount';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/modules/ui/dialog';
-import { FileChartColumnIncreasing } from 'lucide-react'
+import { ChevronDown, FileChartColumnIncreasing } from 'lucide-react'
 import { useCompany, useProfile } from '@/lib/context/account'
 import { GeneralChartAccountForm } from '../form/generalChartOfAccountForm'
 import { chartOfAccountSchema } from '@/lib/form/account/chartOfAccount'
@@ -31,12 +31,14 @@ export const ChartOfAccountInput = ({
     companyId,
     setChartOfAccount,
     formData,
+    showIcon = false,
     title = "Chart of Account",
     ...props
 }: {
     companyId: string
     formData: any,
     title?: string,
+    showIcon?: boolean,
     setChartOfAccount: (data: ChartOfAccountType) => void
 } & TeamSwitcherProps) => {
 
@@ -157,22 +159,27 @@ export const ChartOfAccountInput = ({
                             aria-label="Select a team"
                             className={cn("w-full justify-between ", props.className)}
                         >
-                            <FileChartColumnIncreasing className="mr-2 h-4 w-4" />
-                            {chartOfAccountIndex != null &&
-                                chartOfAccounts && chartOfAccounts[companyId] &&
-                                chartOfAccounts[companyId].length > chartOfAccountIndex ?
-                                chartOfAccounts[companyId][chartOfAccountIndex].name :
-                                <p className='opacity-65'>
-                                    {title}
-                                </p>}
-                            {/* <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" /> */}
+                            <div className='flex gap-3'>
+                                <FileChartColumnIncreasing className="h-4 w-4" />
+                                {chartOfAccountIndex != null &&
+                                    chartOfAccounts && chartOfAccounts[companyId] &&
+                                    chartOfAccounts[companyId].length > chartOfAccountIndex ?
+                                    chartOfAccounts[companyId][chartOfAccountIndex].name :
+                                    <p className='opacity-65'>
+                                        {title}
+                                    </p>}
+                            </div>
+                            <div>
+                                {showIcon && <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />}
+                            </div>
+
                         </Button>
                         {formData && formData.formState.errors.chartOfAccountId && <p className='text-red-600 mt-4 text-left'>
                             {formData.formState.errors.chartOfAccountId.message}
                         </p>}
                     </div>
                 </PopoverTrigger>
-                <PopoverContent className="w-full min-w-[100%] h-auto p-0 overflow-y-scroll">
+                <PopoverContent className="w-full min-w-[550px] h-auto p-0 overflow-y-scroll" align='end'>
                     <ChartOfAccountPopup
                         chartOfAccounts={chartOfAccounts}
                         chartOfAccountsData={chartOfAccountsData}

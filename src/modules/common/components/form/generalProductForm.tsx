@@ -29,14 +29,18 @@ export const GeneralProductForm = ({ form, readOnlyValues = [] }: { form: UseFor
                 />
             </div>
 
-            <NormalTextAreaInput
-                form={form}
-                name='description'
-                title='Item Description'
-                placeholder="A Description  of the items, such as 'A Case Of Pencil'"
-                disabled={readOnlyValues.includes("description")}
-            />
-
+            {currentCompany &&
+                <ChartOfAccountInput
+                    companyId={currentCompany.companyId}
+                    className=''
+                    setChartOfAccount={(coa: ChartOfAccountType) => {
+                        form.setValue("chartOfAccountId", coa.id);
+                        form.clearErrors()
+                    }}
+                    formData={form}
+                    showIcon={true}
+                />
+            }
             <div className='flex flex-wrap gap-3 justify-between'>
                 <div className="flex-1 min-w-1/2">
                     <SelectInput
@@ -87,18 +91,14 @@ export const GeneralProductForm = ({ form, readOnlyValues = [] }: { form: UseFor
                 </div>
             </div>
 
-            {currentCompany &&
-                <ChartOfAccountInput
-                    companyId={currentCompany.companyId}
-                    className=''
-                    setChartOfAccount={(coa: ChartOfAccountType) => {
-                        form.setValue("chartOfAccountId", coa.id);
-                        form.clearErrors()
-                    }}
-                    formData={form}
+            <NormalTextAreaInput
+                form={form}
+                name='description'
+                title='Item Description'
+                placeholder="A Description  of the items, such as 'A Case Of Pencil'"
+                disabled={readOnlyValues.includes("description")}
+            />
 
-                />
-            }
 
 
 
