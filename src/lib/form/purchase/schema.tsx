@@ -7,7 +7,7 @@ export const ChartOfAccountValueInput = z.object({
     balanceType: z.enum(["credit", "debit"]),
     name: z.string(),
     code: z.string(),
-    balance: z.number(),
+    amount: z.number(),
 });
 
 export const purchaseProducts = z.object({
@@ -16,7 +16,7 @@ export const purchaseProducts = z.object({
     inventoryId: z.string(),
     productId: z.string(),
     type: zProductInputType,
-    chartOfAccount: ChartOfAccountValueInput,
+    chartOfAccount: ChartOfAccountValueInput.optional(),
     purchaseType: zPurchaseInputType,
     unit: zProductInputUnit,
     unitPrice: z.number(),
@@ -35,8 +35,8 @@ export const purchaseSchema = z.object({
     cashReceiptVoucher: z.string().optional(),
     chartOfAccount: z.object({
         paymentChartOfAccount: ChartOfAccountValueInput.optional(),
-        vatChartOfAccountId: ChartOfAccountValueInput.optional(),
-        withholdingChartOfAccountId: ChartOfAccountValueInput.optional(),
+        vatChartOfAccount: ChartOfAccountValueInput.optional(),
+        withholdingChartOfAccount: ChartOfAccountValueInput.optional(),
     }),
     gebiwoch: z.object({
         purchaseType: zPurchaseInputType,

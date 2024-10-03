@@ -35,19 +35,9 @@ export const AddPurchaseSection = () => {
             try {
                 if (currentCompany && profile) {
                     const purchase = await createPurchase({
-                        mrcNumber: values.mrcNumber,
                         companyId: currentCompany.companyId,
-                        vendorId: values.vendorId,
-                        date: values.date,
-                        taxType: values.taxType,
-                        receiptNumber: values.receiptNumber,
-                        withholdingType: values.withholdingType,
-                        withholdingNumber: values.withholdingNumber,
-                        cashReceiptVoucher: values.cashReceiptVoucher,
-                        chartOfAccount: values.chartOfAccount,
-                        gebiwoch: values.gebiwoch,
-                        purchaseProducts: values.purchaseProducts,
                         creatorId: profile.id,
+                        purchaseInput: values
                     })
                     toast({
                         title: "Purchase Created",
@@ -91,7 +81,6 @@ export const AddPurchaseSection = () => {
                     <div className='flex gap-6' >
                         <div className='flex-1 max-w-[402px]'>
                             <AddPurchaseSideSection />
-
                         </div>
                         <div className='flex-1'>
                             <PurchaseDetailForm form={form!} />

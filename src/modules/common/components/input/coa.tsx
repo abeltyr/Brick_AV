@@ -32,13 +32,17 @@ export const ChartOfAccountInput = ({
     setChartOfAccount,
     formData,
     showIcon = false,
+    showCode = false,
     title = "Chart of Account",
+    variant = "secondary",
     ...props
 }: {
     companyId: string
     formData: any,
     title?: string,
     showIcon?: boolean,
+    showCode?: boolean,
+    variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | null | undefined,
     setChartOfAccount: (data: ChartOfAccountType) => void
 } & TeamSwitcherProps) => {
 
@@ -153,18 +157,19 @@ export const ChartOfAccountInput = ({
                 <PopoverTrigger asChild>
                     <div>
                         <Button
-                            variant="secondary"
+                            variant={variant}
                             role="combobox"
                             aria-expanded={open}
                             aria-label="Select a team"
-                            className={cn("w-full justify-between ", props.className)}
+                            className={cn("w-full justify-between overflow-hidden ", props.className)}
                         >
-                            <div className='flex gap-3'>
-                                <FileChartColumnIncreasing className="h-4 w-4" />
+                            <div className='flex gap-2'>
+                                {<FileChartColumnIncreasing className="h-4 w-4" />}
                                 {chartOfAccountIndex != null &&
                                     chartOfAccounts && chartOfAccounts[companyId] &&
                                     chartOfAccounts[companyId].length > chartOfAccountIndex ?
-                                    chartOfAccounts[companyId][chartOfAccountIndex].name :
+                                    showCode ? chartOfAccounts[companyId][chartOfAccountIndex].code :
+                                        chartOfAccounts[companyId][chartOfAccountIndex].name :
                                     <p className='opacity-65'>
                                         {title}
                                     </p>}
@@ -174,9 +179,9 @@ export const ChartOfAccountInput = ({
                             </div>
 
                         </Button>
-                        {formData && formData.formState.errors.chartOfAccountId && <p className='text-red-600 mt-4 text-left'>
+                        {/* {formData && formData.formState.errors.chartOfAccountId && <p className='text-red-600 mt-4 text-left'>
                             {formData.formState.errors.chartOfAccountId.message}
-                        </p>}
+                        </p>} */}
                     </div>
                 </PopoverTrigger>
                 <PopoverContent className="w-full min-w-[550px] h-auto p-0 overflow-y-scroll" align='end'>

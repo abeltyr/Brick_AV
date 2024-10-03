@@ -54,6 +54,7 @@ export const createChartOfAccountAction = async ({
       },
     },
     type: data.type,
+    creditBased: data.balanceType === "credit",
   };
 
   createChartOfAccount.chartOfAccountBalance = {

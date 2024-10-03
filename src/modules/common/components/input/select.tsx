@@ -10,7 +10,7 @@ export const SelectInput = ({
     values,
     selectTitle
 }: {
-    title: string,
+    title?: string,
     form: any,
     name: string,
     selectTitle: { name: string, value: string }
@@ -25,11 +25,11 @@ export const SelectInput = ({
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel className='text-sm '>
+                    {title && <FormLabel className='text-sm '>
                         <LanguageTranslator>
                             {title}
                         </LanguageTranslator>
-                    </FormLabel>
+                    </FormLabel>}
                     <FormControl>
                         <Select
                             {...field}

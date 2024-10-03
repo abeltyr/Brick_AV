@@ -31,7 +31,7 @@ type ChartOfAccountListType = {
 
 type purchaseProductsType = z.infer<typeof purchaseProducts>
 const initialValues: {
-    createPurchase: ({ }: PurchaseInputType) => void;
+    createPurchase: ({ }: { companyId: string, creatorId: string, purchaseInput: PurchaseInputType }) => void;
     form: UseFormReturn<z.infer<typeof purchaseSchema>> | null
     setVendor: React.Dispatch<React.SetStateAction<VendorType | null>>
     vendor: VendorType | null
@@ -52,7 +52,7 @@ const initialValues: {
     chartOfAccount: ChartOfAccountListType
     setChartOfAccount: React.Dispatch<React.SetStateAction<ChartOfAccountListType>>
 } = {
-    createPurchase: ({ }: PurchaseInputType) => { },
+    createPurchase: ({ }: { companyId: string, creatorId: string, purchaseInput: PurchaseInputType }) => { },
     form: null,
     setVendor: () => { },
     vendor: null,
@@ -117,10 +117,12 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
         resolver: zodResolver(purchaseSchema),
         defaultValues: {},
     })
-    const createPurchase = async (data: PurchaseInputType) => {
+    const createPurchase = async ({ companyId, creatorId, purchaseInput }: { companyId: string, creatorId: string, purchaseInput: PurchaseInputType }) => {
         try {
             const newPurchase = await createPurchaseAction({
-                ...data
+                companyId,
+                creatorId,
+                purchaseInput
             });
             if (newPurchase) {
                 return newPurchase;
@@ -143,16 +145,18 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
         if (watchedProducts) {
             let chartOfAccountData: { [id: string]: ChartOfAccountUpdatesType } = {}
             for (let data of watchedProducts) {
-                let code = data.chartOfAccount.code;
-                chartOfAccountData[code] = {
-                    id: data.chartOfAccount.id,
-                    name: data.chartOfAccount.name,
-                    code: data.chartOfAccount.code,
-                    amount: chartOfAccountData[code] && chartOfAccountData[code].amount ?
-                        chartOfAccountData[code].amount + data.chartOfAccount.balance :
-                        data.chartOfAccount.balance,
-                    quantity: chartOfAccountData[code] && chartOfAccountData[code].quantity ?
-                        chartOfAccountData[code].quantity + 1 : 0
+                if (data.chartOfAccount) {
+                    let code = data.chartOfAccount.code;
+                    chartOfAccountData[code] = {
+                        id: data.chartOfAccount.id,
+                        name: data.chartOfAccount.name,
+                        code: data.chartOfAccount.code,
+                        amount: chartOfAccountData[code] && chartOfAccountData[code].amount ?
+                            chartOfAccountData[code].amount + data.chartOfAccount.amount :
+                            data.chartOfAccount.amount,
+                        quantity: chartOfAccountData[code] && chartOfAccountData[code].quantity ?
+                            chartOfAccountData[code].quantity + 1 : 0
+                    }
                 }
             }
             setChartOfAccount((prevState) => ({
@@ -161,7 +165,7 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
             }));
         }
         if (vendor && vendor.business?.tin) {
-            if (form.getValues("taxType") === "VAT") {
+            if (vendor.taxType === "VAT") {
                 const {
                     summation
                 } = vatPurchaseSummation({

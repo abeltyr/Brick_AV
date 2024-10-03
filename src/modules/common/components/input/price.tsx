@@ -9,7 +9,7 @@ export const PriceInput = ({
     placeholder,
     disabled = false
 }: {
-    title: string,
+    title?: string,
     form: any,
     name: string,
     placeholder?: string
@@ -22,7 +22,7 @@ export const PriceInput = ({
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel className='text-sm'>{title}</FormLabel>
+                    {title && <FormLabel className='text-sm'>{title}</FormLabel>}
                     <FormControl>
                         <Input
                             disabled={disabled}

@@ -119,6 +119,17 @@ export const fetchProductsByCompanyIdAction = async ({
       },
     ],
     skip,
-    include: productIncludeData,
+    include: {
+      inventory: {
+        include: {
+          chartOfAccount: true,
+          productPrice: {
+            where: {
+              active: true,
+            },
+          },
+        },
+      },
+    },
   });
 };

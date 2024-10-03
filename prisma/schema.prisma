@@ -248,6 +248,7 @@ model ChartOfAccount {
   createdById String? // User ID or system identifier
   createdBy   Profile? @relation(fields: [createdById], references: [id])
 
+  creditBased Boolean                     @default(false)
   type        ChartOfAccountsType // Type: Asset, Liability, etc.
   accountType ChartOfAccountsCategoryType // Sub-category: Account_receivable, Cash, etc.
   name        String

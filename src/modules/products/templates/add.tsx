@@ -34,7 +34,6 @@ export const AddProductSection = () => {
 
 
     const onSubmit = async (values: z.infer<typeof productSchema>) => {
-        console.log("isLoading")
         if (!isLoading) {
             setIsLoading(true)
             try {

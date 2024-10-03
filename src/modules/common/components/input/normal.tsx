@@ -11,7 +11,7 @@ export const NormalInput = ({
     disabled = false,
     type
 }: {
-    title: string,
+    title?: string,
     description?: string,
     form: any,
     name: string,
@@ -26,13 +26,13 @@ export const NormalInput = ({
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel className='text-sm'>
+                    {title && <FormLabel className='text-sm'>
                         <p>{title}
                         </p>
                         {description && <p className='text-xs text-[#71717A] font-light'>
                             {description}
                         </p>}
-                    </FormLabel>
+                    </FormLabel>}
                     <FormControl>
                         <Input
                             type={type}

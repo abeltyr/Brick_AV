@@ -10,7 +10,7 @@ import {
 import { ChartOfAccountType } from "./purchase";
 
 export type ProductType = Product & {
-  Inventory?: InventoryType[];
+  inventory?: InventoryType[];
 };
 
 export type InventoryType = Inventory & {

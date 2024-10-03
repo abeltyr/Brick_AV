@@ -104,6 +104,7 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
                         dateRange
                     },
                 });
+                console.log("newProducts", newProducts)
                 const productsData = { ...products };
                 productsData[companyId] = [...newProducts];
                 if (newProducts.length < loadLimit) {
