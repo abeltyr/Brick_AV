@@ -39,6 +39,8 @@ export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: U
 
     // Manually set an error based on a condition (e.g., email already taken)
     useEffect(() => {
+
+        console.log("watchedTin, watchedTin")
         if (form.formState.errors.tin) {
             if (!(watchedTin && watchedTin.length === 10)) {
                 form.setError("tin", {
@@ -150,7 +152,6 @@ export const GeneralVendorDetailForm = ({ form, readOnlyValues = [] }: { form: U
                         </div>
                     </div>
                     <div className='w-full flex gap-5'>
-
                         <Button
                             onClick={() => {
                                 form.setValue("taxType", "VAT")

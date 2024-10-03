@@ -59,14 +59,14 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
       startDate: new Date("08/07/2024"),
       endDate: new Date("08/07/2025"),
       year: 2024,
-      companyId: "5d3fe461-8b94-4cc0-9d34-6999191fd86e",
+      companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
     },
   });
 
   const accountPeriod = await prisma.accountPeriod.create({
     data: {
-      startDate: new Date("08/07/2024"),
-      endDate: new Date("08/08/2025"),
+      startDate: new Date("10/01/2024"),
+      endDate: new Date("10/30/2024"),
       fiscalYearId: financialPeriod.id,
     },
   });
@@ -77,7 +77,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
         accountType: "Cash",
         code: "1000",
         type: "ASSET",
-        companyId: "5d3fe461-8b94-4cc0-9d34-6999191fd86e",
+        companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
         name: "CBE Bank",
         chartOfAccountBalance: {
           create: {
@@ -89,7 +89,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
         chartOfAccountTransaction: {
           create: {
             transactionType: "DEPOSIT",
-            companyId: "5d3fe461-8b94-4cc0-9d34-6999191fd86e",
+            companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
             credit: 100000,
             date: new Date("08/07/2024"),
             accountPeriodId: accountPeriod.id,
@@ -103,7 +103,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
         accountType: "Cash",
         code: "1001",
         type: "ASSET",
-        companyId: "5d3fe461-8b94-4cc0-9d34-6999191fd86e",
+        companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
         name: "Zemen Bank",
         chartOfAccountBalance: {
           create: {
@@ -115,7 +115,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
         chartOfAccountTransaction: {
           create: {
             transactionType: "DEPOSIT",
-            companyId: "5d3fe461-8b94-4cc0-9d34-6999191fd86e",
+            companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
             credit: 100000,
             date: new Date("08/07/2024"),
             accountPeriodId: accountPeriod.id,
@@ -129,7 +129,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
         accountType: "Account_payable",
         code: "1010",
         type: "ASSET",
-        companyId: "5d3fe461-8b94-4cc0-9d34-6999191fd86e",
+        companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
         name: "Vat payable",
         chartOfAccountBalance: {
           create: {
@@ -145,7 +145,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
         accountType: "Account_receivable",
         code: "3010",
         type: "LIABILITY",
-        companyId: "5d3fe461-8b94-4cc0-9d34-6999191fd86e",
+        companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
         name: "Vat receivable",
         chartOfAccountBalance: {
           create: {
@@ -161,7 +161,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
         accountType: "Account_payable",
         code: "1030",
         type: "ASSET",
-        companyId: "5d3fe461-8b94-4cc0-9d34-6999191fd86e",
+        companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
         name: "Withholding payable",
         chartOfAccountBalance: {
           create: {
@@ -177,7 +177,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
         accountType: "Account_receivable",
         code: "3020",
         type: "LIABILITY",
-        companyId: "5d3fe461-8b94-4cc0-9d34-6999191fd86e",
+        companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
         name: "Withholding receivable",
         chartOfAccountBalance: {
           create: {

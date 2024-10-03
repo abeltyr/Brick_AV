@@ -36,6 +36,8 @@ export default function PurchaseSummationSection() {
 
 
     useEffect(() => {
+        console.log("purchaseProducts.purchaseProducts, purchaseProducts.purchaseProducts")
+
         if (purchaseProducts && !opened) {
             setOpened(true)
         }
@@ -132,7 +134,7 @@ export default function PurchaseSummationSection() {
                             </li>}
                             {withholding && withholding.greaterThan(0) && <li className="flex items-center justify-between">
                                 <span className="text-[#828282] text-sm">
-                                    WithHolding
+                                    Withholding
                                 </span>
                                 <span className="text-primary text-sm">
                                     ETB -{withholding.toNumber().toLocaleString('en-US')}

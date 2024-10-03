@@ -36,14 +36,14 @@ export default function PurchaseProductsForm() {
 
     const { purchaseProductListingDrawer, setPurchaseProductListingDrawer } = useDrawerManager()
 
-    const [error, setError] = useState(false)
+    // const [error, setError] = useState(false)
 
-    useEffect(() => {
-        if (form)
-            setError(form!.formState.errors.purchaseProducts != undefined)
+    // useEffect(() => {
+    //     if (form)
+    //         setError(form!.formState.errors.purchaseProducts != undefined)
 
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [form!.formState.errors.purchaseProducts])
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [form!.formState.errors.purchaseProducts])
 
 
     return (
@@ -205,19 +205,19 @@ export default function PurchaseProductsForm() {
                                     form!.clearErrors("gebiwoch.productCategoryType")
                                 }
                                 if (!form!.getValues("gebiwoch.unit") || products.length === 1)
-                                    if (
-                                        products &&
-                                        products.length > 0 &&
-                                        products[0] &&
-                                        products[0].inventory &&
-                                        products[0].inventory[0] &&
-                                        products[0].inventory[0].productPrice &&
-                                        products[0].inventory[0].productPrice[0].unit
-                                    ) {
-
+                                    console.log("products", products);
+                                if (
+                                    products.length > 0 &&
+                                    products[0].inventory && products[0].inventory.length > 0
+                                ) {
+                                    if (products[0].inventory[0].productPrice &&
+                                        products[0].inventory[0].productPrice.length > 0 &&
+                                        products[0].inventory[0].productPrice[0].unit) {
                                         form!.setValue("gebiwoch.unit", products[0].inventory[0].productPrice[0].unit)
                                         form!.clearErrors("gebiwoch.unit")
                                     }
+                                }
+
                                 if (!form!.getValues("gebiwoch.description") || products.length === 1) {
                                     form!.setValue("gebiwoch.description", products[0].name)
                                     form!.clearErrors("gebiwoch.description")
@@ -236,7 +236,7 @@ export default function PurchaseProductsForm() {
                                 if (product.inventory && product.inventory.length > 0) {
                                     inventoryId = product.inventory[0].id;
 
-                                    if (product.inventory[0].productPrice) {
+                                    if (product.inventory[0].productPrice && product.inventory[0].productPrice.length > 0) {
                                         unit = product.inventory[0].productPrice[0].unit;
                                         unitPrice = new Decimal(product.inventory[0].productPrice[0].unitPrice).toNumber();
                                     }
@@ -278,8 +278,6 @@ export default function PurchaseProductsForm() {
                                     });
                                 }
                             })
-                            console.log("update");
-
                         }}
                     />
                 </SheetContent>

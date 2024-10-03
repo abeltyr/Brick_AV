@@ -17,11 +17,12 @@ import { useEffect, useState } from 'react'
 export default function ChartOfAccountListSection() {
 
 
-    const { chartOfAccount, taxTotal, withholding } = useAddPurchases()
+    const { chartOfAccount, taxTotal, withholding, vendor } = useAddPurchases()
 
     const [opened, setOpened] = useState(false)
 
     useEffect(() => {
+        console.log("chartOfAccount.paymentAccount, chartOfAccount.paymentAccount")
         if (chartOfAccount.paymentAccount && !opened) {
             setOpened(true)
         }
@@ -106,7 +107,7 @@ export default function ChartOfAccountListSection() {
                                         }
                                     </li>
                                 })}
-                                {taxTotal.greaterThan(0) && chartOfAccount.vatAccount && <li className="flex items-center justify-between">
+                                {taxTotal.greaterThan(0) && chartOfAccount.vatAccount && vendor && vendor.taxType === "VAT" && <li className="flex items-center justify-between">
                                     <span className="text-[#828282] text-sm">
                                         {chartOfAccount.vatAccount?.name}
                                     </span>

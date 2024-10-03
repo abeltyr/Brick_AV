@@ -26,13 +26,7 @@ export const UnregisteredPurchaseSummation = ({
     withholdingRate = new Decimal(WITHHOLDING_RATE.unregistered);
   }
 
-  let inventoryUpdate: Prisma.Prisma__InventoryClient<{
-    id: string;
-    productId: string;
-    quantity: Prisma.Decimal;
-    lastUpdated: Date;
-    chartOfAccountId: string;
-  }>[] = [];
+  let inventoryUpdate: Prisma.Prisma__InventoryClient<{}>[] = [];
 
   // Calculate sums and prepare data for bulk updates
 
@@ -61,11 +55,12 @@ export const UnregisteredPurchaseSummation = ({
           withholding,
           ...databaseGenerator,
         });
+        if (chartOfAccountTransaction)
+          chartOfAccountTransactions = [
+            ...chartOfAccountTransactions,
+            chartOfAccountTransaction,
+          ];
 
-        chartOfAccountTransactions = [
-          ...chartOfAccountTransactions,
-          chartOfAccountTransaction,
-        ];
         inventoryUpdate = [...inventoryUpdate, inventoryUpdateData];
         createPurchaseProductData = [
           ...createPurchaseProductData,

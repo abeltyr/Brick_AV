@@ -15,6 +15,7 @@ import { getWeekOrder } from "@/lib/utils/calendar/date";
 import { PurchaseReportType } from "@/types/report";
 import { vendorIncludeData } from "../vendor/common/include";
 import { v4 } from "uuid";
+import { ChartOfAccountListType } from "@/lib/context/purchase/addPurchase";
 const prisma = getPrisma();
 
 export const createPurchaseAction = async ({
@@ -24,13 +25,15 @@ export const createPurchaseAction = async ({
 }: {
   companyId: string;
   creatorId: string;
-  purchaseInput: PurchaseInputType;
+  purchaseInput: PurchaseInputType & {
+    chartOfAccount: ChartOfAccountListType;
+  };
 }): Promise<{
   purchase: Purchase;
-  purchaseDailyReport: PurchaseReportType;
-  purchaseWeeklyReport: PurchaseReportType;
-  purchaseAccountPeriodReport: PurchaseReportType;
-  purchaseFiscalYearReport: PurchaseReportType;
+  purchaseDailyReport: PurchaseReportType | null;
+  purchaseWeeklyReport: PurchaseReportType | null;
+  purchaseAccountPeriodReport: PurchaseReportType | null;
+  purchaseFiscalYearReport: PurchaseReportType | null;
 } | null> => {
   const [vendorData, fiscalYear] = await prisma.$transaction([
     prisma.vendor.findUnique({
@@ -56,16 +59,16 @@ export const createPurchaseAction = async ({
       where: {
         fiscalYearId: fiscalYear?.id,
         startDate: {
-          gte: new Date(),
+          lte: purchaseInput.date,
         },
         endDate: {
-          lte: new Date(),
+          gte: purchaseInput.date,
         },
       },
     }),
     prisma.chartOfAccount.findUnique({
       where: {
-        id: purchaseInput.chartOfAccount.paymentChartOfAccount?.id,
+        id: purchaseInput.chartOfAccount.paymentAccount?.id,
       },
       include: {
         chartOfAccountBalance: true,
@@ -73,15 +76,12 @@ export const createPurchaseAction = async ({
     }),
   ];
 
-  if (
-    purchaseInput.chartOfAccount &&
-    purchaseInput.chartOfAccount.vatChartOfAccount
-  )
+  if (purchaseInput.chartOfAccount && purchaseInput.chartOfAccount.vatAccount)
     fetchValues = [
       ...fetchValues,
       prisma.chartOfAccount.findUnique({
         where: {
-          id: purchaseInput.chartOfAccount.vatChartOfAccount.id,
+          id: purchaseInput.chartOfAccount.vatAccount.id,
         },
         include: {
           chartOfAccountBalance: true,
@@ -89,12 +89,12 @@ export const createPurchaseAction = async ({
       }),
     ];
 
-  if (purchaseInput.chartOfAccount.withholdingChartOfAccount)
+  if (purchaseInput.chartOfAccount.withHolding)
     fetchValues = [
       ...fetchValues,
       prisma.chartOfAccount.findUnique({
         where: {
-          id: purchaseInput.chartOfAccount.withholdingChartOfAccount.id,
+          id: purchaseInput.chartOfAccount.withHolding.id,
         },
         include: {
           chartOfAccountBalance: true,
@@ -104,15 +104,17 @@ export const createPurchaseAction = async ({
 
   // const [
   //   accountPeriods,
-  //   paymentChartOfAccount,
-  //   vatChartOfAccount,
-  //   withholdingChartOfAccount,
+  //   paymentAccount,
+  //   vatAccount,
+  //   withHolding,
   // ]
   const fetchData = await prisma.$transaction([...fetchValues]);
   const accountPeriods = fetchData[0] as AccountPeriod[];
-  const paymentChartOfAccount = fetchData[1] as ChartOfAccountType;
-  const vatChartOfAccount = fetchData[2] as ChartOfAccountType;
-  const withholdingChartOfAccount = fetchData[3] as ChartOfAccountType;
+  const paymentAccount = fetchData[1] as ChartOfAccountType;
+  const vatAccount = fetchData[2] as ChartOfAccountType;
+  const withHolding = fetchData[3] as ChartOfAccountType;
+
+  console.log("accountPeriods", accountPeriods);
 
   if (accountPeriods && accountPeriods.length != 1)
     throw new Error("Account Period is not setup right");
@@ -126,13 +128,7 @@ export const createPurchaseAction = async ({
     [];
   let createPurchaseProductData: Prisma.Prisma__PurchaseProductClient<{}>[] =
     [];
-  let inventoryUpdate: Prisma.Prisma__InventoryClient<{
-    id: string;
-    productId: string;
-    quantity: Prisma.Decimal;
-    lastUpdated: Date;
-    chartOfAccountId: string;
-  }>[] = [];
+  let inventoryUpdate: Prisma.Prisma__InventoryClient<{}>[] = [];
 
   let createData: Prisma.PurchaseCreateInput = {
     company: {
@@ -142,11 +138,11 @@ export const createPurchaseAction = async ({
     },
     vendor: {
       connect: {
-        id: purchaseInput.vendorId,
+        id: vendor.id,
       },
     },
     date: purchaseInput.date,
-    receiptNumber: purchaseInput.receiptNumber,
+    receiptNumber: purchaseInput.receiptNumber ?? "",
     cashReceiptVoucher: purchaseInput.cashReceiptVoucher,
     withholdingNumber: purchaseInput.withholdingNumber,
     mrcNumber: purchaseInput.mrcNumber,
@@ -248,6 +244,30 @@ export const createPurchaseAction = async ({
       createData.withholdingAmount = withholdingAmount;
       createData.grossAmount = grossAmount;
 
+      let value:
+        | Prisma.ChartOfAccountTransactionCreateNestedOneWithoutVatDetailInput
+        | undefined;
+      if (vatAccount) {
+        value = {
+          create: {
+            transactionType: "TAX",
+            accountPeriodId: accountPeriod.id,
+            companyId: companyId,
+            date: purchaseInput.date,
+            chartOfAccountId: vatAccount!.id,
+            credit:
+              purchaseInput.chartOfAccount.vatAccount?.balanceType === "credit"
+                ? taxAmount
+                : 0,
+            debit:
+              purchaseInput.chartOfAccount.vatAccount?.balanceType === "debit"
+                ? taxAmount
+                : 0,
+            status: "CONFIRMED",
+            createdById: creatorId,
+          },
+        };
+      }
       createData.vatDetail = {
         create: {
           localPurchaseInputs,
@@ -269,30 +289,28 @@ export const createPurchaseAction = async ({
           taxableAmount,
           taxAmount,
           totalAmount,
-          chartOfAccountTransaction: {
+          chartOfAccountTransaction: value,
+        },
+      };
+      if (withholdingAmount.greaterThan(0)) {
+        let value:
+          | Prisma.ChartOfAccountTransactionCreateNestedOneWithoutVatDetailInput
+          | undefined;
+        if (withHolding) {
+          value = {
             create: {
               transactionType: "TAX",
               accountPeriodId: accountPeriod.id,
               companyId: companyId,
               date: purchaseInput.date,
-              chartOfAccountId: vatChartOfAccount!.id,
-              credit:
-                purchaseInput.chartOfAccount.vatChartOfAccount?.balanceType ===
-                "credit"
-                  ? taxAmount
-                  : 0,
-              debit:
-                purchaseInput.chartOfAccount.vatChartOfAccount?.balanceType ===
-                "debit"
-                  ? taxAmount
-                  : 0,
-              status: "CONFIRMED",
+              chartOfAccountId: withHolding.id,
+              credit: 0,
+              debit: withholdingAmount,
+              status: "PENDING",
               createdById: creatorId,
             },
-          },
-        },
-      };
-      if (withholdingAmount.greaterThan(0))
+          };
+        }
         createData.withholdingDetail = {
           create: {
             importedGoodSummaryAmount: importedGoodSummaryAmount,
@@ -303,29 +321,10 @@ export const createPurchaseAction = async ({
             localGoodWithholding: localGoodWithholding,
             taxableAmount: totalAmount,
             totalWithholding: withholdingAmount,
-            chartOfAccountTransaction: {
-              create: {
-                transactionType: "TAX",
-                accountPeriodId: accountPeriod.id,
-                companyId: companyId,
-                date: purchaseInput.date,
-                chartOfAccountId: withholdingChartOfAccount!.id,
-                credit:
-                  purchaseInput.chartOfAccount.withholdingChartOfAccount
-                    ?.balanceType === "credit"
-                    ? withholdingAmount
-                    : 0,
-                debit:
-                  purchaseInput.chartOfAccount.withholdingChartOfAccount
-                    ?.balanceType === "debit"
-                    ? withholdingAmount
-                    : 0,
-                status: "CONFIRMED",
-                createdById: creatorId,
-              },
-            },
+            chartOfAccountTransaction: value,
           },
         };
+      }
     } else {
       totAmount = taxAmount;
       const sum = totPurchaseSummation({
@@ -352,6 +351,8 @@ export const createPurchaseAction = async ({
       grossAmount = sum.summation.grossAmount;
       totalQuantity = sum.summation.totalQuantity;
       averagePrice = sum.summation.averagePrice;
+      totAmount = sum.summation.taxAmount;
+
       createData.unitPrice = averagePrice;
       createData.quantity = totalQuantity;
       createData.grossAmount = grossAmount;
@@ -368,7 +369,28 @@ export const createPurchaseAction = async ({
           taxAmount: taxAmount,
         },
       };
-      if (withholdingAmount.greaterThan(0))
+      if (
+        withholdingAmount.greaterThan(0) &&
+        purchaseInput.chartOfAccount.withHolding
+      ) {
+        let value:
+          | Prisma.ChartOfAccountTransactionCreateNestedOneWithoutVatDetailInput
+          | undefined;
+        if (withHolding) {
+          value = {
+            create: {
+              transactionType: "TAX",
+              accountPeriodId: accountPeriod.id,
+              companyId: companyId,
+              date: purchaseInput.date,
+              chartOfAccountId: withHolding.id,
+              credit: 0,
+              debit: withholdingAmount,
+              status: "PENDING",
+              createdById: creatorId,
+            },
+          };
+        }
         createData.withholdingDetail = {
           create: {
             serviceSummaryAmount: serviceSummaryAmount,
@@ -377,29 +399,10 @@ export const createPurchaseAction = async ({
             localGoodWithholding: goodWithholdingAmount,
             taxableAmount: totalAmount,
             totalWithholding: withholdingAmount,
-            chartOfAccountTransaction: {
-              create: {
-                transactionType: "TAX",
-                accountPeriodId: accountPeriod.id,
-                companyId: companyId,
-                date: purchaseInput.date,
-                chartOfAccountId: withholdingChartOfAccount!.id,
-                credit:
-                  purchaseInput.chartOfAccount.withholdingChartOfAccount
-                    ?.balanceType === "credit"
-                    ? withholdingAmount
-                    : 0,
-                debit:
-                  purchaseInput.chartOfAccount.withholdingChartOfAccount
-                    ?.balanceType === "debit"
-                    ? withholdingAmount
-                    : 0,
-                status: "PENDING",
-                createdById: creatorId,
-              },
-            },
+            chartOfAccountTransaction: value,
           },
         };
+      }
     }
   } else {
     createData.vendorName = vendor.name ?? "";
@@ -432,53 +435,51 @@ export const createPurchaseAction = async ({
     createData.taxAmount = 0;
     createData.withholdingAmount = withholdingAmount;
 
-    if (withholdingAmount.greaterThan(0))
+    if (withholdingAmount.greaterThan(0)) {
+      let value:
+        | Prisma.ChartOfAccountTransactionCreateNestedOneWithoutVatDetailInput
+        | undefined;
+      if (withHolding) {
+        value = {
+          create: {
+            transactionType: "TAX",
+            accountPeriodId: accountPeriod.id,
+            companyId: companyId,
+            date: purchaseInput.date,
+            chartOfAccountId: withHolding.id,
+            credit: 0,
+            debit: withholdingAmount,
+            status: "PENDING",
+            createdById: creatorId,
+          },
+        };
+      }
       createData.withholdingDetail = {
         create: {
           taxableAmount: totalAmount,
           totalWithholding: withholdingAmount,
-          chartOfAccountTransaction: {
-            create: {
-              transactionType: "TAX",
-              accountPeriodId: accountPeriod.id,
-              companyId: companyId,
-              date: purchaseInput.date,
-              chartOfAccountId: withholdingChartOfAccount!.id,
-              credit:
-                purchaseInput.chartOfAccount.withholdingChartOfAccount
-                  ?.balanceType === "credit"
-                  ? withholdingAmount
-                  : 0,
-              debit:
-                purchaseInput.chartOfAccount.withholdingChartOfAccount
-                  ?.balanceType === "debit"
-                  ? withholdingAmount
-                  : 0,
-              status: "PENDING",
-              createdById: creatorId,
-            },
-          },
+          chartOfAccountTransaction: value,
         },
       };
+    }
   }
 
   createData.id = purchaseId;
 
+  console.log("paymentAccount!.id", paymentAccount!.id);
   createData.chartOfAccountTransaction = {
     create: {
       transactionType: "PAYMENT",
       accountPeriodId: accountPeriod.id,
       companyId: companyId,
       date: purchaseInput.date,
-      chartOfAccountId: paymentChartOfAccount!.id,
+      chartOfAccountId: paymentAccount!.id,
       credit:
-        purchaseInput.chartOfAccount.paymentChartOfAccount?.balanceType ===
-        "credit"
+        purchaseInput.chartOfAccount.paymentAccount?.balanceType === "credit"
           ? totalAmount.plus(taxAmount)
           : 0,
       debit:
-        purchaseInput.chartOfAccount.paymentChartOfAccount?.balanceType ===
-        "debit"
+        purchaseInput.chartOfAccount.paymentAccount?.balanceType === "debit"
           ? totalAmount.plus(taxAmount)
           : 0,
       status: "PENDING",
@@ -558,6 +559,7 @@ export const createPurchaseAction = async ({
       accountPeriodId: accountPeriod.id,
       withholdingAmount,
       grossAmount,
+
       count: 1,
     },
     update: {

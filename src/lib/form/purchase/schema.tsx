@@ -31,22 +31,16 @@ export const purchaseProducts = z.object({
 export const purchaseSchema = z.object({
     vendorId: z.string(),
     date: z.date(),
-    receiptNumber: z.string(),
+    receiptNumber: z.string().optional(),
     mrcNumber: z.string().optional(),
     withholdingType: zProductInputWithholdingType,
     withholdingNumber: z.string().optional(),
     cashReceiptVoucher: z.string().optional(),
-    chartOfAccount: z.object({
-        paymentChartOfAccount: ChartOfAccountValueInput.optional(),
-        vatChartOfAccount: ChartOfAccountValueInput.optional(),
-        withholdingChartOfAccount: ChartOfAccountValueInput.optional(),
-    }),
     gebiwoch: z.object({
         purchaseType: zPurchaseInputType,
         productCategoryType: zProductInputType,
         unit: zProductInputUnit,
         description: z.string(),
-        quantity: z.number(),
     }),
     purchaseProducts: z.array(purchaseProducts).min(1, "At least one product is required"),
 })

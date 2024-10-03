@@ -12,9 +12,9 @@ import Decimal from 'decimal.js';
 import { totPurchaseSummation, UnregisteredPurchaseSummation, vatPurchaseSummation } from '@/lib/utils/purchase';
 
 
-type ChartOfAccountDataType = z.infer<typeof ChartOfAccountValueInput>
+export type ChartOfAccountDataType = z.infer<typeof ChartOfAccountValueInput>
 
-type ChartOfAccountListType = {
+export type ChartOfAccountListType = {
     paymentAccount: ChartOfAccountDataType | null;
     vatAccount: ChartOfAccountDataType | null;
     withHolding: ChartOfAccountDataType | null;
@@ -22,6 +22,7 @@ type ChartOfAccountListType = {
         [id: string]: ChartOfAccountDataType;
     }
 };
+export type ReceiptType = "Machine" | "Manual";
 
 type purchaseProductsType = z.infer<typeof purchaseProducts>
 const initialValues: {
@@ -46,7 +47,10 @@ const initialValues: {
     withholding: Decimal;
     purchaseProducts: purchaseProductsType[] | null
     chartOfAccount: ChartOfAccountListType
-    setChartOfAccount: React.Dispatch<React.SetStateAction<ChartOfAccountListType>>
+    setChartOfAccount: React.Dispatch<React.SetStateAction<ChartOfAccountListType>>,
+    receiptType: ReceiptType,
+    setReceiptType: React.Dispatch<React.SetStateAction<ReceiptType>>,
+    watchedWithholdingType: "noWithholding" | "hasWithholding"
 } = {
     createPurchase: ({ }: { companyId: string, creatorId: string, purchaseInput: PurchaseInputType }) => { },
     form: null,
@@ -74,7 +78,10 @@ const initialValues: {
         withHolding: null,
         productsChartAccount: {}
     },
-    setChartOfAccount: () => { }
+    setChartOfAccount: () => { },
+    receiptType: "Machine",
+    setReceiptType: () => { },
+    watchedWithholdingType: "hasWithholding"
 };
 
 type Props = {
@@ -88,6 +95,7 @@ const useAddPurchases = () => useContext(AddPurchasesContext);
 const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
 
     const [vendor, setVendor] = useState<VendorType | null>(null)
+    const [receiptType, setReceiptType] = useState<ReceiptType>("Machine")
 
     const [chartOfAccount, setChartOfAccount] = useState<ChartOfAccountListType>({
         paymentAccount: null,
@@ -116,14 +124,21 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
 
     const form = useForm<z.infer<typeof purchaseSchema>>({
         resolver: zodResolver(purchaseSchema),
-        defaultValues: {},
+        defaultValues: {
+            withholdingType: "hasWithholding"
+        },
     })
     const createPurchase = async ({ companyId, creatorId, purchaseInput }: { companyId: string, creatorId: string, purchaseInput: PurchaseInputType }) => {
         try {
             const newPurchase = await createPurchaseAction({
                 companyId,
                 creatorId,
-                purchaseInput
+                purchaseInput: {
+                    ...purchaseInput,
+                    chartOfAccount,
+                    receiptNumber: receiptType === "Machine" ? `FS{purchaseInput.receiptNumber}` : `CSI{purchaseInput.receiptNumber}`
+                }
+
             });
             if (newPurchase) {
                 return newPurchase;
@@ -140,6 +155,7 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
         control: form.control,
         name: "purchaseProducts",
     });
+
 
 
     const updateChartOfAccountData = () => {
@@ -245,17 +261,46 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
             setTaxTotal(new Decimal(0))
             setWithholding(summation.withholdingAmount)
             setGrossAmount(summation.grossAmount)
+            setTaxableAmount(summation.totalAmount)
 
         }
     }
 
 
+
+    const watchedWithholdingType = useWatch({
+        control: form!.control,
+        name: "withholdingType",
+    });
+
     useEffect(() => {
 
+        console.log("updateChartOfAccountData, watchedProducts")
         updateChartOfAccountData();
         updateSummaryData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [watchedProducts, vendor]);
+    }, [watchedProducts]);
+
+
+    useEffect(() => {
+
+        console.log("updateChartOfAccountData, vendor")
+        updateChartOfAccountData();
+        updateSummaryData();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [vendor]);
+
+
+
+    useEffect(() => {
+        console.log("updateChartOfAccountData, watchedWithholdingType")
+
+        // updateChartOfAccountData();
+        updateSummaryData();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [watchedWithholdingType]);
 
 
 
@@ -284,7 +329,10 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                 chartOfAccount,
                 setChartOfAccount,
                 goodTotTotal,
-                serviceTotTotal
+                serviceTotTotal,
+                receiptType,
+                setReceiptType,
+                watchedWithholdingType
             }}
         >
             {children}

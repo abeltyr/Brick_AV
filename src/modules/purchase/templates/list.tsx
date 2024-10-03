@@ -15,11 +15,14 @@ export const PurchaseListTempo = () => {
 
 
     useEffect(() => {
+
+        console.log("currentCompany, purchases, PurchaseListTempo")
+
         if (currentCompany) {
             if (!purchases[currentCompany.companyId])
                 getPurchase({ companyId: currentCompany.companyId })
         }
-    }, [currentCompany, getPurchase, purchases])
+    }, [currentCompany, purchases])
 
 
     return (

@@ -48,13 +48,7 @@ export const vatPurchaseSummation = ({
   let localGoodWithholding = new Decimal(0);
   let serviceWithholding = new Decimal(0);
 
-  let inventoryUpdate: Prisma.Prisma__InventoryClient<{
-    id: string;
-    productId: string;
-    quantity: Prisma.Decimal;
-    lastUpdated: Date;
-    chartOfAccountId: string;
-  }>[] = [];
+  let inventoryUpdate: Prisma.Prisma__InventoryClient<{}>[] = [];
 
   // Calculate sums and prepare data for bulk updates
 
@@ -179,10 +173,11 @@ export const vatPurchaseSummation = ({
           ...databaseGenerator,
         });
 
-        chartOfAccountTransactions = [
-          ...chartOfAccountTransactions,
-          chartOfAccountTransaction,
-        ];
+        if (chartOfAccountTransaction)
+          chartOfAccountTransactions = [
+            ...chartOfAccountTransactions,
+            chartOfAccountTransaction,
+          ];
         inventoryUpdate = [...inventoryUpdate, inventoryUpdateData];
         createPurchaseProductData = [
           ...createPurchaseProductData,

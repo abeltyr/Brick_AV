@@ -17,7 +17,6 @@ const AddPurchaseSideSection = () => {
                 <ChartOfAccountListSection />
                 <Separator className='my-8' />
                 <PurchaseSummationSection />
-                <Separator className='my-8' />
                 <WithholdingBreakdownSection />
             </CardContent>
         </Card>

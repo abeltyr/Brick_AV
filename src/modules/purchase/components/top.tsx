@@ -12,7 +12,7 @@ export const AddPurchaseTopSection = ({ form, companyId }: {
     companyId: string, form: UseFormReturn<z.infer<typeof purchaseSchema>>
 }) => {
 
-    const { setChartOfAccount } = useAddPurchases()
+    const { setChartOfAccount, chartOfAccount } = useAddPurchases()
     return (
         <div className='w-full flex justify-between item-center gap-6 my-10'>
             <div className='flex flex-col gap-1'>
@@ -34,8 +34,8 @@ export const AddPurchaseTopSection = ({ form, companyId }: {
                     companyId={companyId}
                     className=''
                     setChartOfAccount={(coa: ChartOfAccountType) => {
-                        form.setValue("chartOfAccount.paymentChartOfAccount.id", coa.id);
-                        form.clearErrors()
+                        // form.setValue("chartOfAccount.paymentChartOfAccount.id", coa.id);
+                        // form.clearErrors()
                         setChartOfAccount((prevState) => ({
                             ...prevState, // Keep other properties unchanged
                             paymentAccount: {
@@ -52,6 +52,7 @@ export const AddPurchaseTopSection = ({ form, companyId }: {
                     }}
                     formData={form}
                     title='Payment COA'
+                    defaultCOAId={chartOfAccount.paymentAccount?.id}
                 />
             </div>
         </div>

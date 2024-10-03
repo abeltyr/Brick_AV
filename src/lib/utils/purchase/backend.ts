@@ -31,22 +31,18 @@ export const dbCodeGenerator = ({
   creatorId?: string;
 }) => {
   let updateInventory: Prisma.InventoryUpdateInput = {};
-
+  let chartOfAccount = product.chartOfAccount;
   if (
     product.initialProductPriceUnit !== product.unit ||
-    new Decimal(product.initialProductPriceUnitPrice) !==
-      new Decimal(product.unitPrice)
+    !new Decimal(product.initialProductPriceUnitPrice).equals(
+      new Decimal(product.unitPrice),
+    )
   ) {
     updateInventory = {
       quantity: {
         increment: product.quantity,
       },
       productPrice: {
-        create: {
-          unit: product.unit,
-          unitPrice: product.unitPrice,
-          active: true,
-        },
         updateMany: {
           where: {
             inventoryId: product.inventoryId,
@@ -54,6 +50,11 @@ export const dbCodeGenerator = ({
           data: {
             active: false,
           },
+        },
+        create: {
+          unit: product.unit,
+          unitPrice: product.unitPrice,
+          active: true,
         },
       },
       lastUpdated: new Date(),
@@ -75,7 +76,7 @@ export const dbCodeGenerator = ({
       quantity: product.quantity,
       productId: product.productId,
       lastUpdated: new Date(),
-      chartOfAccountId: product.chartOfAccount.id,
+      chartOfAccountId: chartOfAccount ? chartOfAccount.id : undefined,
     },
     update: updateInventory,
   });
@@ -96,21 +97,24 @@ export const dbCodeGenerator = ({
     purchaseId,
     chartOfAccountTransactionId,
   };
-
-  const chartOfAccountTransaction = prisma.chartOfAccountTransaction.create({
-    data: {
-      id: chartOfAccountTransactionId,
-      chartOfAccountId: product.chartOfAccount.id,
-      transactionType: "DEPOSIT",
-      status: "PENDING",
-      accountPeriodId: accountPeriodId,
-      companyId: companyId,
-      date: date,
-      createdById: creatorId,
-      credit: product.chartOfAccount.balanceType === "credit" ? totalValue : 0,
-      debit: product.chartOfAccount.balanceType === "debit" ? totalValue : 0,
-    },
-  });
+  let chartOfAccountTransaction: Prisma.Prisma__ChartOfAccountTransactionClient<{}> | null =
+    null;
+  if (chartOfAccount) {
+    chartOfAccountTransaction = prisma.chartOfAccountTransaction.create({
+      data: {
+        id: chartOfAccountTransactionId,
+        chartOfAccountId: chartOfAccount.id,
+        transactionType: "DEPOSIT",
+        status: "PENDING",
+        accountPeriodId: accountPeriodId,
+        companyId: companyId,
+        date: date,
+        createdById: creatorId,
+        credit: chartOfAccount.balanceType === "credit" ? totalValue : 0,
+        debit: chartOfAccount.balanceType === "debit" ? totalValue : 0,
+      },
+    });
+  }
   const purchaseProductData = prisma.purchaseProduct.upsert({
     where: {
       purchaseId_inventoryId: {

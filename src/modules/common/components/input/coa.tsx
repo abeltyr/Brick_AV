@@ -63,16 +63,21 @@ export const ChartOfAccountInput = ({
 
     useEffect(() => {
         if (currentCompany && currentCompany.companyId) {
-            if (!chartOfAccounts[currentCompany.companyId] || chartOfAccounts[currentCompany.companyId] && chartOfAccounts[currentCompany.companyId].length === 0)
+            console.log("chartOfAccounts", chartOfAccounts, !chartOfAccounts[currentCompany.companyId] ||
+                chartOfAccounts[currentCompany.companyId] && chartOfAccounts[currentCompany.companyId].length === 0);
+            if (
+                !chartOfAccounts[currentCompany.companyId] ||
+                chartOfAccounts[currentCompany.companyId] && chartOfAccounts[currentCompany.companyId].length === 0)
                 getChartOfAccounts({
                     companyId: currentCompany.companyId
                 })
         }
-    }, [currentCompany, chartOfAccounts, getChartOfAccounts])
+    }, [currentCompany])
 
     const [chartOfAccountIndex, setChartOfAccountIndex] = useState<number | null>(null)
 
     useEffect(() => {
+        console.log("watchedTin, defaultCOAId, chartOfAccounts, companyId")
         if (defaultCOAId && chartOfAccounts && chartOfAccounts[companyId] && chartOfAccounts[companyId].length > 0) {
             const indexData = chartOfAccounts[companyId].findIndex((data) => data.id === defaultCOAId);
             setChartOfAccountIndex(indexData)
@@ -80,6 +85,7 @@ export const ChartOfAccountInput = ({
     }, [defaultCOAId, chartOfAccounts, companyId])
 
     useEffect(() => {
+        console.log("watchedTin, chartOfAccounts, currentCompany")
         if (currentCompany && currentCompany.companyId) {
             if (
                 chartOfAccounts[currentCompany.companyId] && chartOfAccounts[currentCompany.companyId].length > 0
@@ -166,36 +172,31 @@ export const ChartOfAccountInput = ({
         <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                    <div>
-                        <Button
-                            variant={variant}
-                            role="combobox"
-                            aria-expanded={open}
-                            aria-label="Select a team"
-                            className={cn("w-full justify-between overflow-hidden ", props.className)}
-                        >
-                            <div className='flex gap-2'>
-                                {<FileChartColumnIncreasing className="h-4 w-4" />}
-                                {chartOfAccountIndex != null &&
-                                    chartOfAccounts && chartOfAccounts[companyId] &&
-                                    chartOfAccounts[companyId].length > chartOfAccountIndex ?
-                                    showCode ? chartOfAccounts[companyId][chartOfAccountIndex].code :
-                                        chartOfAccounts[companyId][chartOfAccountIndex].name :
-                                    <p className='opacity-65'>
-                                        {title}
-                                    </p>}
-                            </div>
-                            <div>
-                                {showIcon && <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />}
-                            </div>
+                    <Button
+                        variant={variant}
+                        role="combobox"
+                        aria-expanded={open}
+                        aria-label="Select a team"
+                        className={cn("w-full justify-between overflow-hidden flex-1 ", props.className)}
+                    >
+                        <div className='flex gap-2'>
+                            {<FileChartColumnIncreasing className="h-4 w-4" />}
+                            {chartOfAccountIndex != null &&
+                                chartOfAccounts && chartOfAccounts[companyId] &&
+                                chartOfAccounts[companyId].length > chartOfAccountIndex ?
+                                showCode ? chartOfAccounts[companyId][chartOfAccountIndex].code :
+                                    chartOfAccounts[companyId][chartOfAccountIndex].name :
+                                <p className='opacity-65'>
+                                    {title}
+                                </p>}
+                        </div>
+                        <div>
+                            {showIcon && <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />}
+                        </div>
 
-                        </Button>
-                        {/* {formData && formData.formState.errors.chartOfAccountId && <p className='text-red-600 mt-4 text-left'>
-                            {formData.formState.errors.chartOfAccountId.message}
-                        </p>} */}
-                    </div>
+                    </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-full min-w-[550px] h-auto p-0 overflow-y-scroll" align='end'>
+                <PopoverContent className="w-full min-w-[750px] h-auto p-0 overflow-y-scroll" align='end'>
                     <ChartOfAccountPopup
                         chartOfAccounts={chartOfAccounts}
                         chartOfAccountsData={chartOfAccountsData}

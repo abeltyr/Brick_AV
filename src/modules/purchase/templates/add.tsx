@@ -6,7 +6,6 @@ import {
     Form,
 } from "@/modules/ui/form"
 import { useToast } from '@/modules/ui/use-toast'
-import PurchaseDetailForm from '../components/add/purchaseDetailForm'
 import { AddPurchaseHeader } from '../components/add/header'
 import PurchaseProductsForm from '../components/add/purchaseProductsForm'
 import { purchaseSchema } from '@/lib/form/purchase'
@@ -16,6 +15,8 @@ import AddPurchaseSideSection from '../components/side'
 import { useAddPurchases } from '@/lib/context/purchase/addPurchase'
 import { useState } from 'react'
 import PurchaseGebiwochReportForm from '../components/add/purchaseDeclarationAdjustmentForm'
+import { Separator } from '@/modules/ui/separator'
+import PurchaseDetailForm from '../components/add/purchaseDetailForm'
 
 
 export const AddPurchaseSection = () => {
@@ -31,6 +32,7 @@ export const AddPurchaseSection = () => {
 
 
     const onSubmit = async (values: z.infer<typeof purchaseSchema>) => {
+        console.log(values);
         if (!isLoading) {
             setIsLoading(true)
             try {
@@ -71,6 +73,7 @@ export const AddPurchaseSection = () => {
                 <Form {...form!}>
                     <AddPurchaseHeader
                         actionFunction={() => {
+                            console.log(form?.formState);
                             form?.handleSubmit(onSubmit)()
                         }}
                     />
@@ -79,55 +82,21 @@ export const AddPurchaseSection = () => {
                         companyId={currentCompany.companyId}
                         form={form!}
                     />
+
                     <div className='flex gap-6' >
                         <div className='flex-1 max-w-[402px]'>
                             <AddPurchaseSideSection />
                         </div>
                         <div className='flex-1 flex flex-col gap-8'>
-                            {/* <PurchaseDetailForm form={form!} /> */}
+                            <PurchaseDetailForm />
                             <PurchaseProductsForm />
+                            <div className='px-6'>
+                                <Separator className='my-6' />
+                            </div>
                             <PurchaseGebiwochReportForm />
                         </div>
 
                     </div>
-
-                    {/* <div className='flex  flex-wrap xl:flex-nowrap'>
-                        <div className='w-full  xl:min-w-[73%] pr-2  flex-1 flex flex-col gap-6 pb-20 '>
-                            <PurchaseVendorForm
-                                form={form}
-                                vendor={vendor}
-                                setVendor={setVendor}
-                            />
-                            <PurchaseDetailForm form={form} />
-                            <PurchaseProductsForm form={form} />
-                            <PurchaseDeclarationAdjustmentForm
-                                form={form}
-                                totalQuantity={totalQuantity}
-                                taxTotal={taxTotal}
-                            />
-
-                        </div>
-                        <div className='w-full xl:flex-1 xl:min-w-[27%] flex flex-col gap-6 relative h-full'>
-                            <div className='relative  h-full' >
-                                <TotalPurchaseData
-                                    grossAmount={grossAmount.toNumber()}
-                                    nonTaxableAmount={nonTaxableAmount.toNumber()}
-                                    purchaseProducts={watchedProducts}
-                                    taxableAmount={taxableAmount.toNumber()}
-                                    taxTotal={taxTotal.toNumber()}
-                                    importedGoodSummaryAmount={importedGoodSummaryAmount.toNumber()}
-                                    importedGoodWithholding={importedGoodWithholding.toNumber()}
-                                    localGoodSummaryAmount={localGoodSummaryAmount.toNumber()}
-                                    localGoodWithholding={localGoodWithholding.toNumber()}
-                                    serviceSummaryAmount={serviceSummaryAmount.toNumber()}
-                                    serviceWithholding={serviceWithholding.toNumber()}
-                                    withholding={withholding.toNumber()}
-                                />
-                            </div>
-                        </div>
-                    </div> */}
-
-
                 </Form>
             </div>
 

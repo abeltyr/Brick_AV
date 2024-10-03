@@ -259,7 +259,7 @@ model ChartOfAccount {
 
   inventory                 Inventory[]
   chartOfAccountBalance     ChartOfAccountBalance?
-  chartOfAccountTransaction ChartOfAccountTransaction?
+  chartOfAccountTransaction ChartOfAccountTransaction[]
 
   @@unique([companyId, code]) // Unique company-specific code
   @@index([companyId])
@@ -311,7 +311,7 @@ enum ChartOfAccountTransactionStatus {
 
 model ChartOfAccountTransaction {
   id                          String                     @id @default(cuid())
-  chartOfAccountId            String                     @unique
+  chartOfAccountId            String
   chartOfAccount              ChartOfAccount             @relation(fields: [chartOfAccountId], references: [id])
   companyId                   String
   company                     Company                    @relation(fields: [companyId], references: [id])
@@ -431,8 +431,8 @@ model Inventory {
   lastUpdated      DateTime          @default(now()) @updatedAt
   productPrice     ProductPrice[]
   purchaseProduct  PurchaseProduct[]
-  chartOfAccountId String
-  chartOfAccount   ChartOfAccount    @relation(fields: [chartOfAccountId], references: [id])
+  chartOfAccountId String?
+  chartOfAccount   ChartOfAccount?   @relation(fields: [chartOfAccountId], references: [id])
   childInventory   BillOfMaterial[]  @relation("childInventory")
   parentInventory  BillOfMaterial[]  @relation("parentInventory")
 

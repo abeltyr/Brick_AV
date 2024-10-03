@@ -55,7 +55,7 @@ export const ChartOfAccountPopup: React.FC<ChartOfAccountPopupProps> = ({
     }, [chartOfAccountsData, searchTerm, accountTypeObject])
 
     return (
-        <div className="flex flex-col h-[550px] overflow-hidden">
+        <div className="flex flex-col h-[400px] overflow-hidden">
             <div className="flex items-center border-b px-3">
                 <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                 <Input
@@ -69,7 +69,7 @@ export const ChartOfAccountPopup: React.FC<ChartOfAccountPopupProps> = ({
             <div className="flex-grow overflow-hidden">
                 {chartOfAccountsData && chartOfAccountsData.length > 0 ? (
 
-                    <ScrollArea className='h-[550px]'>
+                    <ScrollArea className='h-[400px]'>
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -136,7 +136,7 @@ export const ChartOfAccountPopup: React.FC<ChartOfAccountPopupProps> = ({
                                     ))
 
                                 )}
-                                <div className='h-40 w-full' />
+                                <div className='h-32 w-full' />
                             </TableBody>
 
                         </Table>
