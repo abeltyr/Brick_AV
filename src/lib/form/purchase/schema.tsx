@@ -6,8 +6,11 @@ export const ChartOfAccountValueInput = z.object({
     id: z.string(),
     balanceType: z.enum(["credit", "debit"]),
     name: z.string(),
+    accountType: z.string(),
     code: z.string(),
-    amount: z.number(),
+    amount: z.number().optional(),
+    balance: z.number().optional(),
+    quantity: z.number().optional(),
 });
 
 export const purchaseProducts = z.object({

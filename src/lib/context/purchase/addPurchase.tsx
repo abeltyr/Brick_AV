@@ -1,8 +1,8 @@
 'use client'
 
 import { createPurchaseAction } from '@/lib/data/purchase/create';
-import { purchaseProducts, purchaseSchema } from '@/lib/form/purchase';
-import { ChartOfAccountType, PurchaseInputType } from '@/types/purchase';
+import { ChartOfAccountValueInput, purchaseProducts, purchaseSchema } from '@/lib/form/purchase';
+import { PurchaseInputType } from '@/types/purchase';
 import React, { useContext, useEffect, useState } from "react";
 import { useForm, UseFormReturn, useWatch } from 'react-hook-form';
 import { z } from 'zod';
@@ -12,20 +12,14 @@ import Decimal from 'decimal.js';
 import { totPurchaseSummation, UnregisteredPurchaseSummation, vatPurchaseSummation } from '@/lib/utils/purchase';
 
 
-type ChartOfAccountUpdatesType = {
-    id: string,
-    name: string,
-    code: string,
-    amount: number,
-    quantity: number
-}
+type ChartOfAccountDataType = z.infer<typeof ChartOfAccountValueInput>
 
 type ChartOfAccountListType = {
-    paymentAccount: ChartOfAccountType | null;
-    vatAccount: ChartOfAccountUpdatesType | null;
-    withHolding: ChartOfAccountUpdatesType | null;
+    paymentAccount: ChartOfAccountDataType | null;
+    vatAccount: ChartOfAccountDataType | null;
+    withHolding: ChartOfAccountDataType | null;
     productsChartAccount: {
-        [id: string]: ChartOfAccountUpdatesType;
+        [id: string]: ChartOfAccountDataType;
     }
 };
 
@@ -39,6 +33,8 @@ const initialValues: {
     taxableAmount: Decimal;
     nonTaxableAmount: Decimal;
     taxTotal: Decimal;
+    goodTotTotal: Decimal;
+    serviceTotTotal: Decimal;
     grossAmount: Decimal;
     totalAmount: Decimal;
     importedGoodSummaryAmount: Decimal;
@@ -60,6 +56,8 @@ const initialValues: {
     taxableAmount: new Decimal(0),
     nonTaxableAmount: new Decimal(0),
     taxTotal: new Decimal(0),
+    goodTotTotal: new Decimal(0),
+    serviceTotTotal: new Decimal(0),
     grossAmount: new Decimal(0),
     totalAmount: new Decimal(0),
     importedGoodSummaryAmount: new Decimal(0),
@@ -91,17 +89,20 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
 
     const [vendor, setVendor] = useState<VendorType | null>(null)
 
-
-    const [totalQuantity, setTotalQuantity] = useState<number>(0);
     const [chartOfAccount, setChartOfAccount] = useState<ChartOfAccountListType>({
         paymentAccount: null,
         vatAccount: null,
         withHolding: null,
         productsChartAccount: {}
     });
+
+
+    const [totalQuantity, setTotalQuantity] = useState<number>(0);
     const [taxableAmount, setTaxableAmount] = useState<Decimal>(new Decimal(0));
     const [nonTaxableAmount, setNonTaxableAmount] = useState<Decimal>(new Decimal(0));
     const [taxTotal, setTaxTotal] = useState<Decimal>(new Decimal(0));
+    const [goodTotTotal, setGoodTotTotal] = useState<Decimal>(new Decimal(0));
+    const [serviceTotTotal, setServiceTotTotal] = useState<Decimal>(new Decimal(0));
     const [grossAmount, setGrossAmount] = useState<Decimal>(new Decimal(0));
     const [totalAmount, setTotalAmount] = useState<Decimal>(new Decimal(0));
     const [importedGoodSummaryAmount, setImportedGoodSummaryAmount] = useState<Decimal>(new Decimal(0));
@@ -140,22 +141,42 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
         name: "purchaseProducts",
     });
 
-    useEffect(() => {
 
+    const updateChartOfAccountData = () => {
         if (watchedProducts) {
-            let chartOfAccountData: { [id: string]: ChartOfAccountUpdatesType } = {}
+            let chartOfAccountData: { [id: string]: ChartOfAccountDataType } = {}
             for (let data of watchedProducts) {
                 if (data.chartOfAccount) {
                     let code = data.chartOfAccount.code;
+                    let quantity = (data.quantity) ?? 0
+                    let unitPrice = data.unitPrice ?? 0
+
+                    if (typeof (quantity) === "string") {
+                        quantity = 0
+                    }
+                    if (typeof (unitPrice) === "string") {
+                        unitPrice = 0
+                    }
+                    let amount = new Decimal(quantity).mul(new Decimal(unitPrice)) ?? new Decimal(0);
+
+                    if (amount && chartOfAccountData[code] && chartOfAccountData[code].amount) {
+                        amount = new Decimal(chartOfAccountData[code].amount).plus(amount);
+                    }
+
+                    if (quantity && chartOfAccountData[code] && chartOfAccountData[code].quantity) {
+                        quantity = new Decimal(chartOfAccountData[code].quantity).plus(quantity).toNumber();
+                    }
+                    console.log("amount", amount);
+
                     chartOfAccountData[code] = {
                         id: data.chartOfAccount.id,
                         name: data.chartOfAccount.name,
                         code: data.chartOfAccount.code,
-                        amount: chartOfAccountData[code] && chartOfAccountData[code].amount ?
-                            chartOfAccountData[code].amount + data.chartOfAccount.amount :
-                            data.chartOfAccount.amount,
-                        quantity: chartOfAccountData[code] && chartOfAccountData[code].quantity ?
-                            chartOfAccountData[code].quantity + 1 : 0
+                        accountType: data.chartOfAccount.accountType,
+                        amount: amount.toNumber(),
+                        quantity,
+                        balance: data.chartOfAccount.balance,
+                        balanceType: data.chartOfAccount.balanceType
                     }
                 }
             }
@@ -164,6 +185,10 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                 productsChartAccount: chartOfAccountData, // Update productsChartAccount
             }));
         }
+    }
+
+
+    const updateSummaryData = () => {
         if (vendor && vendor.business?.tin) {
             if (vendor.taxType === "VAT") {
                 const {
@@ -195,6 +220,7 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                 setTotalQuantity(summation.totalQuantity)
                 setGrossAmount(summation.grossAmount)
                 setTotalAmount(summation.totalAmount)
+                setTaxableAmount(summation.totalAmount)
                 setTaxTotal(summation.taxAmount)
                 setWithholding(summation.withholdingAmount)
                 setLocalGoodSummaryAmount(summation.goodSummaryAmount)
@@ -202,6 +228,8 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                 setServiceSummaryAmount(summation.serviceSummaryAmount)
                 setServiceWithholding(summation.serviceWithholdingAmount)
                 setGrossAmount(summation.grossAmount)
+                setGoodTotTotal(summation.goodTaxAmount)
+                setServiceTotTotal(summation.serviceTaxAmount)
             }
 
         } else {
@@ -211,7 +239,6 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                 purchaseProducts: watchedProducts,
                 hasWithholding: form.getValues("withholdingType") === "hasWithholding"
             });
-
             setTotalQuantity(summation.totalQuantity)
             setGrossAmount(summation.grossAmount)
             setTotalAmount(summation.totalAmount)
@@ -220,8 +247,18 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
             setGrossAmount(summation.grossAmount)
 
         }
+    }
+
+
+    useEffect(() => {
+
+        updateChartOfAccountData();
+        updateSummaryData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [watchedProducts]);
+    }, [watchedProducts, vendor]);
+
+
+
 
     return (
         <AddPurchasesContext.Provider
@@ -245,7 +282,9 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                 totalAmount,
                 purchaseProducts: watchedProducts,
                 chartOfAccount,
-                setChartOfAccount
+                setChartOfAccount,
+                goodTotTotal,
+                serviceTotTotal
             }}
         >
             {children}

@@ -112,6 +112,8 @@ export const totPurchaseSummation = ({
       grossAmount,
       totalQuantity,
       averagePrice,
+      serviceTaxAmount,
+      goodTaxAmount,
     },
     createPurchaseProductData,
     chartOfAccountTransactions,

@@ -77,29 +77,31 @@ export default function ChartOfAccountListSection() {
                                 </span>
                                 <span className="text-primary text-sm">
                                     ETB  {chartOfAccount.paymentAccount &&
-                                        chartOfAccount.paymentAccount.chartOfAccountBalance &&
-                                        chartOfAccount.paymentAccount.chartOfAccountBalance ?
-                                        new Decimal(chartOfAccount.paymentAccount.chartOfAccountBalance.balance).toNumber().toLocaleString('en-US') : 0}
+                                        chartOfAccount.paymentAccount.balance ?
+                                        new Decimal(chartOfAccount.paymentAccount.balance).toNumber().toLocaleString('en-US') : 0}
                                 </span>
                             </li>
                         </ul>}
 
                         <div className={`
                             flex flex-col gap-3 
-                            ${chartOfAccount && Object.values(chartOfAccount.productsChartAccount).length > 0 || taxTotal.greaterThan(0) || withholding.greaterThan(0) ? "mt-6" : "mt-0"} bg-red-400`}>
+                            ${chartOfAccount && Object.values(chartOfAccount.productsChartAccount).length > 0 || taxTotal.greaterThan(0) || withholding.greaterThan(0) ? "mt-6" : "mt-0"}`}>
 
                             {chartOfAccount && Object.values(chartOfAccount.productsChartAccount).length > 0 && <ul className="flex flex-col gap-3 ">
                                 {Object.values(chartOfAccount.productsChartAccount).map((data, index) => {
                                     return <li className="flex items-center justify-between" key={index}>
                                         <span className="text-[#828282] text-sm">
-                                            {data.name} - {data.code} x
+                                            {data.name} {" x "}
                                             <span>
                                                 {data.quantity}
+                                            </span>
+                                            {" - "}<span className='text-xs px-1 py-1 bg-green-200 rounded-md'>
+                                                D
                                             </span>
                                         </span>
                                         {data.quantity && data.amount &&
                                             <span className="text-primary text-sm">
-                                                ETB {`${data.amount}`}
+                                                ETB {`${new Decimal(data.amount).toNumber().toLocaleString('en-US')}`}
                                             </span>
                                         }
                                     </li>

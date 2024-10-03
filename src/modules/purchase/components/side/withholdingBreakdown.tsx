@@ -61,7 +61,7 @@ export default function WithholdingBreakdownSection() {
                                     Local Good Summary
                                 </span>
                                 <span className="text-primary text-sm">
-                                    ETB {`${localGoodSummaryAmount}`}
+                                    ETB {localGoodSummaryAmount.toNumber().toLocaleString('en-US')}
                                 </span>
                             </li>
                             <li className="flex items-center justify-between" >
@@ -69,7 +69,7 @@ export default function WithholdingBreakdownSection() {
                                     Imported Good Summary
                                 </span>
                                 <span className="text-primary text-sm">
-                                    ETB {`${importedGoodSummaryAmount}`}
+                                    ETB {importedGoodSummaryAmount.toNumber().toLocaleString('en-US')}
                                 </span>
                             </li>
 
@@ -78,7 +78,7 @@ export default function WithholdingBreakdownSection() {
                                     Service Summary
                                 </span>
                                 <span className="text-primary text-sm">
-                                    ETB {`${serviceSummaryAmount}`}
+                                    ETB {serviceSummaryAmount.toNumber().toLocaleString('en-US')}
                                 </span>
                             </li>
                         </ul>
@@ -88,7 +88,7 @@ export default function WithholdingBreakdownSection() {
                                     Local Good 2% withholding
                                 </span>
                                 <span className="text-primary text-sm">
-                                    ETB {`${localGoodWithholding}`}
+                                    ETB {localGoodWithholding.toNumber().toLocaleString('en-US')}
                                 </span>
                             </li>
                             <li className="flex items-center justify-between" >
@@ -96,7 +96,7 @@ export default function WithholdingBreakdownSection() {
                                     Imported Good 3% withholding
                                 </span>
                                 <span className="text-primary text-sm">
-                                    ETB {`${importedGoodWithholding}`}
+                                    ETB {importedGoodWithholding.toNumber().toLocaleString('en-US')}
                                 </span>
                             </li>
 
@@ -105,7 +105,7 @@ export default function WithholdingBreakdownSection() {
                                     Service 2% withholding
                                 </span>
                                 <span className="text-primary text-sm">
-                                    ETB {`${serviceWithholding}`}
+                                    ETB {serviceWithholding.toNumber().toLocaleString('en-US')}
                                 </span>
                             </li>
 
@@ -116,7 +116,7 @@ export default function WithholdingBreakdownSection() {
                                     Total Withholding
                                 </span>
                                 <span className="text-primary text-sm font-bold">
-                                    ETB {`${withholding}`}
+                                    ETB {withholding.toNumber().toLocaleString('en-US')}
                                 </span>
                             </li>
 

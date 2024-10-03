@@ -26,7 +26,10 @@ export default function PurchaseSummationSection() {
         withholding,
         purchaseProducts,
         vendor,
-        form
+        form,
+        totalAmount,
+        goodTotTotal,
+        serviceTotTotal,
     } = useAddPurchases()
 
     const [opened, setOpened] = useState(false)
@@ -70,7 +73,7 @@ export default function PurchaseSummationSection() {
                                     </span>
                                     {data.quantity && data.unitPrice &&
                                         <span className="text-primary text-sm">
-                                            ETB {`${(new Decimal(data.quantity)).mul(data.unitPrice)}`}
+                                            ETB {(new Decimal(data.quantity)).mul(data.unitPrice).toNumber().toLocaleString('en-US')}
                                         </span>
                                     }
                                 </li>
@@ -82,7 +85,7 @@ export default function PurchaseSummationSection() {
                                     Taxable Amount
                                 </span>
                                 <span className="text-primary text-sm">
-                                    ETB {`${taxableAmount}`}
+                                    ETB {taxableAmount.toNumber().toLocaleString('en-US')}
                                 </span>
                             </li>
                             {new Decimal(nonTaxableAmount).greaterThan(0) && <li className="flex items-center justify-between">
@@ -90,35 +93,60 @@ export default function PurchaseSummationSection() {
                                     Non Taxable Amount
                                 </span>
                                 <span className="text-primary text-sm">
-                                    ETB {`${nonTaxableAmount}`}
+                                    ETB {nonTaxableAmount.toNumber().toLocaleString('en-US')}
                                 </span>
                             </li>}
-                            {vendor && vendor.business && vendor.business.tin && <li className="flex items-center justify-between">
+                            {vendor && vendor.business && vendor.business.tin && vendor.taxType === "VAT" && <li className="flex items-center justify-between">
                                 <span className="text-[#828282] text-sm">
-                                    {
-                                        vendor.taxType === "VAT" ?
-                                            "15% Vat" :
-                                            form?.getValues("gebiwoch.productCategoryType") === "Good" ? "2% TOT" : "10% TOT"
-                                    }
+                                    15% Vat
                                 </span>
                                 <span className="text-primary text-sm">
-                                    ETB {`${taxTotal}`}
+                                    ETB {taxTotal.toNumber().toLocaleString('en-US')}
                                 </span>
                             </li>}
-                            {withholding && new Decimal(withholding).greaterThan(0) && <li className="flex items-center justify-between">
+                            {vendor && vendor.business && vendor.business.tin && vendor.taxType === "TOT" && goodTotTotal.greaterThan(0) && <li className="flex items-center justify-between">
+                                <span className="text-[#828282] text-sm">
+                                    2% TOT
+                                </span>
+                                <span className="text-primary text-sm">
+                                    ETB {goodTotTotal.toNumber().toLocaleString('en-US')}
+                                </span>
+                            </li>}
+
+                            {vendor && vendor.business && vendor.business.tin && vendor.taxType === "TOT" && serviceTotTotal.greaterThan(0) && <li className="flex items-center justify-between">
+                                <span className="text-[#828282] text-sm">
+                                    10% TOT
+                                </span>
+                                <span className="text-primary text-sm">
+                                    ETB {serviceTotTotal.toNumber().toLocaleString('en-US')}
+                                </span>
+                            </li>}
+
+                            {vendor && vendor.business && vendor.business.tin && vendor.taxType === "TOT" && goodTotTotal.greaterThan(0) && serviceTotTotal.greaterThan(0) && <li className="flex items-center justify-between">
+                                <span className="text-[#828282] text-sm">
+                                    Total TOT
+                                </span>
+                                <span className="text-primary text-sm">
+                                    ETB {taxTotal.toNumber().toLocaleString('en-US')}
+                                </span>
+                            </li>}
+                            {withholding && withholding.greaterThan(0) && <li className="flex items-center justify-between">
                                 <span className="text-[#828282] text-sm">
                                     WithHolding
                                 </span>
                                 <span className="text-primary text-sm">
-                                    ETB -{`${withholding}`}
+                                    ETB -{withholding.toNumber().toLocaleString('en-US')}
                                 </span>
                             </li>}
+                        </ul>
+
+                        <ul className="grid gap-3">
                             <li className="flex items-center justify-between font-semibold">
                                 <span className="text-[#828282] text-sm">
                                     Total
                                 </span>
                                 <span className="text-primary text-sm font-bold">
-                                    ETB {`${grossAmount}`}
+                                    ETB {grossAmount.toNumber().toLocaleString('en-US')}
                                 </span>
                             </li>
                         </ul>

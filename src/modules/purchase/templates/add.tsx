@@ -15,6 +15,7 @@ import { AddPurchaseTopSection } from '../components/top'
 import AddPurchaseSideSection from '../components/side'
 import { useAddPurchases } from '@/lib/context/purchase/addPurchase'
 import { useState } from 'react'
+import PurchaseGebiwochReportForm from '../components/add/purchaseDeclarationAdjustmentForm'
 
 
 export const AddPurchaseSection = () => {
@@ -82,9 +83,10 @@ export const AddPurchaseSection = () => {
                         <div className='flex-1 max-w-[402px]'>
                             <AddPurchaseSideSection />
                         </div>
-                        <div className='flex-1'>
-                            <PurchaseDetailForm form={form!} />
-                            <PurchaseProductsForm form={form!} />
+                        <div className='flex-1 flex flex-col gap-8'>
+                            {/* <PurchaseDetailForm form={form!} /> */}
+                            <PurchaseProductsForm />
+                            <PurchaseGebiwochReportForm />
                         </div>
 
                     </div>

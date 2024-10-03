@@ -77,11 +77,11 @@ export default function PurchaseVendorForm() {
                             </span>
                         </div>
                         }
-                        <div>
+                        {vendor.taxType === "VAT" && <div>
                             <Badge className='hover:bg-primary'>
                                 Vat Registered
                             </Badge>
-                        </div>
+                        </div>}
                     </div> : <div>
                     </div>}
                     <div className='flex gap-3'>

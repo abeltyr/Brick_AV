@@ -35,6 +35,7 @@ export const ChartOfAccountInput = ({
     showCode = false,
     title = "Chart of Account",
     variant = "secondary",
+    defaultCOAId,
     ...props
 }: {
     companyId: string
@@ -43,6 +44,8 @@ export const ChartOfAccountInput = ({
     showIcon?: boolean,
     showCode?: boolean,
     variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | null | undefined,
+
+    defaultCOAId?: string,
     setChartOfAccount: (data: ChartOfAccountType) => void
 } & TeamSwitcherProps) => {
 
@@ -67,6 +70,15 @@ export const ChartOfAccountInput = ({
         }
     }, [currentCompany, chartOfAccounts, getChartOfAccounts])
 
+    const [chartOfAccountIndex, setChartOfAccountIndex] = useState<number | null>(null)
+
+    useEffect(() => {
+        if (defaultCOAId && chartOfAccounts && chartOfAccounts[companyId] && chartOfAccounts[companyId].length > 0) {
+            const indexData = chartOfAccounts[companyId].findIndex((data) => data.id === defaultCOAId);
+            setChartOfAccountIndex(indexData)
+        }
+    }, [defaultCOAId, chartOfAccounts, companyId])
+
     useEffect(() => {
         if (currentCompany && currentCompany.companyId) {
             if (
@@ -78,7 +90,6 @@ export const ChartOfAccountInput = ({
         }
     }, [chartOfAccounts, currentCompany])
 
-    const [chartOfAccountIndex, setChartOfAccountIndex] = useState<number | null>(null)
 
     const chartOfAccountForm = useForm<z.infer<typeof chartOfAccountSchema>>({
         resolver: zodResolver(chartOfAccountSchema),

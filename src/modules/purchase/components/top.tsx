@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { UseFormReturn } from 'react-hook-form';
 import { ChartOfAccountInput } from '@/modules/common/components/input/coa';
 import { useAddPurchases } from '@/lib/context/purchase/addPurchase';
+import Decimal from 'decimal.js';
 
 export const AddPurchaseTopSection = ({ form, companyId }: {
     companyId: string, form: UseFormReturn<z.infer<typeof purchaseSchema>>
@@ -37,7 +38,16 @@ export const AddPurchaseTopSection = ({ form, companyId }: {
                         form.clearErrors()
                         setChartOfAccount((prevState) => ({
                             ...prevState, // Keep other properties unchanged
-                            paymentAccount: coa, // Update productsChartAccount
+                            paymentAccount: {
+                                id: coa.id,
+                                accountType: coa.accountType,
+                                balanceType: coa.creditBased ? "credit" : "debit",
+                                code: coa.code,
+                                name: coa.name,
+                                balance: coa.chartOfAccountBalance && coa.chartOfAccountBalance.balance ? new Decimal(coa.chartOfAccountBalance.balance).toNumber() : 0,
+                                amount: 0,
+                                quantity: 1
+                            }, // Update productsChartAccount
                         }));
                     }}
                     formData={form}
