@@ -128,15 +128,25 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
             withholdingType: "hasWithholding"
         },
     })
+
     const createPurchase = async ({ companyId, creatorId, purchaseInput }: { companyId: string, creatorId: string, purchaseInput: PurchaseInputType }) => {
         try {
+            if (!vendor) throw new Error("Vendor is required")
+
+            let receiptNumber = purchaseInput.receiptNumber.toString();
+
+            if (vendor.taxType != "NONE") {
+                if (receiptType === "Machine") receiptNumber = `FS${purchaseInput.receiptNumber}`
+                else receiptNumber = `CSI${purchaseInput.receiptNumber}`
+
+            }
             const newPurchase = await createPurchaseAction({
                 companyId,
                 creatorId,
                 purchaseInput: {
                     ...purchaseInput,
+                    receiptNumber,
                     chartOfAccount,
-                    receiptNumber: receiptType === "Machine" ? `FS{purchaseInput.receiptNumber}` : `CSI{purchaseInput.receiptNumber}`
                 }
 
             });
@@ -205,6 +215,7 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
 
 
     const updateSummaryData = () => {
+        let withholdingAmountData = new Decimal(0)
         if (vendor && vendor.business?.tin) {
             if (vendor.taxType === "VAT") {
                 const {
@@ -226,6 +237,7 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                 setServiceSummaryAmount(summation.serviceSummaryAmount)
                 setServiceWithholding(summation.serviceWithholding)
                 setGrossAmount(summation.grossAmount)
+                withholdingAmountData = summation.withholdingAmount;
             } else {
                 const {
                     summation
@@ -246,6 +258,8 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                 setGrossAmount(summation.grossAmount)
                 setGoodTotTotal(summation.goodTaxAmount)
                 setServiceTotTotal(summation.serviceTaxAmount)
+
+                withholdingAmountData = summation.withholdingAmount;
             }
 
         } else {
@@ -262,8 +276,18 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
             setWithholding(summation.withholdingAmount)
             setGrossAmount(summation.grossAmount)
             setTaxableAmount(summation.totalAmount)
-
+            withholdingAmountData = summation.withholdingAmount;
         }
+
+
+        if (watchedWithholdingType === "noWithholding" || withholdingAmountData.equals(0)) {
+            form.setValue("withholdingChartOfAccountId", undefined)
+            setChartOfAccount((prevState) => ({
+                ...prevState, // Keep other properties unchanged
+                withHolding: null, // Update productsChartAccount
+            }));
+        }
+
     }
 
 
@@ -273,8 +297,9 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
         name: "withholdingType",
     });
 
-    useEffect(() => {
 
+
+    useEffect(() => {
         console.log("updateChartOfAccountData, watchedProducts")
         updateChartOfAccountData();
         updateSummaryData();
@@ -283,10 +308,17 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
 
 
     useEffect(() => {
-
         console.log("updateChartOfAccountData, vendor")
         updateChartOfAccountData();
         updateSummaryData();
+
+        if ((vendor && vendor.taxType != "VAT") || !vendor) {
+            form.setValue("vatChartOfAccountId", undefined)
+            setChartOfAccount((prevState) => ({
+                ...prevState, // Keep other properties unchanged
+                vatAccount: null, // Update productsChartAccount
+            }));
+        }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [vendor]);

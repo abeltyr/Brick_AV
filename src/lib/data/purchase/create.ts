@@ -25,7 +25,8 @@ export const createPurchaseAction = async ({
 }: {
   companyId: string;
   creatorId: string;
-  purchaseInput: PurchaseInputType & {
+  purchaseInput: Omit<PurchaseInputType, "receiptNumber"> & {
+    receiptNumber: string;
     chartOfAccount: ChartOfAccountListType;
   };
 }): Promise<{
@@ -142,8 +143,7 @@ export const createPurchaseAction = async ({
       },
     },
     date: purchaseInput.date,
-    receiptNumber: purchaseInput.receiptNumber ?? "",
-    cashReceiptVoucher: purchaseInput.cashReceiptVoucher,
+    receiptNumber: purchaseInput.receiptNumber,
     withholdingNumber: purchaseInput.withholdingNumber,
     mrcNumber: purchaseInput.mrcNumber,
     description: purchaseInput.gebiwoch.description,

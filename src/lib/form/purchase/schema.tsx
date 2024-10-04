@@ -22,20 +22,26 @@ export const purchaseProducts = z.object({
     chartOfAccount: ChartOfAccountValueInput.optional(),
     purchaseType: zPurchaseInputType,
     unit: zProductInputUnit,
-    unitPrice: z.number(),
+    unitPrice: z.number({
+        invalid_type_error: "A valid unitPrice is required"
+    }),
     productCode: z.string(),
-    quantity: z.number(),
+    quantity: z.number({
+        invalid_type_error: "A valid quantity is required"
+    }),
     name: z.string(),
 })
 
 export const purchaseSchema = z.object({
     vendorId: z.string(),
-    date: z.date(),
-    receiptNumber: z.string().optional(),
+    paymentChartOfAccountId: z.string(),
+    vatChartOfAccountId: z.string().optional(),
+    withholdingChartOfAccountId: z.string().optional(),
+    date: z.date({ required_error: "Date is required" }),
+    receiptNumber: z.number(),
     mrcNumber: z.string().optional(),
     withholdingType: zProductInputWithholdingType,
     withholdingNumber: z.string().optional(),
-    cashReceiptVoucher: z.string().optional(),
     gebiwoch: z.object({
         purchaseType: zPurchaseInputType,
         productCategoryType: zProductInputType,

@@ -14,6 +14,7 @@ import { Button } from '@/modules/ui/button'
 import { Badge } from '@/modules/ui/badge'
 import { BusinessDetailModal } from '@/modules/business/components/businessDetailModal'
 import { useState } from 'react'
+import { ErrorMessage } from '@/modules/common/components/errorMessage'
 
 
 export default function PurchaseVendorForm() {
@@ -139,11 +140,7 @@ export default function PurchaseVendorForm() {
                         </SheetTrigger>
                     </div>
                     {form!.formState.errors.vendorId &&
-                        <div>
-                            <p className='text-red-600 mt-4  text-sm font-medium'>
-                                You need to selector create on vendor
-                            </p>
-                        </div>
+                        <ErrorMessage message='You need to select or create a vendor' />
                     }
                 </div>}
             <SheetContent side="right" className="max-w-[400px] min-w-[50%] p-0 flex flex-col h-full ">

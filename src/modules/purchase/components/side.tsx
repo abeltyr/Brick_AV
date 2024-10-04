@@ -8,7 +8,6 @@ import WithholdingBreakdownSection from './side/withholdingBreakdown';
 
 const AddPurchaseSideSection = () => {
 
-
     return (
         <Card className=''>
             <CardContent className=' px-6'>

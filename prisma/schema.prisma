@@ -520,10 +520,9 @@ model Purchase {
   withholdingDetailId String?            @unique
   withholdingDetail   WithholdingDetail? @relation(fields: [withholdingDetailId], references: [id])
 
-  receiptNumber      String
-  cashReceiptVoucher String?
-  mrcNumber          String?
-  withholdingNumber  String?
+  receiptNumber     String
+  mrcNumber         String?
+  withholdingNumber String?
 
   purchaseType ProductPurchaseType
   productType  ProductCategoryType
@@ -547,6 +546,7 @@ model Purchase {
 
   purchaseProducts PurchaseProduct[]
 
+  @@unique([vendorTin, receiptNumber])
   @@index([date, companyId])
   @@index([vendorId])
   @@index([grossAmount])

@@ -135,7 +135,8 @@ export default function ChartOfAccountListSection() {
                                     </span>
                                 </li>
                             </ul>}
-                            {withholding.greaterThan(0) && <ul className="flex flex-col gap-3 ">
+                             */}
+                            {/* {withholding.greaterThan(0) && <ul className="flex flex-col gap-3 ">
                                 <li className="flex items-center justify-between">
                                     <span className="text-[#828282] text-sm">
                                         Withholding Payable

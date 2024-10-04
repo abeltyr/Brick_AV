@@ -21,6 +21,9 @@ import { ChartOfAccountInput } from '@/modules/common/components/input/coa'
 import { ChartOfAccountType } from '@/types/purchase'
 import { useCompany } from '@/lib/context/account'
 import { useAddPurchases } from '@/lib/context/purchase/addPurchase'
+import { Card, CardFooter } from '@/modules/ui/card'
+import React from 'react'
+import { ErrorMessage } from '@/modules/common/components/errorMessage'
 
 
 export default function PurchaseProductsForm() {
@@ -47,7 +50,7 @@ export default function PurchaseProductsForm() {
 
 
     return (
-        <div className={`w-full px-6 flex flex-col gap-8`}>
+        <div className={`w-full px-6 flex flex-col gap-4`}>
             <div>
                 <p className='text-2xl font-bold'>Purchase Items</p>
                 <p className='text-sm font-light text-[#71717A]'>
@@ -71,7 +74,7 @@ export default function PurchaseProductsForm() {
                     <TableBody >
                         {fields.map((field, index) => (
                             <TableRow key={field.id} >
-                                <TableCell className='p-1 w-[100px]'>
+                                <TableCell className='py-4 px-1 w-[160px]'>
                                     <NormalInput
                                         form={form}
                                         name={`purchaseProducts.${index}.name`}
@@ -80,7 +83,7 @@ export default function PurchaseProductsForm() {
                                         placeholder=""
                                     />
                                 </TableCell>
-                                <TableCell className='p-1 pr-2 '>
+                                <TableCell className='py-4 px-1 pr-2 w-[200px]'>
                                     <SelectInput
                                         form={form}
                                         name={`purchaseProducts.${index}.purchaseType`}
@@ -91,7 +94,7 @@ export default function PurchaseProductsForm() {
                                         values={[...purchaseInputType]}
                                     />
                                 </TableCell>
-                                <TableCell className='p-0'>
+                                <TableCell className='py-4 px-1 w-[100px]'>
                                     <SelectInput
                                         form={form}
                                         name={`purchaseProducts.${index}.type`}
@@ -102,7 +105,7 @@ export default function PurchaseProductsForm() {
                                         values={[...productInputType]}
                                     />
                                 </TableCell>
-                                {currentCompany && <TableCell className='p-0 w-28 overflow-hidden px-2 max-w-[20px]' >
+                                {currentCompany && <TableCell className='py-4 px-1 w-[110px] overflow-hidden' >
                                     <ChartOfAccountInput
                                         companyId={currentCompany.companyId}
                                         className=''
@@ -125,7 +128,7 @@ export default function PurchaseProductsForm() {
                                         defaultCOAId={field.chartOfAccount && field.chartOfAccount.id ? field.chartOfAccount.id : undefined}
                                     />
                                 </TableCell>}
-                                <TableCell className='w-[80px] p-1'>
+                                <TableCell className='py-4 px-1 w-[80px] '>
                                     <SelectInput
                                         form={form}
                                         name={`purchaseProducts.${index}.unit`}
@@ -136,21 +139,21 @@ export default function PurchaseProductsForm() {
                                         values={[...productInputUnit]}
                                     />
                                 </TableCell>
-                                <TableCell className='w-[50px] p-1'>
+                                <TableCell className='py-4 px-1 w-[60px] '>
                                     <PriceInput
                                         form={form}
                                         name={`purchaseProducts.${index}.quantity`}
                                         placeholder="1"
                                     />
                                 </TableCell>
-                                <TableCell className='w-[160px] p-1'>
+                                <TableCell className='py-4 px-1 w-[140px] '>
                                     <PriceInput
                                         form={form}
                                         name={`purchaseProducts.${index}.unitPrice`}
                                         placeholder="Enter Balance Amount"
                                     />
                                 </TableCell>
-                                <TableCell className='text-center'>
+                                <TableCell className='py-4 px-1 text-center'>
                                     <Button
                                         variant="outline" onClick={() => remove(index)} className='p-3 hover:border-red-900 hover:text-red-900 duration-300 '>
                                         <Trash2 className='w-4 h-4' />
@@ -160,13 +163,70 @@ export default function PurchaseProductsForm() {
                         ))}
                     </TableBody>
                 </Table> :
-                    <div className='w-full  flex flex-col item-center justify-center py-4 '>
-                        <p className='text-center'>
-                            No Product has been selected yet
-                        </p>
-                        {form!.formState.errors.purchaseProducts && <p className='text-red-600 mt-4 text-left'>
-                            {form!.formState.errors.purchaseProducts.message}
-                        </p>}
+                    <div className='w-full  flex flex-col item-center justify-center  '>
+                        <Table className='overflow-hidden '>
+                            <TableHeader className='px-20'>
+                                <TableRow >
+                                    <TableHead className='text-sm text-[#A1A1A1] font-light'>Name</TableHead>
+                                    <TableHead className='text-sm text-[#A1A1A1] font-light'>Purchase Type</TableHead>
+                                    <TableHead className='text-sm text-[#A1A1A1] font-light'>Type</TableHead>
+                                    <TableHead className='text-sm text-[#A1A1A1] font-light'>COA</TableHead>
+                                    <TableHead className='text-sm text-[#A1A1A1] font-light'>Unit</TableHead>
+                                    <TableHead className='text-sm text-[#A1A1A1] font-light'>Quantity</TableHead>
+                                    <TableHead className='text-sm text-[#A1A1A1] font-light'>Unit Price</TableHead>
+                                    <TableHead className='text-sm text-[#A1A1A1] font-light'>Delete</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody >
+                                <TableRow className='space-x-2 '>
+                                    <TableCell className='py-4 px-1 w-[160px]'>
+                                        <Button disabled variant={"outline"} className='w-full'>
+
+                                        </Button>
+                                    </TableCell>
+                                    <TableCell className='py-4 px-1 pr-2 w-[200px]'>
+                                        <Button disabled variant={"outline"} className='w-full'>
+
+                                        </Button>
+                                    </TableCell>
+                                    <TableCell className='py-4 px-1 w-[180px]'>
+                                        <Button disabled variant={"outline"} className='w-full'>
+
+                                        </Button>
+                                    </TableCell>
+                                    <TableCell className='py-4 px-1 w-[110px] overflow-hidden ' >
+                                        <Button disabled variant={"outline"} className='w-full'>
+
+                                        </Button>
+                                    </TableCell>
+                                    <TableCell className='py-4 px-1 w-[120px] '>
+                                        <Button disabled variant={"outline"} className='w-full'>
+
+                                        </Button>
+                                    </TableCell>
+                                    <TableCell className='py-4 px-1 w-[120px] '>
+                                        <Button disabled variant={"outline"} className='w-full'>
+
+                                        </Button>
+                                    </TableCell>
+                                    <TableCell className='py-4 px-1 w-[140px] '>
+                                        <Button disabled variant={"outline"} className='w-full'>
+
+                                        </Button>
+                                    </TableCell>
+                                    <TableCell className='py-4 px-1 text-center'>
+                                        <Button disabled variant={"outline"} className='w-full'>
+
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                        <div>
+                            {form!.formState.errors.purchaseProducts &&
+                                <ErrorMessage message='At least one item is required for the purchase' />
+                            }
+                        </div>
                     </div>
                 }
             </div>
@@ -282,7 +342,7 @@ export default function PurchaseProductsForm() {
                     />
                 </SheetContent>
             </Sheet>
-        </div>
+        </div >
 
     )
 }

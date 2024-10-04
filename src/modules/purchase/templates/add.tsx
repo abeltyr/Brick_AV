@@ -27,12 +27,55 @@ export const AddPurchaseSection = () => {
 
     const { currentCompany } = useCompany();
     const { profile } = useProfile();
-    const { createPurchase, form } = useAddPurchases();
+    const { createPurchase, form, vendor, chartOfAccount, withholding, receiptType } = useAddPurchases();
 
 
 
     const onSubmit = async (values: z.infer<typeof purchaseSchema>) => {
-        console.log(values);
+
+
+        let error = false;
+        if (vendor && vendor.taxType === "VAT" && (!form!.getValues("vatChartOfAccountId") || form!.getValues("vatChartOfAccountId") === "" || !chartOfAccount.vatAccount)) {
+            form?.setError("vatChartOfAccountId", {
+                message: "Vat Payment COA Required"
+            })
+            error = true;
+        }
+
+        if (
+            vendor &&
+            vendor.taxType != "NONE" &&
+            receiptType === "Machine" &&
+            (!form!.getValues("mrcNumber") || form!.getValues("mrcNumber") === "")) {
+
+            console.log("data mrc number")
+            form?.setError("mrcNumber", {
+                message: "MRC Number Is Required"
+            })
+            error = true;
+        }
+
+
+        if (withholding.greaterThan(0)) {
+            if ((!form!.getValues("withholdingChartOfAccountId") || form!.getValues("withholdingChartOfAccountId") === "" || !chartOfAccount.withHolding)) {
+                form?.setError("withholdingChartOfAccountId", {
+                    message: "Withholding COA Required"
+                })
+                error = true;
+            }
+            if (!form!.getValues("withholdingNumber") || form!.getValues("withholdingNumber") === "") {
+                form?.setError("withholdingNumber", {
+                    message: "Withholding Number is Required"
+                })
+                error = true;
+            }
+        }
+
+        if (error) return
+
+
+        form?.clearErrors()
+
         if (!isLoading) {
             setIsLoading(true)
             try {
@@ -82,13 +125,15 @@ export const AddPurchaseSection = () => {
                         companyId={currentCompany.companyId}
                         form={form!}
                     />
-
                     <div className='flex gap-6' >
                         <div className='flex-1 max-w-[402px]'>
                             <AddPurchaseSideSection />
                         </div>
                         <div className='flex-1 flex flex-col gap-8'>
                             <PurchaseDetailForm />
+                            <div className='px-6'>
+                                <Separator className='my-6' />
+                            </div>
                             <PurchaseProductsForm />
                             <div className='px-6'>
                                 <Separator className='my-6' />
