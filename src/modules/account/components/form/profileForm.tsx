@@ -31,6 +31,7 @@ export function OnboardingProfileForm({ className, ...props }: OnboardingProfile
     const form = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
+            gender: "male",
             ...profile,
             email: session && session.user && session.user.email ? session.user.email : '',
             fullName: session && session.user && session.user.user_metadata ? session.user.user_metadata.name : '',
@@ -57,13 +58,7 @@ export function OnboardingProfileForm({ className, ...props }: OnboardingProfile
                     />
                     <div className='pt-4'>
                         <Button
-                            // disabled={isLoading}
                             type="submit" variant='default'>
-                            {/* {isLoading && (
-                                <div className='mr-2 h-5 w-5 animate-spin'>
-                                    <LoadingSVG />
-                                </div>
-                            )} */}
                             Continue
                         </Button>
                     </div>

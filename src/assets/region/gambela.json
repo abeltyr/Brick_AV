@@ -1,0 +1,42 @@
+[
+  {
+    "id": 43,
+    "parent_id": 6,
+    "name": "Anuak",
+    "slug": "anuak",
+    "parent_ids": [
+      6
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 44,
+    "parent_id": 6,
+    "name": "Mezhenger",
+    "slug": "mezhenger",
+    "parent_ids": [
+      6
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 45,
+    "parent_id": 6,
+    "name": "Nuer",
+    "slug": "nuer",
+    "parent_ids": [
+      6
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 46,
+    "parent_id": 6,
+    "name": "Itang",
+    "slug": "itang",
+    "parent_ids": [
+      6
+    ],
+    "is_popular": false
+  }
+]

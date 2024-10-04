@@ -1,0 +1,22 @@
+[
+  {
+    "id": 41,
+    "parent_id": 5,
+    "name": "Dire Dawa city",
+    "slug": "dire-dawa-city",
+    "parent_ids": [
+      5
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 42,
+    "parent_id": 5,
+    "name": "Gurgura",
+    "slug": "gurgura",
+    "parent_ids": [
+      5
+    ],
+    "is_popular": false
+  }
+]

@@ -1,109 +1,71 @@
 import React from 'react'
-import {
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/modules/ui/form"
 import { companySchema } from '@/lib/form/account'
-import { Input } from "@/modules/ui/input"
 import { UseFormReturn, useWatch } from 'react-hook-form'
 import { z } from 'zod'
-import { LanguageTranslator } from '@/modules/language/components'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/modules/ui/select'
+import { Button } from '@/modules/ui/button'
+import { NormalInput } from '../input/normal'
+import { PhoneNumberInput } from '../input/phoneNumber'
 
 
 export const GeneralCompanyForm = ({ form, title = "Manager Name", readOnlyValues = [] }: { form: UseFormReturn<z.infer<typeof companySchema>>, title?: string, readOnlyValues?: string[] }) => {
 
+    const watchedTaxType = useWatch({
+        control: form.control,
+        name: "taxType",
+    });
+
     return (
         <div className='flex flex-col gap-5'>
+            <div className='w-full flex gap-5'>
+                <Button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        form.setValue("taxType", "VAT")
+                    }}
+                    variant={watchedTaxType === "VAT" ? "default" : "secondary"}
+                    className='flex-1'>
+                    VAT
+                </Button>
+                <Button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        form.setValue("taxType", "TOT")
+                    }}
+                    variant={watchedTaxType === "TOT" ? "default" : "secondary"}
+                    className='flex-1'>
+                    TOT
+                </Button>
+            </div>
+
             <div className=" gap-3 flex justify-between">
                 <div className="flex-1">
-                    <FormField
-                        control={form.control}
-                        name="managerName"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className='text-sm'>
-                                    <LanguageTranslator>
-                                        {title}
-                                    </LanguageTranslator></FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="text"
-                                        placeholder="Enter companies’ manager name"
-                                        {...field}
-                                        disabled={readOnlyValues.includes("managerName")}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
+                    <NormalInput
+                        form={form}
+                        name='managerName'
+                        title="Manager Name"
+                        type='text'
+                        placeholder="Enter companies’ manager name"
                     />
                 </div>
             </div>
             <div className='w-full flex gap-6'>
+
                 <div className='min-w-[200px] flex-1'>
-                    <FormField
-                        control={form.control}
-                        name="companyPhone"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className='text-sm'>Company Phone</FormLabel>
-                                <FormControl>
-                                    <div className='flex '>
-                                        <Select>
-                                            <SelectTrigger className="w-[100px]">
-                                                <SelectValue placeholder="🇪🇹 +251" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="eth">🇪🇹 +251</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <Input
-                                            {...field}
-                                            disabled={readOnlyValues.includes("companyPhone")}
-                                            placeholder="922998885"
-                                            className="flex-1 ml-1"
-                                        />
-                                    </div>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
+                    <NormalInput
+                        form={form}
+                        name='email'
+                        title="Company Email"
+                        type='text'
+                        placeholder="Company Email Address"
                     />
                 </div>
                 <div className='min-w-[200px] flex-1'>
-                    <FormField
-                        control={form.control}
-                        name="companyPhoneAlternative"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className='text-sm'>Company Phone (Alternative)</FormLabel>
-                                <FormControl>
-                                    <div className='flex '>
-                                        <Select>
-                                            <SelectTrigger className="w-[100px]">
-                                                <SelectValue placeholder="🇪🇹 +251" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="eth">🇪🇹 +251</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <Input
-                                            {...field}
-                                            disabled={readOnlyValues.includes("companyPhone")}
-                                            placeholder="922998885"
-                                            className="flex-1 ml-1"
-                                        />
-                                    </div>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
+                    <PhoneNumberInput
+                        form={form}
+                        name='companyPhone'
+                        title="Company Phone"
+                        placeholder="922998885"
                     />
-
                 </div>
             </div>
 

@@ -8,13 +8,15 @@ export const PhoneNumberInput = ({
     form,
     name = "phoneNumber",
     placeholder = "922998885",
-    disabled = false
+    disabled = false,
+    description
 }: {
     title?: string,
     form: any,
     name?: string,
     placeholder?: string
     disabled?: boolean
+    description?: string
 }
 ) => {
     return (
@@ -23,7 +25,14 @@ export const PhoneNumberInput = ({
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel className='text-sm'>{title}</FormLabel>
+
+                    {title && <FormLabel className='text-sm'>
+                        <p>{title}
+                        </p>
+                        {description && <p className='text-xs text-[#71717A] font-light'>
+                            {description}
+                        </p>}
+                    </FormLabel>}
                     <FormControl>
                         <div className='flex '>
                             <Select>

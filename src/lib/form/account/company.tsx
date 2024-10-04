@@ -1,3 +1,4 @@
+import { isBefore } from 'date-fns';
 import { z } from 'zod';
 
 
@@ -8,8 +9,9 @@ export const companyInTakeSchema = z.object({
 
 export const companySchema = z.object({
     managerName: z.string().min(1, 'Manager Name is required'),
+    email: z.string().email().optional(),
     companyPhone: z.string().min(1, 'Company Phone is required'),
-    companyPhoneAlternative: z.string().optional(),
+    taxType: z.enum(['VAT', 'TOT', "NONE"]),
 })
 
 
@@ -25,3 +27,11 @@ export const ownerSchema = z.object({
     message: "Please provided a role name",
     path: ['detail']
 })
+
+
+export const FiscalYear = z.object({
+    start: z.date(),
+    end: z.date(),
+}).refine((data) => isBefore(data.start, data.end), {
+    message: "Start date must be before end date",
+});

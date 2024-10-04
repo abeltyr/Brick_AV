@@ -9,124 +9,64 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/modules/ui/select'
 import { profileSchema } from '@/lib/form/account/profile'
 import { Label } from '@/modules/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/modules/ui/radio-group'
-import { Input } from "@/modules/ui/input"
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
+import { NormalInput } from '../input/normal'
+import { PhoneNumberInput } from '../input/phoneNumber'
+import { RadioInput } from '../input/radio'
 
 
 export const GeneralProfileForm = ({ form, readOnlyValues = [], hideForm = [] }: { form: UseFormReturn<z.infer<typeof profileSchema>>, readOnlyValues?: string[], hideForm?: string[] }) => {
     return (
         <div className='flex flex-col gap-5'>
-            <FormField
-                control={form.control}
-                name="fullName"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className='text-sm'>Full name</FormLabel>
-                        <FormControl>
-                            <Input
-                                disabled={readOnlyValues.includes("fullName")}
-                                placeholder="Enter full name"
-                                {...field}
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-
+            <NormalInput
+                form={form}
+                name='fullName'
+                title="Full name"
+                type='text'
+                disabled={readOnlyValues.includes("fullName")}
+                placeholder="Full name"
             />
             <div className='flex gap-2 flex-wrap'>
 
                 {!hideForm.includes("email") && <div className='flex-1 min-w-[200px]'>
-                    <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className='text-sm'>Email</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        disabled={readOnlyValues.includes("email")}
-                                        placeholder="Enter email address"
-                                        {...field}
-                                        type="email"
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-                }
-                {!hideForm.includes("tin") && <div className='flex-1 min-w-[200px]'>
-                    <FormField
-                        control={form.control}
-                        name="tin"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className='text-sm'>Personal Tin number</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        disabled={readOnlyValues.includes("tin")}
-                                        placeholder="Enter TIN number"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
+                    <NormalInput
+                        form={form}
+                        name='email'
+                        title="Email"
+                        type='email'
+                        disabled={readOnlyValues.includes("email")}
+                        placeholder="Email"
                     />
                 </div>}
 
+
+                {!hideForm.includes("phoneNumber") && <div className='flex-1 min-w-[200px]'>
+                    <PhoneNumberInput
+                        title={"Phone number"}
+                        name="phoneNumber"
+                        form={form}
+                    />
+                </div>
+                }
+
             </div>
 
-
-            {!hideForm.includes("phoneNumber") && <FormField
-                control={form.control}
-                name="phoneNumber"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className='text-sm'>Phone number</FormLabel>
-                        <FormControl>
-                            <div className='flex '>
-                                <Select>
-                                    <SelectTrigger className="w-[100px]">
-                                        <SelectValue placeholder="🇪🇹 +251" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="eth">🇪🇹 +251</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <Input
-                                    {...field}
-                                    disabled={readOnlyValues.includes("phoneNumber")}
-                                    placeholder="922998885"
-                                    className="flex-1 ml-2"
-                                />
-                            </div>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />}
-
-
-
-            {!hideForm.includes("gender") && <div className="space-y-2">
-                <Label>Gender</Label>
-                <RadioGroup defaultValue="male" className='flex gap-6'>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="male" id="male" {...form.register('gender')} />
-                        <Label htmlFor="male">Male</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="female" id="female" {...form.register('gender')} />
-                        <Label htmlFor="female">Female</Label>
-                    </div>
-                </RadioGroup>
-            </div>
-            }
+            {!hideForm.includes("gender") && <div className='flex-1 min-w-[200px]'>
+                <RadioInput
+                    form={form}
+                    name='gender'
+                    title="Gender"
+                    values={[{
+                        data: "Male",
+                        value: "male"
+                    }, {
+                        data: "Female",
+                        value: "female"
+                    }]}
+                    alignment='horizontal'
+                />
+            </div>}
 
             {!hideForm.includes("dateOfBirth") && <div className="space-y-2">
                 <Label>Date of birth</Label>

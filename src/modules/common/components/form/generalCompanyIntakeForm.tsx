@@ -11,6 +11,8 @@ import { Input } from "@/modules/ui/input"
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 import { LanguageTranslator } from '@/modules/language/components'
+import { NormalInput } from '../input/normal'
+import { ZeroAdjustableInput } from '../input/tin'
 
 
 export const GeneralCompanyIntakeForm = ({ form, title = "Company Name", readOnlyValues = [] }: { form: UseFormReturn<z.infer<typeof companyInTakeSchema>>, title?: string, readOnlyValues?: string[] }) => {
@@ -20,45 +22,17 @@ export const GeneralCompanyIntakeForm = ({ form, title = "Company Name", readOnl
         <div className='flex flex-col gap-5'>
             <div className=" gap-3 flex justify-between">
                 <div className="flex-1">
-                    <FormField
-                        control={form.control}
-                        name="companyName"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className='text-sm'>
-                                    <LanguageTranslator>
-                                        {title}
-                                    </LanguageTranslator></FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="text"
-                                        placeholder="Eurka Tech"
-                                        {...field}
-                                        disabled={readOnlyValues.includes("companyName")}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
+                    <NormalInput
+                        form={form}
+                        name='companyName'
+                        title="Company Name"
+                        type='text'
+                        placeholder="Eurka Tech"
                     />
                 </div>
             </div>
-            <FormField
-                control={form.control}
-                name="tin"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className='text-sm'>Company Tin</FormLabel>
-                        <FormControl>
-                            <Input
-                                placeholder="Enter your TIN number"
-                                {...field}
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
+
+            <ZeroAdjustableInput title={"Company Tin"} name="tin" form={form} placeholder='Enter Tax Identification Number (TIN)' />
 
         </div>
     )

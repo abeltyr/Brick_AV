@@ -1,0 +1,62 @@
+[
+  {
+    "id": 22,
+    "parent_id": 2,
+    "name": "Awsi Rasu",
+    "slug": "awsi-rasu",
+    "parent_ids": [
+      2
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 23,
+    "parent_id": 2,
+    "name": "Kilbati Rasu",
+    "slug": "kilbati-rasu",
+    "parent_ids": [
+      2
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 24,
+    "parent_id": 2,
+    "name": "Gabi Rasu",
+    "slug": "gabi-rasu",
+    "parent_ids": [
+      2
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 25,
+    "parent_id": 2,
+    "name": "Fanti Rasu",
+    "slug": "fanti-rasu",
+    "parent_ids": [
+      2
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 26,
+    "parent_id": 2,
+    "name": "Harri Rasu",
+    "slug": "harri-rasu",
+    "parent_ids": [
+      2
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 27,
+    "parent_id": 2,
+    "name": "Argobba",
+    "slug": "argobba",
+    "parent_ids": [
+      2
+    ],
+    "is_popular": false
+  }
+]

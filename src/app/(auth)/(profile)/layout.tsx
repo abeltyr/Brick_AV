@@ -6,6 +6,7 @@ import { DrawerManagerProvider } from '@/lib/context/drawer/drawer';
 import LoadingTemplate from '@/modules/common/templates/loading';
 import OnboardingPage from '@/modules/account/templates/onboarding';
 import { OnboardingProvider } from '@/lib/context/account/onboarding';
+import React from 'react';
 
 
 export default function RootLayout({

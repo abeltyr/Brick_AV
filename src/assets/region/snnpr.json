@@ -1,0 +1,242 @@
+[
+  {
+    "id": 93,
+    "parent_id": 10,
+    "name": "Bench Maji",
+    "slug": "bench-maji",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 94,
+    "parent_id": 10,
+    "name": "Dawro",
+    "slug": "dawro",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 95,
+    "parent_id": 10,
+    "name": "Gamo",
+    "slug": "gamo",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 96,
+    "parent_id": 10,
+    "name": "Gofa",
+    "slug": "gofa",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 97,
+    "parent_id": 10,
+    "name": "Gedeo",
+    "slug": "gedeo",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 98,
+    "parent_id": 10,
+    "name": "Gurage",
+    "slug": "gurage",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 99,
+    "parent_id": 10,
+    "name": "Hadiya",
+    "slug": "hadiya",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 100,
+    "parent_id": 10,
+    "name": "Keffa",
+    "slug": "keffa",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 101,
+    "parent_id": 10,
+    "name": "Keficho Shekicho",
+    "slug": "keficho-shekicho",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 102,
+    "parent_id": 10,
+    "name": "Kembata Tembaro",
+    "slug": "kembata-tembaro",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 103,
+    "parent_id": 10,
+    "name": "North Omo",
+    "slug": "north-omo",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 104,
+    "parent_id": 10,
+    "name": "Sheka",
+    "slug": "sheka",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 105,
+    "parent_id": 10,
+    "name": "Sidama",
+    "slug": "sidama",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 106,
+    "parent_id": 10,
+    "name": "Silti",
+    "slug": "silti",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 107,
+    "parent_id": 10,
+    "name": "South Omo",
+    "slug": "south-omo",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 108,
+    "parent_id": 10,
+    "name": "Wolayita",
+    "slug": "wolayita",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 109,
+    "parent_id": 10,
+    "name": "Alaba",
+    "slug": "alaba",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 110,
+    "parent_id": 10,
+    "name": "Amaro",
+    "slug": "amaro",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 111,
+    "parent_id": 10,
+    "name": "Basketo",
+    "slug": "basketo",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 112,
+    "parent_id": 10,
+    "name": "Burji",
+    "slug": "burji",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 113,
+    "parent_id": 10,
+    "name": "Dirashe",
+    "slug": "dirashe",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 114,
+    "parent_id": 10,
+    "name": "Konso",
+    "slug": "konso",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 115,
+    "parent_id": 10,
+    "name": "Konta",
+    "slug": "konta",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 116,
+    "parent_id": 10,
+    "name": "Yem",
+    "slug": "yem",
+    "parent_ids": [
+      10
+    ],
+    "is_popular": false
+  }
+]

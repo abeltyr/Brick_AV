@@ -17,6 +17,7 @@ import { Card, CardContent } from '@/modules/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/modules/ui/avatar'
 import { useOnboarding } from '@/lib/context/account/onboarding'
 import { BusinessDetailModal } from '@/modules/business/components/businessDetailModal'
+import { Eye } from 'lucide-react'
 
 
 
@@ -30,7 +31,7 @@ export function OnboardingCompanyForm({ className, ...props }: OnboardingCompany
         defaultValues: {
             managerName: business && business.managerNameEng ? business.managerNameEng : "",
             companyPhone: business && business.phoneNumber ? business.phoneNumber : "",
-            companyPhoneAlternative: business && business?.phoneNumberAlterative ? business?.phoneNumberAlterative : "",
+            taxType: "VAT",
             ...company
         },
     })
@@ -68,9 +69,7 @@ export function OnboardingCompanyForm({ className, ...props }: OnboardingCompany
                     <div className='flex gap-3 items-center'>
                         <Avatar className="h-12 w-12">
                             <AvatarImage
-                                src={`images/companyLogo.webp`}
                                 alt={"company logo"}
-                            // className="grayscale"
                             />
                             <AvatarFallback>{business.businessName?.slice(0, 2)?.toUpperCase()}</AvatarFallback>
                         </Avatar>
@@ -78,13 +77,19 @@ export function OnboardingCompanyForm({ className, ...props }: OnboardingCompany
                             {business.businessName}
                         </p>
                     </div>
-                    <Button variant={"secondary"} onClick={() => {
-                        setIsOpen(true)
-                    }}>
-                        View Company Detail
+                    <Button
+                        className='flex gap-2'
+                        variant={"secondary"}
+                        onClick={(e) => {
+                            setIsOpen(true)
+                        }}
+                    >
+                        <Eye className='w-4 h-4' />
+                        View Business Detail
                     </Button>
                 </CardContent>
             </Card>}
+
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full">
                     <GeneralCompanyForm form={form} title='Manager Name' />
@@ -92,11 +97,6 @@ export function OnboardingCompanyForm({ className, ...props }: OnboardingCompany
                         <Button
                             // disabled={isLoading}
                             type="submit" variant='default' >
-                            {/* {isLoading && (
-                                <div className='mr-2 h-5 w-5 animate-spin'>
-                                    <LoadingSVG />
-                                </div>
-                            )} */}
                             Continue
                         </Button>
                     </div>

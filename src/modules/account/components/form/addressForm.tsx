@@ -51,13 +51,7 @@ export function OnboardingAddressForm({ className, ...props }: OnboardingAddress
                     <GeneralAddressForm form={form} />
                     <div className='pt-4'>
                         <Button
-                            // disabled={isLoading}
                             type="submit" variant='default' >
-                            {/* {isLoading && (
-                                <div className='mr-2 h-5 w-5 animate-spin'>
-                                    <LoadingSVG />
-                                </div>
-                            )} */}
                             Continue
                         </Button>
                     </div>

@@ -7,13 +7,15 @@ export const ZeroAdjustableInput = ({
     form,
     name,
     placeholder = "TAX Identification Number ('TIN')",
-    lengthData = 10
+    lengthData = 10,
+    description
 }: {
     title?: string,
     form: any,
     name: string,
     placeholder?: string
     lengthData?: number
+    description?: string
 }
 ) => {
     return (
@@ -22,7 +24,14 @@ export const ZeroAdjustableInput = ({
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    {title && <FormLabel className='text-sm'>{title}</FormLabel>}
+
+                    {title && <FormLabel className='text-sm'>
+                        <p>{title}
+                        </p>
+                        {description && <p className='text-xs text-[#71717A] font-light'>
+                            {description}
+                        </p>}
+                    </FormLabel>}
                     <FormControl>
                         <Input
                             placeholder={placeholder}

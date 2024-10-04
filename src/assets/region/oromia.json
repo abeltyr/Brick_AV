@@ -1,0 +1,212 @@
+[
+  {
+    "id": 56,
+    "parent_id": 8,
+    "name": "Arsi",
+    "slug": "arsi",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 57,
+    "parent_id": 8,
+    "name": "Bale",
+    "slug": "bale",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 58,
+    "parent_id": 8,
+    "name": "Bedele",
+    "slug": "bedele",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 59,
+    "parent_id": 8,
+    "name": "Borena",
+    "slug": "borena",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 60,
+    "parent_id": 8,
+    "name": "East Hararghe",
+    "slug": "east-hararghe",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 61,
+    "parent_id": 8,
+    "name": "East Shewa",
+    "slug": "east-shewa",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 62,
+    "parent_id": 8,
+    "name": "East Welega",
+    "slug": "east-welega",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 63,
+    "parent_id": 8,
+    "name": "Guji",
+    "slug": "guji",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 64,
+    "parent_id": 8,
+    "name": "West Guji",
+    "slug": "west-guji",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 65,
+    "parent_id": 8,
+    "name": "Horo Gudru Welega",
+    "slug": "horo-gudru-welega",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 66,
+    "parent_id": 8,
+    "name": "Illubabor",
+    "slug": "illubabor",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 67,
+    "parent_id": 8,
+    "name": "Jimma",
+    "slug": "jimma",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 68,
+    "parent_id": 8,
+    "name": "Kelem Welega",
+    "slug": "kelem-welega",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 69,
+    "parent_id": 8,
+    "name": "North Shewa",
+    "slug": "north-shewa-oromia",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 70,
+    "parent_id": 8,
+    "name": "South West Shewa",
+    "slug": "south-west-shewa",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 71,
+    "parent_id": 8,
+    "name": "West Arsi",
+    "slug": "west-arsi",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 72,
+    "parent_id": 8,
+    "name": "West Hararghe",
+    "slug": "west-hararghe",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 73,
+    "parent_id": 8,
+    "name": "West Shewa",
+    "slug": "west-shewa",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 74,
+    "parent_id": 8,
+    "name": "West Welega",
+    "slug": "west-welega",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 75,
+    "parent_id": 8,
+    "name": "Adama",
+    "slug": "adama",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 76,
+    "parent_id": 8,
+    "name": "Oromia-Finfinne",
+    "slug": "oromia-finfinne",
+    "parent_ids": [
+      8
+    ],
+    "is_popular": false
+  }
+]

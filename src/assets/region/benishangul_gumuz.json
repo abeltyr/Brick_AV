@@ -1,0 +1,32 @@
+[
+  {
+    "id": 38,
+    "parent_id": 4,
+    "name": "Asosa",
+    "slug": "asosa",
+    "parent_ids": [
+      4
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 39,
+    "parent_id": 4,
+    "name": "Kamashi",
+    "slug": "kamashi",
+    "parent_ids": [
+      4
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 40,
+    "parent_id": 4,
+    "name": "Metekel",
+    "slug": "metekel",
+    "parent_ids": [
+      4
+    ],
+    "is_popular": false
+  }
+]

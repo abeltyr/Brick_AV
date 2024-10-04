@@ -4,6 +4,7 @@ import { fetchBusinessApi } from '@/lib/data/business/create';
 import { onBoardingAction } from '@/lib/data/user/create';
 import { addressSchema, companyInTakeSchema, companySchema, ownerSchema, profileSchema } from '@/lib/form/account';
 import { OnboardingAddressForm, OnboardingCompanyForm, OnboardingCompanyInTakeForm, OnboardingOwnerAddressForm, OnboardingOwnerForm, OnboardingProfileForm } from '@/modules/account/components/form';
+import { OnboardingAccountingPeriodForm } from '@/modules/account/components/form/AccountingPeroidForm';
 import { BusinessType } from '@/types/business';
 import { ProfileInputType, ProfileType } from '@/types/profile';
 import React, { useContext, useState } from "react";
@@ -33,14 +34,19 @@ export const onBoardingSteps = [
         }]
     },
     {
-        title: 'Create owner info',
-        description: "We require the owner detail, if this your self no need to reenter but if not please provide, it bellow so that we can link it to there account.",
+        title: 'Accounting period',
+        description: "This will be used for the fiscal year and the accounting period intervals. this can;t be changed once set so double check your entry",
         subSteps: [{
-            name: 'Profile',
+            name: 'Setup Accounting Period',
+            form: <OnboardingAccountingPeriodForm />
+        }]
+    },
+    {
+        title: 'Chart of account',
+        description: "Please Setup the Chart of account for the company, you can also setup just the basic to get started with, and add the rest later",
+        subSteps: [{
+            name: 'Setup Accounting Period',
             form: <OnboardingOwnerForm />
-        }, {
-            name: 'Address',
-            form: <OnboardingOwnerAddressForm />
         }]
     },
 ]
@@ -172,7 +178,6 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
                 dateBirth,
                 gender: ownerProfile.gender === "male" ? "Male" : "Female",
                 phoneNumber: ownerProfile.phoneNumber ?? "",
-                tin: ownerProfile.tin ?? "",
                 address: {
                     ...ownerAddressData
                 }
@@ -191,7 +196,6 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
             dateBirth: profileDateBirth,
             gender: profile.gender === "male" ? "Male" : "Female",
             phoneNumber: profile.phoneNumber ?? "",
-            tin: profile.tin ?? "",
             address: {
                 description: address.description,
                 houseNumber: address.houseNumber,
@@ -210,7 +214,7 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
                     businessId: business.id,
                     name: companyIntake?.companyName,
                     phoneNumber: company.companyPhone,
-                    phoneNumberAlterative: company.companyPhoneAlternative,
+                    email: company.email,
                     managerName: company.managerName
                 },
                 ownerProfile: ownerProfileData,
