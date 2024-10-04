@@ -56,7 +56,7 @@ export type ChartOfAccountTransactionType = ChartOfAccountTransaction & {
 
 export type ChartOfAccountInputType = {
   name: string;
-  code: string;
+  code: number;
   accountType: ChartOfAccountsCategoryType;
   type: ChartOfAccountsType;
   balanceType: "credit" | "debit";

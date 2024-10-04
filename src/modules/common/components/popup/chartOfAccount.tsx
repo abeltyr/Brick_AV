@@ -42,7 +42,7 @@ export const ChartOfAccountPopup: React.FC<ChartOfAccountPopupProps> = ({
     const filteredChartOfAccounts = useMemo(() => {
         const value = chartOfAccountsData.filter((account) =>
             account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            account.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            account.code.toString().includes(searchTerm.toLowerCase()) ||
             accountTypeObject[account.accountType].data.toLowerCase().includes(searchTerm.toLowerCase())
         )
         if (value.length > 0) {

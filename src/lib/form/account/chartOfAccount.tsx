@@ -4,7 +4,11 @@ import { z } from 'zod';
 
 export const chartOfAccountSchema = z.object({
     name: z.string().min(1, 'Account Code is required'),
-    code: z.string().min(4, 'The give code need to be at least 4 digits'),
+    code: z.number(
+        {
+            invalid_type_error: "The give code need to be a number"
+        }
+    ).min(4, 'The give code need to be at least 4 digits'),
     accountType: z.enum([
         "Account_payable",
         "Account_receivable",

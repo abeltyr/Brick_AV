@@ -72,6 +72,7 @@ export const ChartOfAccountInput = ({
                     companyId: currentCompany.companyId
                 })
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentCompany])
 
     const [chartOfAccountIndex, setChartOfAccountIndex] = useState<number | null>(null)

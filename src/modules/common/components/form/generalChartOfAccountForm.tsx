@@ -14,12 +14,11 @@ export const GeneralChartAccountForm = ({ form, readOnlyValues = [] }: { form: U
     return (
         <div className='flex flex-col gap-5'>
             <div className="flex-1">
-                <NormalInput
+                <PriceInput
                     form={form}
                     description={" must be at least 4 digits"}
                     name='code'
                     title='Account Id'
-                    type='number'
                     disabled={readOnlyValues.includes("code")}
                     placeholder="Enter Account Id"
                 />

@@ -1,3 +1,4 @@
+import { useAddPurchases } from '@/lib/context/purchase/addPurchase'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/modules/ui/breadcrumb'
 import { Button } from '@/modules/ui/button'
 import { Separator } from '@/modules/ui/separator'
@@ -8,6 +9,7 @@ import React from 'react'
 
 export const AddPurchaseHeader = ({ actionFunction }: { actionFunction: Function }) => {
 
+    const { form } = useAddPurchases();
     const { back } = useRouter();
     return (
         <div className='flex flex-col w-full fixed top-[8vh] left-0 right-0  bg-background z-10 '>
@@ -33,6 +35,10 @@ export const AddPurchaseHeader = ({ actionFunction }: { actionFunction: Function
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="hidden items-center gap-2 md:ml-auto md:flex">
+                        {/* <Button size="sm" onClick={(e) => {
+                            e.preventDefault();
+                            form!.reset();
+                        }}> Save Purchase</Button> */}
                         <Button size="sm" onClick={(e) => {
                             e.preventDefault();
                             actionFunction()

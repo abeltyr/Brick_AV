@@ -7,13 +7,15 @@ export const PriceInput = ({
     form,
     name,
     placeholder,
-    disabled = false
+    disabled = false,
+    description
 }: {
     title?: string,
     form: any,
     name: string,
     placeholder?: string
     disabled?: boolean
+    description?: string
 }
 ) => {
     return (
@@ -22,7 +24,13 @@ export const PriceInput = ({
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    {title && <FormLabel className='text-sm'>{title}</FormLabel>}
+                    {title && <FormLabel className='text-sm'>
+                        {title}
+
+                        {description && <p className='text-xs text-[#71717A] font-light'>
+                            {description}
+                        </p>}
+                    </FormLabel>}
                     <FormControl>
                         <Input
                             disabled={disabled}

@@ -7,7 +7,7 @@ export const ChartOfAccountValueInput = z.object({
     balanceType: z.enum(["credit", "debit"]),
     name: z.string(),
     accountType: z.string(),
-    code: z.string(),
+    code: z.number(),
     amount: z.number().optional(),
     balance: z.number().optional(),
     quantity: z.number().optional(),

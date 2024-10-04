@@ -252,7 +252,7 @@ model ChartOfAccount {
   type        ChartOfAccountsType // Type: Asset, Liability, etc.
   accountType ChartOfAccountsCategoryType // Sub-category: Account_receivable, Cash, etc.
   name        String
-  code        String
+  code        Int
   description String?                     @db.Text()
   createdAt   DateTime                    @default(now())
   updatedAt   DateTime                    @default(now()) @updatedAt

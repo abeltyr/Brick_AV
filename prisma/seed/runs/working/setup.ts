@@ -75,7 +75,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
     prisma.chartOfAccount.create({
       data: {
         accountType: "Cash",
-        code: "1000",
+        code: 1000,
         type: "ASSET",
         companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
         name: "CBE Bank",
@@ -101,7 +101,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
     prisma.chartOfAccount.create({
       data: {
         accountType: "Cash",
-        code: "1001",
+        code: 1001,
         type: "ASSET",
         companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
         name: "Zemen Bank",
@@ -127,7 +127,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
     prisma.chartOfAccount.create({
       data: {
         accountType: "Account_payable",
-        code: "1010",
+        code: 1010,
         type: "ASSET",
         companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
         name: "Vat payable",
@@ -143,7 +143,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
     prisma.chartOfAccount.create({
       data: {
         accountType: "Account_receivable",
-        code: "3010",
+        code: 3010,
         type: "LIABILITY",
         companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
         name: "Vat receivable",
@@ -159,7 +159,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
     prisma.chartOfAccount.create({
       data: {
         accountType: "Account_payable",
-        code: "1030",
+        code: 1030,
         type: "ASSET",
         companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
         name: "Withholding payable",
@@ -175,7 +175,7 @@ export const runSetupSeed = async (prisma: PrismaClient) => {
     prisma.chartOfAccount.create({
       data: {
         accountType: "Account_receivable",
-        code: "3020",
+        code: 3020,
         type: "LIABILITY",
         companyId: "c20054e2-c6cb-4fec-91cc-8b3c72b3e1bc",
         name: "Withholding receivable",

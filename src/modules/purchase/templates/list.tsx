@@ -22,6 +22,8 @@ export const PurchaseListTempo = () => {
             if (!purchases[currentCompany.companyId])
                 getPurchase({ companyId: currentCompany.companyId })
         }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentCompany, purchases])
 
 
