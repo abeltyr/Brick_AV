@@ -9,6 +9,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/modu
 import { LanguageTranslator } from '@/modules/language/components'
 import { Button } from '@/modules/ui/button'
 import { cn } from '@/lib/utils'
+import { Input } from '@/modules/ui/input'
 
 export const DatePickerInput = (
     {
@@ -16,13 +17,19 @@ export const DatePickerInput = (
         name,
         form,
         disabled = false,
-        placeholder = "DD-MM-YYYY"
+        placeholder = "DD-MM-YYYY",
+        variant = "secondary",
+        maxDate,
+        minDate = new Date("10/10/1900"),
     }: {
         form: any,
         disabled?: boolean
         title?: string,
         name: string,
         placeholder?: string
+        minDate?: Date
+        maxDate?: Date
+        variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | null | undefined
     }) => {
     const [date, setDate] = React.useState<Date>()
     const [opened, setOpened] = React.useState<boolean>(false)
@@ -49,7 +56,7 @@ export const DatePickerInput = (
 
         <FormField
             control={form.control}
-            name="date"
+            name={name}
             render={({ field }) => (
                 <FormItem className='flex  flex-col gap-1'>
                     {title && <FormLabel className='text-sm'>
@@ -61,14 +68,14 @@ export const DatePickerInput = (
                         <Popover >
                             <PopoverTrigger asChild>
                                 <Button
-                                    variant={"secondary"}
+                                    variant={variant}
                                     className={cn(
-                                        "w-[full] justify-start text-left font-normal",
+                                        "w-[full] justify-start text-left font-normal gap-2",
                                         !field.value && "text-muted-foreground"
                                     )}
                                 >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {field.value ? format(field.value, "MMM dd, yyyy") : <span>Pick a date</span>}
+                                    <CalendarIcon className="h-4 w-4" />
+                                    {field.value ? format(field.value, "MMMM dd, yyyy") : <span>{placeholder}</span>}
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0">
@@ -76,7 +83,12 @@ export const DatePickerInput = (
                                     mode="single"
                                     selected={field.value}
                                     onSelect={field.onChange}
+                                    defaultMonth={field.value}
                                     initialFocus
+                                    disabled={{
+                                        before: minDate,
+                                        after: maxDate
+                                    }}
                                 />
                             </PopoverContent>
                         </Popover>
@@ -87,32 +99,3 @@ export const DatePickerInput = (
         />
     )
 }
-
-
-{/* <Popover open={opened} modal={opened} onOpenChange={setOpened}>
-
-<div className="relative">
-    <PopoverTrigger asChild>
-        <CalendarIcon className="cursor-pointer absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" onClick={() => {
-            setOpened(true)
-        }} />
-    </PopoverTrigger>
-    <Input
-        type="text"
-        value={inputValue}
-        onChange={handleInputChange}
-        className="pl-10 pr-3 w-[180px]"
-        placeholder={placeholder}
-    />
-</div>
-<PopoverContent className="w-auto p-0" align="start">
-    <Calendar
-        mode="single"
-        selected={date}
-        onSelect={handleDateSelect}
-        initialFocus={true}
-        showOutsideDays={true}
-        className='day_outside'
-    />
-</PopoverContent>
-</Popover > */}

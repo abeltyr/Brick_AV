@@ -4,145 +4,198 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/modules/ui/button"
-import LoadingSVG from '@/assets/icons/loading'
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useWatch } from "react-hook-form"
-import { z } from "zod"
 import {
     Form,
+    FormControl,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/modules/ui/form"
-import { useToast } from "@/modules/ui/use-toast"
-import { GeneralProfileForm, GeneralRoleForm } from '@/modules/common/components/form'
-import { ownerSchema, profileSchema } from '@/lib/form/account'
-import { useOnboarding } from '@/lib/context/account/onboarding'
-import { useProfile } from '@/lib/context/account'
-import { useAuth } from '@/lib/context/auth'
-
+import yearSchema from '@/lib/form/account/accountPeriod'
+import { Input } from '@/modules/ui/input'
+import { useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { z } from 'zod'
+import { DatePickerInput } from '@/modules/common/components/input/date'
+import { secondsInADay, secondsInAMonth, secondsInAYear } from '@/lib/utils/calendar/date'
+import { useEffect } from 'react'
 
 
 interface OnboardingAccountingPeriodFormProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function OnboardingAccountingPeriodForm({ className, ...props }: OnboardingAccountingPeriodFormProps) {
-    const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-    const { session } = useAuth();
-    const { toast } = useToast()
 
-    const { ownerProfile, owner, setOwner, setOwnerProfile, setOnBoardingSubSet, createUser } = useOnboarding()
-    const { setProfile } = useProfile();
-
-    const form = useForm<z.infer<typeof ownerSchema>>({
-        resolver: zodResolver(ownerSchema),
+    const form = useForm<z.infer<typeof yearSchema>>({
+        resolver: zodResolver(yearSchema),
         defaultValues: {
-            role: "owner",
-            ...owner
         },
     })
 
 
-    const profileForm = useForm<z.infer<typeof profileSchema>>({
-        resolver: zodResolver(profileSchema),
-        defaultValues: {
-            ...ownerProfile
-        },
-    })
-
-
-    const onSubmit = async (values: z.infer<typeof ownerSchema>) => {
-        if (values.role === "owner") {
-            if (!isLoading) {
-                setIsLoading(true)
-                try {
-                    if (session && session.user && session?.user.id) {
-                        const profileData = await createUser({ userId: session.user.id });
-                        if (profileData)
-                            setProfile(profileData)
-                    }
-
-                    setIsLoading(false)
-                } catch (e) {
-                    console.log(e)
-                    toast({
-                        title: "Error Signing up",
-                        description: (
-                            <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                                An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
-                            </div>
-                        ),
-                    })
-                    setIsLoading(false)
-                }
-            }
-        }
-        else {
-            setOwner({ ...values })
-        }
-    }
-
-    const profileOnSubmit = async (values: z.infer<typeof profileSchema>) => {
-        try {
-            setOwnerProfile({ ...values })
-            setOnBoardingSubSet(1)
-        } catch (e) {
-        }
-
-    }
-
-    const watchedRole = useWatch({
+    const { fields, append, remove, update, insert, } = useFieldArray({
         control: form.control,
-        name: "role",
+        name: "periods",
     });
 
+
+    const onSubmit = (data: FormData) => {
+        console.log("Form data:", data);
+    };
+
+
+    const watchedStartDate = useWatch({
+        control: form.control,
+        name: "startDate",
+    });
+
+
+    useEffect(() => {
+
+        if (watchedStartDate) {
+            form.setValue("endDate", (new Date(watchedStartDate.getTime() + secondsInAYear * 1000 - secondsInADay * 1000)))
+
+            // let month1 = {
+            //     start: watchedStartDate,
+            //     end: new Date(watchedStartDate.getTime() + secondsInAMonth * 1000)
+            // };
+
+            // let date1 = new Date(month1.end.getTime() + secondsInADay * 1000);
+            // let month2 = {
+            //     start: date1,
+            //     end: (new Date(date1.getTime() + secondsInAMonth * 1000))
+            // };
+
+            // let date2 = new Date(month2.end.getTime() + secondsInADay * 1000);
+
+            // update(0, {
+            //     start: month1.start,
+            //     end: month1.end
+            // })
+
+
+            // update(1, {
+            //     start: month2.start,
+            //     end: month2.end
+            // }
+            // )
+
+
+
+            let currentDate = new Date(watchedStartDate); // Start from the watched start date
+
+            for (let i = 0; i < 12; i++) {
+                let monthStart = new Date(currentDate); // Set the start of the month
+
+                // Set the end of the month by moving to the next month and subtracting a day
+
+                // Set the end of the month by moving exactly one month ahead, and subtracting one day
+                let monthEnd = new Date(monthStart);
+                monthEnd.setMonth(monthEnd.getMonth() + 1); // Move to the next month on the same day
+                monthEnd.setDate(monthEnd.getDate() - 1); // Subtract one day to get the correct end date
+
+                // Update for the current month
+                update(i, {
+                    start: monthStart,
+                    end: monthEnd
+                });
+
+                // Move to the next month start (which is the day after the current month's end)
+                currentDate = new Date(monthEnd);
+                currentDate.setDate(currentDate.getDate() + 1); // Move to the first day of the next month
+            }
+
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [watchedStartDate])
 
     return (
         <div className={cn("grid gap-6", className)} {...props}>
             <Form {...form}>
-                <form className="space-y-2 w-full">
-                    <GeneralRoleForm form={form} watchedRole={watchedRole} />
-                    {watchedRole === "owner" && <div className=' pt-4'>
-                        <Button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                form.handleSubmit(onSubmit)();
-                            }}
-                            disabled={isLoading}
-                            type="submit" variant='default' >
-                            {isLoading && (
-                                <div className='mr-2 h-5 w-5 animate-spin'>
-                                    <LoadingSVG />
-                                </div>
-                            )}
-                            Get Started
-                        </Button>
-                    </div>}
-                </form>
-            </Form>
-            {watchedRole != "owner" &&
-                <Form {...profileForm}>
-                    <form className="space-y-2 w-full">
+                {/* Year Start Date */}
+                <div className='flex w-full gap-10'>
 
-                        <GeneralProfileForm form={profileForm} />
-                        <div className='w-full pt-4'>
-                            <Button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    form.handleSubmit(onSubmit)();
-                                    profileForm.handleSubmit(profileOnSubmit)();
-                                }}
-                                disabled={isLoading}
-                                type="submit" variant='default' className='w-full'>
-                                {isLoading && (
-                                    <div className='mr-2 h-5 w-5 animate-spin'>
-                                        <LoadingSVG />
-                                    </div>
-                                )}
-                                Continue
-                            </Button>
+                    <div className='max-w-[312px] flex gap-4'>
+                        <div className='flex flex-col gap-2 pt-1 items-center'>
+                            <div className='w-3 h-3 bg-[#D9D9D9] rounded-full' />
+                            <div className='w-[2px] h-16 bg-[#D9D9D9]' />
+                            <div className='w-3 h-3 bg-[#D9D9D9] rounded-full' />
                         </div>
-                    </form>
-                </Form>
+                        <div className='flex flex-col gap-5'>
+                            <DatePickerInput
+                                form={form}
+                                name='startDate'
+                                title='Start date'
+                                variant={"outline"}
+                                placeholder='Choose Start Date'
+                            />
 
-            }
+                            <DatePickerInput
+                                form={form}
+                                name='endDate'
+                                title='End date'
+                                variant={"outline"}
+                                placeholder='Choose End Date'
+                                minDate={watchedStartDate ? new Date(watchedStartDate.getTime() + secondsInAMonth * 1000 * 2) : new Date()}
+                            />
+                        </div>
+
+                        {/* Button to add a new accounting period */}
+                        {/* <Button
+                            type="button"
+                            onClick={() => append({ start: new Date(), end: new Date() })}
+                            className="mb-4"
+                        >
+                            Add Accounting Period
+                        </Button> */}
+
+                        {/* Submit Button */}
+                        {/* <Button type="submit" className="mt-4">Submit</Button> */}
+                    </div>
+                    <div>
+                        {fields.map((field, index) => (
+                            <div key={field.id} className="mb-4">
+                                <div className='flex items-center gap-3 h-full'>
+                                    <div className='items-center h-full '>
+                                        {index + 1}
+                                    </div>
+                                    <DatePickerInput
+                                        form={form}
+                                        name={`periods.${index}.start`}
+                                        variant={"outline"}
+                                        placeholder='Choose Start Date'
+                                    />
+
+                                    <DatePickerInput
+                                        form={form}
+                                        name={`periods.${index}.end`}
+                                        variant={"outline"}
+                                        placeholder='Choose End Date'
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        onClick={() => insert(index + 1, { start: new Date(), end: new Date() })}
+                                    >
+                                        +
+                                    </Button>
+
+                                    {fields.length > 1 && (
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            onClick={() => remove(index)}
+                                        >
+                                            x
+                                        </Button>
+                                    )}
+                                </div>
+
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </Form>
         </div>
     )
 }

@@ -11,34 +11,39 @@ import React, { useContext, useState } from "react";
 import { z } from 'zod';
 
 export const onBoardingSteps = [
-    {
-        title: 'Create your profile',
-        description: "This will be your profile linked to all your activity",
-        subSteps: [{
-            name: 'Profile',
-            form: <OnboardingProfileForm />
-        }, {
-            name: 'Address',
-            form: <OnboardingAddressForm />
-        }]
-    },
-    {
-        title: 'Create a company',
-        description: "This will be one of the company for which all the. ",
-        subSteps: [{
-            name: 'Company detail',
-            form: <OnboardingCompanyInTakeForm />
-        }, {
-            name: 'Business',
-            form: <OnboardingCompanyForm />
-        }]
-    },
+    // {
+    //     title: 'Create your profile',
+    //     description: "This will be your profile linked to all your activity",
+    //     subSteps: [{
+    //         name: 'Profile',
+    //         form: <OnboardingProfileForm />,
+    //         className: "max-w-[672px]"
+    //     }, {
+    //         name: 'Address',
+    //         form: <OnboardingAddressForm />,
+    //         className: "max-w-[672px]"
+    //     }]
+    // },
+    // {
+    //     title: 'Create a company',
+    //     description: "This will be one of the company for which all the. ",
+    //     subSteps: [{
+    //         name: 'Company detail',
+    //         form: <OnboardingCompanyInTakeForm />,
+    //         className: "max-w-[672px]"
+    //     }, {
+    //         name: 'Business',
+    //         form: <OnboardingCompanyForm />,
+    //         className: "max-w-[672px]"
+    //     }]
+    // },
     {
         title: 'Accounting period',
         description: "This will be used for the fiscal year and the accounting period intervals. this can;t be changed once set so double check your entry",
         subSteps: [{
-            name: 'Setup Accounting Period',
-            form: <OnboardingAccountingPeriodForm />
+            name: 'Choose Fiscal Year',
+            form: <OnboardingAccountingPeriodForm />,
+            className: ""
         }]
     },
     {
@@ -46,7 +51,8 @@ export const onBoardingSteps = [
         description: "Please Setup the Chart of account for the company, you can also setup just the basic to get started with, and add the rest later",
         subSteps: [{
             name: 'Setup Accounting Period',
-            form: <OnboardingOwnerForm />
+            form: <OnboardingOwnerForm />,
+            className: ""
         }]
     },
 ]
