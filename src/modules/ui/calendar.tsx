@@ -65,7 +65,6 @@ function Calendar({
         month: defaultMonth.getMonth() + 1,
         year: defaultMonth.getFullYear(),
       })
-
       if (data && data.date)
         setEthiopiaDate({
           date: data.date!,
@@ -73,10 +72,26 @@ function Calendar({
           year: data.year
         })
     }
-
   }, [
     defaultMonth
   ])
+
+
+  const ethiopianMonths = [
+    { fullEnglish: "Meskerem", fullAmharic: "መስከረም", abbreviateEnglish: "Mes", abbreviateAmharic: "መስ" },
+    { fullEnglish: "Tikimt", fullAmharic: "ጥቅምት", abbreviateEnglish: "Tik", abbreviateAmharic: "ጥን" },
+    { fullEnglish: "Hidar", fullAmharic: "ህዳር", abbreviateEnglish: "Hid", abbreviateAmharic: "ህድ" },
+    { fullEnglish: "Tahsas", fullAmharic: "ታህሳስ", abbreviateEnglish: "Tah", abbreviateAmharic: "ታህ" },
+    { fullEnglish: "Tir", fullAmharic: "ጥር", abbreviateEnglish: "Tir", abbreviateAmharic: "ጥር" },
+    { fullEnglish: "Yekatit", fullAmharic: "የካቲት", abbreviateEnglish: "Yek", abbreviateAmharic: "የካ" },
+    { fullEnglish: "Megabit", fullAmharic: "መጋቢት", abbreviateEnglish: "Meg", abbreviateAmharic: "መጋ" },
+    { fullEnglish: "Miyazya", fullAmharic: "ሚያዝያ", abbreviateEnglish: "Miy", abbreviateAmharic: "ሚያ" },
+    { fullEnglish: "Ginbot", fullAmharic: "ግንቦት", abbreviateEnglish: "Gin", abbreviateAmharic: "ግን" },
+    { fullEnglish: "Sene", fullAmharic: "ሰኔ", abbreviateEnglish: "Sen", abbreviateAmharic: "ሰኔ" },
+    { fullEnglish: "Hamle", fullAmharic: "ሐምሌ", abbreviateEnglish: "Ham", abbreviateAmharic: "ሐም" },
+    { fullEnglish: "Nehase", fullAmharic: "ነሐሴ", abbreviateEnglish: "Neh", abbreviateAmharic: "ነሐ" },
+    { fullEnglish: "Pagumē", fullAmharic: "ጳጉሜ", abbreviateEnglish: "Pag", abbreviateAmharic: "ጳጉ" }
+  ];
 
   return (
     <Popover>
@@ -111,8 +126,8 @@ function Calendar({
             </Select>
           </div>
           <div className='flex gap-2 text-sm'>
-            ET: {ethiopiaDate && <div>
-              {ethiopiaDate.date}/{ethiopiaDate.month}/{ethiopiaDate.year}
+            {ethiopiaDate && <div>
+              {ethiopianMonths[ethiopiaDate.month - 1].fullAmharic} {ethiopiaDate.date}, {ethiopiaDate.year}
             </div>}
           </div>
         </div>
@@ -127,7 +142,7 @@ function Calendar({
                 const monthData = format(currentMonth, "MMMM");
                 return <Button key={index}
                   variant={monthData === data.full ? "secondary" : "ghost"}
-                  className={`flex-1 rounded-sm ${monthData === data.full ? "bg-[#F4F4F5] border-[1px] border-[#0C0A09] text-[#09090B]" : ""}`}
+                  className={`flex-1 rounded-sm ${monthData === data.full ? "bg-[#F4F4F5] border-[2px] border-[#0C0A09] text-[#09090B]" : ""}`}
                   onClick={() => {
                     const value = new Date(currentMonth.getFullYear(), index, currentMonth.getDate());
                     setCurrentMonth(value)
@@ -171,8 +186,8 @@ function Calendar({
                 ),
                 day_range_end: "day-range-end",
                 day_selected:
-                  "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                day_today: "bg-accent text-accent-foreground",
+                  "bg-[#F4F4F5] border-[2px] border-[#0C0A09] text-[#09090B] hover:bg-[#F4F4F5 hover:text-[#09090B] focus:bg-[#F4F4F5 focus:text-[#09090B]",
+                day_today: "bg-[#E7E5E4] text-accent-foreground",
                 day_outside:
                   "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
                 day_disabled: "text-muted-foreground opacity-50",

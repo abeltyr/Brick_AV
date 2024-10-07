@@ -21,6 +21,7 @@ export const DatePickerInput = (
         variant = "secondary",
         maxDate,
         minDate = new Date("10/10/1900"),
+        parent
     }: {
         form: any,
         disabled?: boolean
@@ -29,7 +30,8 @@ export const DatePickerInput = (
         placeholder?: string
         minDate?: Date
         maxDate?: Date
-        variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | null | undefined
+        variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | null | undefined,
+        parent?: string
     }) => {
     const [date, setDate] = React.useState<Date>()
     const [opened, setOpened] = React.useState<boolean>(false)
@@ -66,7 +68,7 @@ export const DatePickerInput = (
                     </FormLabel>}
                     <FormControl >
                         <Popover >
-                            <PopoverTrigger asChild>
+                            <PopoverTrigger asChild disabled={disabled}>
                                 <Button
                                     variant={variant}
                                     className={cn(
@@ -82,7 +84,10 @@ export const DatePickerInput = (
                                 <Calendar
                                     mode="single"
                                     selected={field.value}
-                                    onSelect={field.onChange}
+                                    onSelect={(data) => {
+                                        field.onChange(data)
+                                        if (parent) form.trigger(parent)
+                                    }}
                                     defaultMonth={field.value}
                                     initialFocus
                                     disabled={{
