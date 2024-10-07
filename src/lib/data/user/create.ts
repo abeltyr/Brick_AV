@@ -1,11 +1,13 @@
 "use server";
 
 import yearSchema from "@/lib/form/account/accountPeriod";
+import { chartOfAccountsSchema } from "@/lib/form/account/chartOfAccount";
 import { months } from "@/lib/utils/calendar/date";
+import { accountTypeObject } from "@/lib/utils/chartOfAccount/values";
 import { getPrisma } from "@/lib/utils/database";
 import { CompanyInputType } from "@/types/company";
 import { ProfileInputType, ProfileType } from "@/types/profile";
-import { CompanyMemberRole } from "@prisma/client";
+import { CompanyMemberRole, Prisma } from "@prisma/client";
 import { v4 } from "uuid";
 import { z } from "zod";
 const prisma = getPrisma();
@@ -13,20 +15,48 @@ const prisma = getPrisma();
 export const onBoardingAction = async (data: {
   profile: ProfileInputType;
   company: CompanyInputType;
-  ownerProfile?: ProfileInputType;
-  role: string;
-  roleDetail?: string;
   fiscalYear: z.infer<typeof yearSchema>;
+  chartOfAccounts: z.infer<typeof chartOfAccountsSchema>;
 }): Promise<ProfileType> => {
-  console.log("data.role ", data.role);
-  let roleData: CompanyMemberRole = "Owner";
-
-  if (data.role === "accountant") roleData = "Accountant";
-  else if (data.role === "owner") roleData = "Owner";
-  else roleData = "Other";
+  let roleData: CompanyMemberRole = "Accountant";
 
   const companyId = v4();
-  let profileData: any[] = [
+  const fiscalYearId = v4();
+  let chartOfAccountDataSet: Prisma.Prisma__ChartOfAccountClient<{}>[] = [];
+
+  for (let accounts of data.chartOfAccounts.accounts) {
+    let createdBy = {};
+    if (data.profile.userId)
+      createdBy = { connect: { id: data.profile.userId } };
+    const chartOfAccountData: Prisma.Prisma__ChartOfAccountClient<{}> =
+      prisma.chartOfAccount.create({
+        data: {
+          accountType: accounts.accountType,
+          code: accounts.code,
+          name: accounts.name,
+          creditBased: accounts.balance.balanceType === "credit",
+          type: accountTypeObject[accounts.accountType].type,
+          createdBy: createdBy,
+          company: {
+            connect: {
+              id: companyId,
+            },
+          },
+          chartOfAccountBalance: {
+            create: {
+              balance: accounts.balance.amount,
+              initialBalance: accounts.balance.amount,
+              fiscalYearId,
+              creatorId: data.profile.userId,
+            },
+          },
+        },
+      });
+    if (chartOfAccountData)
+      chartOfAccountDataSet = [...chartOfAccountDataSet, chartOfAccountData];
+  }
+
+  const [profile] = await prisma.$transaction([
     prisma.profile.create({
       data: {
         userId: data.profile.userId,
@@ -59,7 +89,6 @@ export const onBoardingAction = async (data: {
               },
             },
             role: roleData,
-            roleDetail: data.roleDetail,
           },
         },
       },
@@ -82,6 +111,7 @@ export const onBoardingAction = async (data: {
     }),
     prisma.fiscalYear.create({
       data: {
+        id: fiscalYearId,
         startDate: data.fiscalYear.startDate,
         endDate: data.fiscalYear.endDate,
         year: data.fiscalYear.startDate.getFullYear(),
@@ -104,40 +134,8 @@ export const onBoardingAction = async (data: {
         },
       },
     }),
-  ];
-
-  // if (roleData != "Owner" && data.ownerProfile) {
-  //   profileData = [
-  //     ...profileData,
-  //     prisma.profile.create({
-  //       data: {
-  //         dateBirth: data.ownerProfile.dateBirth,
-  //         email: data.ownerProfile.email,
-  //         gender: data.ownerProfile.gender,
-  //         name: data.ownerProfile.name,
-  //         phoneNumber: data.ownerProfile.phoneNumber,
-  //         tin: data.ownerProfile.tin,
-  //         address: {
-  //           create: {
-  //             ...data.ownerProfile.address,
-  //           },
-  //         },
-  //         companyMember: {
-  //           create: {
-  //             company: {
-  //               connect: {
-  //                 id: companyId,
-  //               },
-  //             },
-  //             role: "Owner",
-  //           },
-  //         },
-  //       },
-  //     }),
-  //   ];
-  // }
-
-  const [profile, ownerProfile] = await prisma.$transaction([...profileData]);
+    ...chartOfAccountDataSet,
+  ]);
 
   return profile as ProfileType;
 };

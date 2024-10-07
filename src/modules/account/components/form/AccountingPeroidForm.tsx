@@ -7,28 +7,20 @@ import { Button } from "@/modules/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
     Form,
-    FormControl,
-    FormItem,
-    FormLabel,
-    FormMessage,
 } from "@/modules/ui/form"
 import yearSchema from '@/lib/form/account/accountPeriod'
-import { Input } from '@/modules/ui/input'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { DatePickerInput } from '@/modules/common/components/input/date'
 import { secondsInADay, secondsInAMonth, secondsInAYear } from '@/lib/utils/calendar/date'
 import { useEffect } from 'react'
-import { ArrowRight } from 'lucide-react'
 import ArrowRightSVG from '@/assets/icons/arrowRight'
 import AddCircleSVG from '@/assets/icons/addCircle'
 import RemoveSVG from '@/assets/icons/trash'
 import { ErrorMessage } from '@/modules/common/components/errorMessage'
 import { startDayOfEthiopian, toEthiopian } from '@/lib/utils/calendar'
 import { useOnboarding } from '@/lib/context/account/onboarding'
-function isLeapYear(year: number) {
-    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-}
+
 
 interface OnboardingAccountingPeriodFormProps extends React.HTMLAttributes<HTMLDivElement> { }
 
@@ -44,7 +36,7 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
     })
 
 
-    const { fields, append, remove, update, insert, } = useFieldArray({
+    const { fields, remove, update, insert, } = useFieldArray({
         control: form.control,
         name: "periods",
     });

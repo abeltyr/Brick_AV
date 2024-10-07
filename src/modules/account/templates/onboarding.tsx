@@ -9,8 +9,8 @@ import { memo, useEffect, useState } from 'react'
 const OnboardingPage = () => {
 
     const { onBoardingId, onBoardingSubSet } = useOnboarding()
-    const [onboardingState, setOnBoardingState] = useState(onBoardingSteps[1])
-    const [onboardingInnerState, setOnBoardingInnerState] = useState(onBoardingSteps[1].subSteps[1])
+    const [onboardingState, setOnBoardingState] = useState(onBoardingSteps[0])
+    const [onboardingInnerState, setOnBoardingInnerState] = useState(onBoardingSteps[0].subSteps[0])
 
     useEffect(() => {
         if (!(onBoardingSteps.length <= onBoardingId)) {

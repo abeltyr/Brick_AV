@@ -4,55 +4,57 @@ import { fetchBusinessApi } from '@/lib/data/business/create';
 import { onBoardingAction } from '@/lib/data/user/create';
 import { addressSchema, companyInTakeSchema, companySchema, ownerSchema, profileSchema } from '@/lib/form/account';
 import yearSchema from '@/lib/form/account/accountPeriod';
+import { chartOfAccountsSchema } from '@/lib/form/account/chartOfAccount';
 import { OnboardingAddressForm, OnboardingCompanyForm, OnboardingCompanyInTakeForm, OnboardingOwnerAddressForm, OnboardingOwnerForm, OnboardingProfileForm } from '@/modules/account/components/form';
 import { OnboardingAccountingPeriodForm } from '@/modules/account/components/form/AccountingPeroidForm';
+import { OnboardingChartOfAccountForm } from '@/modules/account/components/form/ChartOfAccountsForm';
 import { BusinessType } from '@/types/business';
 import { ProfileInputType, ProfileType } from '@/types/profile';
 import React, { useContext, useState } from "react";
 import { z } from 'zod';
 
 export const onBoardingSteps = [
-    {
-        title: 'Create your profile',
-        description: "This will be your profile linked to all your activity",
-        subSteps: [{
-            name: 'Profile',
-            form: <OnboardingProfileForm />,
-            className: "max-w-[672px]"
-        }, {
-            name: 'Address',
-            form: <OnboardingAddressForm />,
-            className: "max-w-[672px]"
-        }]
-    },
-    {
-        title: 'Create a company',
-        description: "This will be one of the company for which all the. ",
-        subSteps: [{
-            name: 'Company detail',
-            form: <OnboardingCompanyInTakeForm />,
-            className: "max-w-[672px]"
-        }, {
-            name: 'Business',
-            form: <OnboardingCompanyForm />,
-            className: "max-w-[672px]"
-        }]
-    },
-    {
-        title: 'Accounting period',
-        description: "This will be used for the fiscal year and the accounting period intervals. this can;t be changed once set so double check your entry",
-        subSteps: [{
-            name: '',
-            form: <OnboardingAccountingPeriodForm />,
-            className: ""
-        }]
-    },
+    // {
+    //     title: 'Create your profile',
+    //     description: "This will be your profile linked to all your activity",
+    //     subSteps: [{
+    //         name: 'Profile',
+    //         form: <OnboardingProfileForm />,
+    //         className: "max-w-[672px]"
+    //     }, {
+    //         name: 'Address',
+    //         form: <OnboardingAddressForm />,
+    //         className: "max-w-[672px]"
+    //     }]
+    // },
+    // {
+    //     title: 'Create a company',
+    //     description: "This will be one of the company for which all the. ",
+    //     subSteps: [{
+    //         name: 'Company detail',
+    //         form: <OnboardingCompanyInTakeForm />,
+    //         className: "max-w-[672px]"
+    //     }, {
+    //         name: 'Business',
+    //         form: <OnboardingCompanyForm />,
+    //         className: "max-w-[672px]"
+    //     }]
+    // },
+    // {
+    //     title: 'Accounting period',
+    //     description: "This will be used for the fiscal year and the accounting period intervals. this can;t be changed once set so double check your entry",
+    //     subSteps: [{
+    //         name: '',
+    //         form: <OnboardingAccountingPeriodForm />,
+    //         className: ""
+    //     }]
+    // },
     {
         title: 'Chart of account',
         description: "Please Setup the Chart of account for the company, you can also setup just the basic to get started with, and add the rest later",
         subSteps: [{
             name: 'Setup Accounting Period',
-            form: <OnboardingOwnerForm />,
+            form: <OnboardingChartOfAccountForm />,
             className: ""
         }]
     },
@@ -75,14 +77,8 @@ const initialValues: {
     setBusiness: (business: BusinessType | null) => void,
     company: z.infer<typeof companySchema> | null,
     setCompany: (company: z.infer<typeof companySchema> | null) => void,
-    owner: z.infer<typeof ownerSchema> | null,
-    setOwner: (owner: z.infer<typeof ownerSchema> | null) => void,
-    ownerAddress: z.infer<typeof addressSchema> | null,
-    setOwnerAddress: (ownerAddress: z.infer<typeof addressSchema> | null) => void,
-    ownerProfile: z.infer<typeof profileSchema> | null,
-    setOwnerProfile: (ownerProfile: z.infer<typeof profileSchema> | null) => void,
     fetchBusiness: (tin: string) => Promise<BusinessType | null>
-    createUser: ({ ownerAddressData, userId }: { ownerAddressData?: z.infer<typeof addressSchema>, userId: string }) => Promise<ProfileType | null>
+    createUser: ({ chartOfAccounts, userId }: { chartOfAccounts: z.infer<typeof chartOfAccountsSchema>, userId: string }) => Promise<ProfileType | null>
     fiscalYear: z.infer<typeof yearSchema> | undefined
     setFiscalYear: (fiscalYear: z.infer<typeof yearSchema>) => void,
 } = {
@@ -100,12 +96,6 @@ const initialValues: {
     setBusiness: (business) => { },
     company: null,
     setCompany: (company) => { },
-    owner: null,
-    setOwner: (owner) => { },
-    ownerAddress: null,
-    setOwnerAddress: (ownerAddress) => { },
-    ownerProfile: null,
-    setOwnerProfile: (ownerProfile) => { },
     createUser: async ({ ownerAddressData, userId }: { ownerAddressData?: z.infer<typeof addressSchema>, userId: string }) => { return null },
     fetchBusiness: async (tin: string) => { return null },
     fiscalYear: undefined,
@@ -160,19 +150,12 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
     );
     const [business, setBusiness] = useState<BusinessType | null>(null);
     const [company, setCompany] = useState<z.infer<typeof companySchema> | null>(null);
-    const [owner, setOwner] = useState<z.infer<typeof ownerSchema> | null>({
-        role: "owner",
-        detail: ""
-    });
-    const [ownerProfile, setOwnerProfile] = useState<z.infer<typeof profileSchema> | null>(null);
-    const [ownerAddress, setOwnerAddress] = useState<z.infer<typeof addressSchema> | null>(null);
     const [fiscalYear, setFiscalYear] = useState<z.infer<typeof yearSchema> | undefined>()
 
 
 
-    const createUser = async ({ ownerAddressData, userId }: { ownerAddressData?: z.infer<typeof addressSchema>, userId: string }): Promise<ProfileType> => {
+    const createUser = async ({ chartOfAccounts, userId }: { chartOfAccounts: z.infer<typeof chartOfAccountsSchema>, userId: string }): Promise<ProfileType> => {
         if (!business) throw new Error("Business has not been setup")
-        if (!owner) throw new Error("Role has not been setup")
         if (!address) throw new Error("Address has not been setup")
         if (!company) throw new Error("company has not been setup")
         if (!companyIntake) throw new Error("companyIntake has not been setup")
@@ -180,34 +163,11 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
         if (!fiscalYear) throw new Error("Fiscal year required has not been setup")
 
 
-        let ownerProfileData: ProfileInputType | undefined = undefined
-        let dateBirth = undefined
-        if (ownerProfile) {
-            if (ownerProfile.dateOfBirth && ownerProfile.dateOfBirth.year && ownerProfile?.dateOfBirth.month && ownerProfile?.dateOfBirth.day) {
-                dateBirth = new Date(parseInt(ownerProfile.dateOfBirth.year), parseInt(ownerProfile?.dateOfBirth.month) - 1, parseInt(ownerProfile?.dateOfBirth.day))
-            }
-
-            ownerProfileData = {
-                name: ownerProfile.fullName,
-                dateBirth,
-                gender: ownerProfile.gender === "male" ? "Male" : "Female",
-                phoneNumber: ownerProfile.phoneNumber ?? "",
-                address: {
-                    ...ownerAddressData
-                }
-            }
-        }
-
         let profileInputData: ProfileInputType | undefined = undefined
-        let profileDateBirth = undefined
-
-        if (profile.dateOfBirth && profile.dateOfBirth.year && profile?.dateOfBirth.month && profile?.dateOfBirth.day) {
-            dateBirth = new Date(parseInt(profile.dateOfBirth.year), parseInt(profile?.dateOfBirth.month) - 1, parseInt(profile?.dateOfBirth.day))
-        }
 
         profileInputData = {
             name: profile.fullName,
-            dateBirth: profileDateBirth,
+            dateBirth: profile.dateOfBirth,
             gender: profile.gender === "male" ? "Male" : "Female",
             phoneNumber: profile.phoneNumber ?? "",
             address: {
@@ -222,7 +182,6 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
 
 
         try {
-
             const profileData = await onBoardingAction({
                 company: {
                     businessId: business.id,
@@ -231,14 +190,12 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
                     email: company.email,
                     managerName: company.managerName
                 },
-                ownerProfile: ownerProfileData,
-                role: owner.role,
-                roleDetail: owner.detail,
                 profile: {
                     userId,
                     ...profileInputData
                 },
-                fiscalYear
+                fiscalYear,
+                chartOfAccounts
             })
 
             return profileData;
@@ -275,20 +232,14 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
                 business,
                 company,
                 companyIntake,
-                owner,
-                ownerAddress,
                 profile,
                 setAddress,
                 setBusiness,
                 setCompany,
                 setCompanyIntake,
-                setOwner,
-                setOwnerAddress,
                 setProfile,
                 createUser,
                 fetchBusiness,
-                ownerProfile,
-                setOwnerProfile,
                 fiscalYear,
                 setFiscalYear
             }}
