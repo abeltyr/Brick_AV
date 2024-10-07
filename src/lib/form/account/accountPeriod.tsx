@@ -15,16 +15,8 @@ const accountingPeriodSchema = z.array(dateRangeSchema).refine((periods) => {
         const currentPeriod = periods[i];
         const nextPeriod = periods[i + 1];
 
-        console.log(addDays(currentPeriod.end, 1), nextPeriod.start, isEqual(addDays(currentPeriod.end, 1), nextPeriod.start), i, periods.length);
-
         // Ensure no gap or overlap between periods
         if (!isEqual(addDays(currentPeriod.end, 1), nextPeriod.start)) {
-            console.log(
-                "HERe",
-                addDays(currentPeriod.end, 1), nextPeriod.start, isEqual(addDays(currentPeriod.end, 1), nextPeriod.start),
-                i,
-                periods.length
-            );
             return false;
         }
     }

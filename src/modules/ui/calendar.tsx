@@ -17,21 +17,8 @@ import { Separator } from './separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
 import { toEthiopian } from '@/lib/utils/calendar';
 import { Badge } from './badge';
+import { ethiopianMonths, months } from '@/lib/utils/calendar/date';
 
-const months = [
-  { full: "January", abbreviate: "Jan" },
-  { full: "February", abbreviate: "Feb" },
-  { full: "March", abbreviate: "Mar" },
-  { full: "April", abbreviate: "Apr" },
-  { full: "May", abbreviate: "May" },
-  { full: "June", abbreviate: "Jun" },
-  { full: "July", abbreviate: "Jul" },
-  { full: "August", abbreviate: "Aug" },
-  { full: "September", abbreviate: "Sep" },
-  { full: "October", abbreviate: "Oct" },
-  { full: "November", abbreviate: "Nov" },
-  { full: "December", abbreviate: "Dec" }
-];
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -76,22 +63,6 @@ function Calendar({
     defaultMonth
   ])
 
-
-  const ethiopianMonths = [
-    { fullEnglish: "Meskerem", fullAmharic: "መስከረም", abbreviateEnglish: "Mes", abbreviateAmharic: "መስ" },
-    { fullEnglish: "Tikimt", fullAmharic: "ጥቅምት", abbreviateEnglish: "Tik", abbreviateAmharic: "ጥን" },
-    { fullEnglish: "Hidar", fullAmharic: "ህዳር", abbreviateEnglish: "Hid", abbreviateAmharic: "ህድ" },
-    { fullEnglish: "Tahsas", fullAmharic: "ታህሳስ", abbreviateEnglish: "Tah", abbreviateAmharic: "ታህ" },
-    { fullEnglish: "Tir", fullAmharic: "ጥር", abbreviateEnglish: "Tir", abbreviateAmharic: "ጥር" },
-    { fullEnglish: "Yekatit", fullAmharic: "የካቲት", abbreviateEnglish: "Yek", abbreviateAmharic: "የካ" },
-    { fullEnglish: "Megabit", fullAmharic: "መጋቢት", abbreviateEnglish: "Meg", abbreviateAmharic: "መጋ" },
-    { fullEnglish: "Miyazya", fullAmharic: "ሚያዝያ", abbreviateEnglish: "Miy", abbreviateAmharic: "ሚያ" },
-    { fullEnglish: "Ginbot", fullAmharic: "ግንቦት", abbreviateEnglish: "Gin", abbreviateAmharic: "ግን" },
-    { fullEnglish: "Sene", fullAmharic: "ሰኔ", abbreviateEnglish: "Sen", abbreviateAmharic: "ሰኔ" },
-    { fullEnglish: "Hamle", fullAmharic: "ሐምሌ", abbreviateEnglish: "Ham", abbreviateAmharic: "ሐም" },
-    { fullEnglish: "Nehase", fullAmharic: "ነሐሴ", abbreviateEnglish: "Neh", abbreviateAmharic: "ነሐ" },
-    { fullEnglish: "Pagumē", fullAmharic: "ጳጉሜ", abbreviateEnglish: "Pag", abbreviateAmharic: "ጳጉ" }
-  ];
 
   return (
     <Popover>

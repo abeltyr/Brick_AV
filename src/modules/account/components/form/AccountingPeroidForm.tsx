@@ -24,35 +24,22 @@ import ArrowRightSVG from '@/assets/icons/arrowRight'
 import AddCircleSVG from '@/assets/icons/addCircle'
 import RemoveSVG from '@/assets/icons/trash'
 import { ErrorMessage } from '@/modules/common/components/errorMessage'
-
-function monthsBetweenDates(startDate: Date, endDate: Date): number {
-    const startYear = startDate.getFullYear();
-    const startMonth = startDate.getMonth();
-    const startDay = startDate.getDate();
-
-    const endYear = endDate.getFullYear();
-    const endMonth = endDate.getMonth();
-    const endDay = endDate.getDate();
-
-    // Calculate the total number of months between the years and months
-    let monthsDifference = (endYear - startYear) * 12 + (endMonth - startMonth);
-
-    // Handle edge case where the end date's day is less than the start date's day
-    if (endDay < startDay) {
-        monthsDifference -= 1;
-    }
-
-    return monthsDifference;
+import { startDayOfEthiopian, toEthiopian } from '@/lib/utils/calendar'
+import { useOnboarding } from '@/lib/context/account/onboarding'
+function isLeapYear(year: number) {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
 }
 
 interface OnboardingAccountingPeriodFormProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function OnboardingAccountingPeriodForm({ className, ...props }: OnboardingAccountingPeriodFormProps) {
 
+    const { setFiscalYear, fiscalYear, setOnBoardingId, setOnBoardingSubSet } = useOnboarding()
 
     const form = useForm<z.infer<typeof yearSchema>>({
         resolver: zodResolver(yearSchema),
         defaultValues: {
+            ...fiscalYear,
         },
     })
 
@@ -65,14 +52,11 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
 
 
 
+
     const onSubmit = async (values: z.infer<typeof yearSchema>) => {
-
-        console.log("Form data:", values);
-        try {
-
-        } catch (e) {
-            console.log(e)
-        }
+        setFiscalYear(values);
+        setOnBoardingId(3)
+        setOnBoardingSubSet(0)
     }
 
     const watchedStartDate = useWatch({
@@ -91,38 +75,48 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
 
         if (watchedStartDate) {
             let currentDate = new Date(watchedStartDate); // Start from the watched start date
-            let indexLength = 12;
-            if (watchedEndDate && watchedEndDate.getTime() > watchedStartDate.getTime() + secondsInAMonth * 3 * 1000) {
-                indexLength = monthsBetweenDates(watchedStartDate, watchedEndDate);
-            } else {
-                indexLength = 12
-                form.setValue("endDate", (new Date(watchedStartDate.getTime() + secondsInAYear * 1000 - secondsInADay * 1000)))
-            }
+            let endDate = new Date(watchedStartDate.getTime() + secondsInAYear * 1000 - secondsInADay * 1000); // End date from the watched end date
 
+            form.setValue("endDate", endDate);
 
-            for (let i = 0; i < indexLength + 1; i++) {
-                let monthStart = new Date(currentDate); // Set the start of the month
+            let index = 0;
+            form.setValue("periods", []);
+            // Loop through and create periods
+            while (currentDate < endDate) {
+                let monthStart = new Date(currentDate); // Start date of the current period
 
-                // Set the end of the month by moving to the next month and subtracting a day
+                // Try to make the period 30 days long, but ensure it doesn't go beyond the end date
+                let monthEnd = new Date(monthStart); // Set the end date to 30 days from the start
+                if (monthEnd.getMonth() === 7) { // August
+                    const ethioDate = toEthiopian({ year: monthEnd.getFullYear(), month: 10, date: monthEnd.getDate() })
+                    let startDate = 11;
+                    if (ethioDate) startDate = startDayOfEthiopian(ethioDate.year)
+                    if (startDate === 12) {
+                        monthEnd.setDate(monthEnd.getDate() + 35); // Leap year: add 36 days
+                    } else {
+                        monthEnd.setDate(monthEnd.getDate() + 34); // Normal year: add 35 days
+                    }
+                } else {
+                    monthEnd.setDate(monthEnd.getDate() + 29);
+                }
 
-                // Set the end of the month by moving exactly one month ahead, and subtracting one day
-                let monthEnd = new Date(monthStart);
-                monthEnd.setMonth(monthEnd.getMonth() + 1); // Move to the next month on the same day
-                monthEnd.setDate(monthEnd.getDate() - 1); // Subtract one day to get the correct end date
+                if (monthEnd > endDate) {
+                    monthEnd = new Date(endDate); // Adjust the last period to match the exact end date
+                }
 
-
-                // Update for the current month
-                update(i, {
+                // Add period to form or array
+                update(index, {
                     start: monthStart,
-                    end: i === indexLength && watchedEndDate && watchedEndDate.getTime() > watchedStartDate.getTime() + secondsInAMonth * 3 * 1000 ? watchedEndDate : monthEnd
+                    end: monthEnd
                 });
 
-
-                // Move to the next month start (which is the day after the current month's end)
+                // Move to the next period start date (day after current period end)
                 currentDate = new Date(monthEnd);
-                currentDate.setDate(currentDate.getDate() + 1); // Move to the first day of the next month
+                currentDate.setDate(currentDate.getDate() + 1); // Start at the next day after current period's end
+                index++;
             }
 
+            console.log("Repeating")
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [watchedStartDate])
@@ -140,8 +134,20 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
                 let monthStart = new Date(currentDate); // Start date of the current period
 
                 // Try to make the period 30 days long, but ensure it doesn't go beyond the end date
-                let monthEnd = new Date(monthStart);
-                monthEnd.setDate(monthEnd.getDate() + 29); // Set the end date to 30 days from the start
+                let monthEnd = new Date(monthStart); // Set the end date to 30 days from the start
+                if (monthEnd.getMonth() === 7) { // August
+                    const ethioDate = toEthiopian({ year: monthEnd.getFullYear(), month: 10, date: monthEnd.getDate() })
+                    let startDate = 11;
+                    if (ethioDate) startDate = startDayOfEthiopian(ethioDate.year)
+                    if (startDate === 12) {
+                        monthEnd.setDate(monthEnd.getDate() + 35); // Leap year: add 36 days
+                    } else {
+                        monthEnd.setDate(monthEnd.getDate() + 34); // Normal year: add 35 days
+                    }
+                } else {
+                    monthEnd.setDate(monthEnd.getDate() + 29);
+                }
+
                 if (monthEnd > endDate) {
                     monthEnd = new Date(endDate); // Adjust the last period to match the exact end date
                 }
@@ -158,7 +164,6 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
                 index++;
             }
 
-
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -170,38 +175,44 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
                 {/* Year Start Date */}
                 <div className='flex w-full gap-10'>
                     <div className='flex flex-col gap-8'>
-                        <div className='max-w-[312px] flex gap-4'>
-                            <div className='flex flex-col gap-2 pt-1 items-center'>
-                                <div className='w-3 h-3 bg-[#D9D9D9] rounded-full' />
-                                <div className={`w-[2px] ${watchedStartDate ? "h-[64px]" : "h-12"} bg-[#D9D9D9] transition-all duration-300`} />
-                                <div className={`${watchedStartDate ? "scale-100" : "scale-0"} w-3 h-3 bg-[#D9D9D9] rounded-full transition-all duration-300`} />
-                            </div>
-                            <div className='flex flex-col gap-5 w-[284px]'>
-                                <div className='w-[284px]'>
-                                    <DatePickerInput
-                                        form={form}
-                                        name='startDate'
-                                        title='Start date'
-                                        variant={"outline"}
-                                        parent={`periods`}
-                                        placeholder='Choose Start Date'
+                        <div className='flex flex-col gap-4'>
+                            <p className='text-lg text-[#09090B]'>
+                                Choose Fiscal Year
+                            </p>
+                            <div className='max-w-[312px] flex gap-4'>
 
-                                    />
+                                <div className='flex flex-col gap-2 pt-1 items-center'>
+                                    <div className='w-3 h-3 bg-[#D9D9D9] rounded-full' />
+                                    <div className={`w-[2px] ${watchedStartDate ? "h-[64px]" : "h-12"} bg-[#D9D9D9] transition-all duration-300`} />
+                                    <div className={`${watchedStartDate ? "scale-100" : "scale-0"} w-3 h-3 bg-[#D9D9D9] rounded-full transition-all duration-300`} />
                                 </div>
-                                {watchedStartDate &&
+                                <div className='flex flex-col gap-5 w-[284px]'>
                                     <div className='w-[284px]'>
                                         <DatePickerInput
                                             form={form}
-                                            name='endDate'
-                                            title='End date'
+                                            name='startDate'
+                                            title='Start date'
                                             variant={"outline"}
                                             parent={`periods`}
-                                            placeholder='Choose End Date'
-                                            minDate={watchedStartDate ? new Date(watchedStartDate.getTime() + secondsInAMonth * 1000 * 2) : new Date()}
-                                        />
-                                    </div>}
-                            </div>
+                                            placeholder='Choose Start Date'
 
+                                        />
+                                    </div>
+                                    {watchedStartDate &&
+                                        <div className='w-[284px]'>
+                                            <DatePickerInput
+                                                form={form}
+                                                name='endDate'
+                                                title='End date'
+                                                variant={"outline"}
+                                                parent={`periods`}
+                                                placeholder='Choose End Date'
+                                                minDate={watchedStartDate ? new Date(watchedStartDate.getTime() + secondsInAMonth * 1000 * 2) : new Date()}
+                                            />
+                                        </div>}
+                                </div>
+
+                            </div>
                         </div>
 
                         <Button
@@ -217,8 +228,8 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
                             Continue
                         </Button>
                     </div>
-                    {fields.length > 0 && <ArrowRightSVG className=' mt-32 text-[#A8A29E] stroke-1' />}
-                    {fields.length > 0 &&
+                    {watchedStartDate && fields.length > 0 && <ArrowRightSVG className=' mt-32 text-[#A8A29E] stroke-1' />}
+                    {watchedStartDate && fields.length > 0 &&
                         <div className='flex flex-col gap-4 justify-start'>
                             <div>
                                 <p className='text-lg text-[#09090B]'>

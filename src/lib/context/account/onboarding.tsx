@@ -3,6 +3,7 @@
 import { fetchBusinessApi } from '@/lib/data/business/create';
 import { onBoardingAction } from '@/lib/data/user/create';
 import { addressSchema, companyInTakeSchema, companySchema, ownerSchema, profileSchema } from '@/lib/form/account';
+import yearSchema from '@/lib/form/account/accountPeriod';
 import { OnboardingAddressForm, OnboardingCompanyForm, OnboardingCompanyInTakeForm, OnboardingOwnerAddressForm, OnboardingOwnerForm, OnboardingProfileForm } from '@/modules/account/components/form';
 import { OnboardingAccountingPeriodForm } from '@/modules/account/components/form/AccountingPeroidForm';
 import { BusinessType } from '@/types/business';
@@ -11,37 +12,37 @@ import React, { useContext, useState } from "react";
 import { z } from 'zod';
 
 export const onBoardingSteps = [
-    // {
-    //     title: 'Create your profile',
-    //     description: "This will be your profile linked to all your activity",
-    //     subSteps: [{
-    //         name: 'Profile',
-    //         form: <OnboardingProfileForm />,
-    //         className: "max-w-[672px]"
-    //     }, {
-    //         name: 'Address',
-    //         form: <OnboardingAddressForm />,
-    //         className: "max-w-[672px]"
-    //     }]
-    // },
-    // {
-    //     title: 'Create a company',
-    //     description: "This will be one of the company for which all the. ",
-    //     subSteps: [{
-    //         name: 'Company detail',
-    //         form: <OnboardingCompanyInTakeForm />,
-    //         className: "max-w-[672px]"
-    //     }, {
-    //         name: 'Business',
-    //         form: <OnboardingCompanyForm />,
-    //         className: "max-w-[672px]"
-    //     }]
-    // },
+    {
+        title: 'Create your profile',
+        description: "This will be your profile linked to all your activity",
+        subSteps: [{
+            name: 'Profile',
+            form: <OnboardingProfileForm />,
+            className: "max-w-[672px]"
+        }, {
+            name: 'Address',
+            form: <OnboardingAddressForm />,
+            className: "max-w-[672px]"
+        }]
+    },
+    {
+        title: 'Create a company',
+        description: "This will be one of the company for which all the. ",
+        subSteps: [{
+            name: 'Company detail',
+            form: <OnboardingCompanyInTakeForm />,
+            className: "max-w-[672px]"
+        }, {
+            name: 'Business',
+            form: <OnboardingCompanyForm />,
+            className: "max-w-[672px]"
+        }]
+    },
     {
         title: 'Accounting period',
         description: "This will be used for the fiscal year and the accounting period intervals. this can;t be changed once set so double check your entry",
         subSteps: [{
-            name: 'Choose Fiscal Year',
+            name: '',
             form: <OnboardingAccountingPeriodForm />,
             className: ""
         }]
@@ -82,6 +83,8 @@ const initialValues: {
     setOwnerProfile: (ownerProfile: z.infer<typeof profileSchema> | null) => void,
     fetchBusiness: (tin: string) => Promise<BusinessType | null>
     createUser: ({ ownerAddressData, userId }: { ownerAddressData?: z.infer<typeof addressSchema>, userId: string }) => Promise<ProfileType | null>
+    fiscalYear: z.infer<typeof yearSchema> | undefined
+    setFiscalYear: (fiscalYear: z.infer<typeof yearSchema>) => void,
 } = {
     onBoardingId: 0,
     setOnBoardingId: (index: number) => { },
@@ -104,7 +107,9 @@ const initialValues: {
     ownerProfile: null,
     setOwnerProfile: (ownerProfile) => { },
     createUser: async ({ ownerAddressData, userId }: { ownerAddressData?: z.infer<typeof addressSchema>, userId: string }) => { return null },
-    fetchBusiness: async (tin: string) => { return null }
+    fetchBusiness: async (tin: string) => { return null },
+    fiscalYear: undefined,
+    setFiscalYear: () => { }
 };
 
 type Props = {
@@ -161,6 +166,7 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
     });
     const [ownerProfile, setOwnerProfile] = useState<z.infer<typeof profileSchema> | null>(null);
     const [ownerAddress, setOwnerAddress] = useState<z.infer<typeof addressSchema> | null>(null);
+    const [fiscalYear, setFiscalYear] = useState<z.infer<typeof yearSchema> | undefined>()
 
 
 
@@ -171,6 +177,8 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
         if (!company) throw new Error("company has not been setup")
         if (!companyIntake) throw new Error("companyIntake has not been setup")
         if (!profile) throw new Error("profile has not been setup")
+        if (!fiscalYear) throw new Error("Fiscal year required has not been setup")
+
 
         let ownerProfileData: ProfileInputType | undefined = undefined
         let dateBirth = undefined
@@ -229,7 +237,8 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
                 profile: {
                     userId,
                     ...profileInputData
-                }
+                },
+                fiscalYear
             })
 
             return profileData;
@@ -279,7 +288,9 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
                 createUser,
                 fetchBusiness,
                 ownerProfile,
-                setOwnerProfile
+                setOwnerProfile,
+                fiscalYear,
+                setFiscalYear
             }}
         >
             {children}

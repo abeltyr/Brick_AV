@@ -1,10 +1,13 @@
 "use server";
 
+import yearSchema from "@/lib/form/account/accountPeriod";
+import { months } from "@/lib/utils/calendar/date";
 import { getPrisma } from "@/lib/utils/database";
 import { CompanyInputType } from "@/types/company";
 import { ProfileInputType, ProfileType } from "@/types/profile";
 import { CompanyMemberRole } from "@prisma/client";
 import { v4 } from "uuid";
+import { z } from "zod";
 const prisma = getPrisma();
 
 export const onBoardingAction = async (data: {
@@ -13,6 +16,7 @@ export const onBoardingAction = async (data: {
   ownerProfile?: ProfileInputType;
   role: string;
   roleDetail?: string;
+  fiscalYear: z.infer<typeof yearSchema>;
 }): Promise<ProfileType> => {
   console.log("data.role ", data.role);
   let roleData: CompanyMemberRole = "Owner";
@@ -76,38 +80,62 @@ export const onBoardingAction = async (data: {
         },
       },
     }),
-  ];
-
-  if (roleData != "Owner" && data.ownerProfile) {
-    profileData = [
-      ...profileData,
-      prisma.profile.create({
-        data: {
-          dateBirth: data.ownerProfile.dateBirth,
-          email: data.ownerProfile.email,
-          gender: data.ownerProfile.gender,
-          name: data.ownerProfile.name,
-          phoneNumber: data.ownerProfile.phoneNumber,
-          tin: data.ownerProfile.tin,
-          address: {
-            create: {
-              ...data.ownerProfile.address,
-            },
-          },
-          companyMember: {
-            create: {
-              company: {
-                connect: {
-                  id: companyId,
-                },
-              },
-              role: "Owner",
-            },
+    prisma.fiscalYear.create({
+      data: {
+        startDate: data.fiscalYear.startDate,
+        endDate: data.fiscalYear.endDate,
+        year: data.fiscalYear.startDate.getFullYear(),
+        company: {
+          connect: {
+            id: companyId,
           },
         },
-      }),
-    ];
-  }
+        accountPeriods: {
+          createMany: {
+            data: data.fiscalYear.periods.map((period, index) => ({
+              startDate: period.start,
+              endDate: period.end,
+              name: months[period.start.getMonth()]
+                ? months[period.start.getMonth()].full
+                : "",
+              order: index,
+            })),
+          },
+        },
+      },
+    }),
+  ];
+
+  // if (roleData != "Owner" && data.ownerProfile) {
+  //   profileData = [
+  //     ...profileData,
+  //     prisma.profile.create({
+  //       data: {
+  //         dateBirth: data.ownerProfile.dateBirth,
+  //         email: data.ownerProfile.email,
+  //         gender: data.ownerProfile.gender,
+  //         name: data.ownerProfile.name,
+  //         phoneNumber: data.ownerProfile.phoneNumber,
+  //         tin: data.ownerProfile.tin,
+  //         address: {
+  //           create: {
+  //             ...data.ownerProfile.address,
+  //           },
+  //         },
+  //         companyMember: {
+  //           create: {
+  //             company: {
+  //               connect: {
+  //                 id: companyId,
+  //               },
+  //             },
+  //             role: "Owner",
+  //           },
+  //         },
+  //       },
+  //     }),
+  //   ];
+  // }
 
   const [profile, ownerProfile] = await prisma.$transaction([...profileData]);
 

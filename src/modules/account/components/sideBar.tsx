@@ -31,24 +31,27 @@ export const OnboardingSideBar = () => {
 
                         </Button>
                         <div className='flex flex-col'>
-                            {step.subSteps.map((subStep, subSetIndex) => (
-                                <div key={index}
-                                    onClick={() => {
-                                        // if (onBoardingId > index || (onBoardingId === index && onBoardingSubSet > subSetIndex)) {
-                                        setOnBoardingSubSet(subSetIndex)
-                                        setOnBoardingId(index)
-                                        // }
-                                    }}
-                                    className={`
+                            {step.subSteps.map((subStep, subSetIndex) => {
+                                if (subStep.name) {
+                                    return <div key={index}
+                                        onClick={() => {
+                                            // if (onBoardingId > index || (onBoardingId === index && onBoardingSubSet > subSetIndex)) {
+                                            setOnBoardingSubSet(subSetIndex)
+                                            setOnBoardingId(index)
+                                            // }
+                                        }}
+                                        className={`
                                     ml-[32px] mt-1 
                                     text-sm text-foreground 
                                     ${onBoardingId === index && onBoardingSubSet === subSetIndex ? 'font-semibold' : ''}
                                     ${onBoardingId > index || (onBoardingId === index && onBoardingSubSet > subSetIndex) ? 'cursor-pointer' : ''}
                                     h-7
                                     `}>
-                                    {subStep.name}
-                                </div>
-                            ))}
+                                        {subStep.name}
+                                    </div>
+                                }
+                            }
+                            )}
                         </div>
                     </div>
                 ))}
