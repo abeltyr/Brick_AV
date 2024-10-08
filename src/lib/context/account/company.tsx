@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback, useContext, useState } from "react";
-import { fetchMemberCompanyAction } from '@/lib/data/companyMember/fetchById';
+import { fetchMemberCompanyAction } from '@/lib/data/companyMember';
 import { CompanyMemberType } from '@/types/company';
 
 
