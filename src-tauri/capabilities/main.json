@@ -5,10 +5,29 @@
     "windows": [
         "main"
     ],
-    "permissions": [{
-        "identifier": "fs:allow-app-write",
-        "allow": [{
-            "path": "$HOME/**"
-        }]
-    }]
+    "permissions": [
+        {
+            "identifier": "fs:allow-app-write",
+            "allow": [
+                {
+                    "path": "$HOME/**"
+                }
+            ]
+        },
+        {
+            "identifier": "shell:allow-open",
+            "allow": [
+                {
+                    "name": "exec-sh",
+                    "cmd": "sh",
+                    "args": [
+                        "-c",
+                        {
+                            "validator": "\\S+"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 }

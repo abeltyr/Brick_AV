@@ -55,6 +55,15 @@ export const createPurchaseAction = async ({
   if (!vendor) throw new Error("Vendor is no setup");
   if (!fiscalYear) throw new Error("fiscal Year is no setup");
 
+  console.log("fiscalYear", fiscalYear, {
+    startDate: {
+      lte: purchaseInput.date,
+    },
+    endDate: {
+      gte: purchaseInput.date,
+    },
+  });
+
   let fetchValues = [
     prisma.accountPeriod.findMany({
       where: {

@@ -14,6 +14,8 @@ import { z } from 'zod'
 import { NormalInput } from '../input/normal'
 import { PhoneNumberInput } from '../input/phoneNumber'
 import { RadioInput } from '../input/radio'
+import { DatePickerInput } from '../input/date'
+import { secondsInAYear } from '@/lib/utils/calendar/date'
 
 
 export const GeneralProfileForm = ({ form, readOnlyValues = [], hideForm = [] }: { form: UseFormReturn<z.infer<typeof profileSchema>>, readOnlyValues?: string[], hideForm?: string[] }) => {
@@ -52,6 +54,18 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [], hideForm = [] }:
 
             </div>
 
+
+            {!hideForm.includes("dateOfBirth") &&
+                <DatePickerInput
+                    form={form}
+                    name={`dateOfBirth`}
+                    variant={"outline"}
+                    placeholder='Date of birth'
+                    maxDate={new Date(new Date().getTime() - secondsInAYear * 1000 * 10)}
+                    title='Date of birth'
+                />
+            }
+
             {!hideForm.includes("gender") && <div className='flex-1 min-w-[200px]'>
                 <RadioInput
                     form={form}
@@ -67,106 +81,6 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [], hideForm = [] }:
                     alignment='horizontal'
                 />
             </div>}
-
-            {!hideForm.includes("dateOfBirth") && <div className="space-y-2">
-                <Label>Date of birth</Label>
-                <div className="flex space-x-2">
-                    <div className='flex-1'>
-                        <FormField
-                            control={form.control}
-                            name="dateOfBirth.day"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Select
-                                            {...field}
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                            value={field.value}
-                                        >
-                                            <SelectTrigger id="Day" aria-label="Day">
-                                                <SelectValue placeholder="Day" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                                                    <SelectItem key={day} value={day.toString()}>
-                                                        {day}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <div className='flex-1'>
-                        <FormField
-                            control={form.control}
-                            name="dateOfBirth.month"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Select
-                                            {...field}
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                            value={field.value}
-                                        >
-                                            <SelectTrigger id="Month" aria-label="Month">
-                                                <SelectValue placeholder="Month" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                                                    <SelectItem key={month} value={month.toString()}>
-                                                        {month}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <div className='flex-1'>
-                        <FormField
-                            control={form.control}
-                            name="dateOfBirth.year"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Select
-                                            {...field}
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                            value={field.value}
-                                        >
-                                            <SelectTrigger id="Year" aria-label="Year">
-                                                <SelectValue placeholder="Year" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i - 14).map((year) => (
-                                                    <SelectItem key={year} value={year.toString()}>
-                                                        {year}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
-
-                </div>
-            </div>
-            }
-
         </div>
     )
 }

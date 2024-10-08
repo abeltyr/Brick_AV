@@ -4,11 +4,21 @@ import { LanguageTranslator } from '@/modules/language/components';
 import { Button } from '@/modules/ui/button';
 import { ArrowUpRightIcon, CirclePlus } from 'lucide-react';
 import Link from 'next/link';
-import React from 'react'
+import React, { useState } from 'react'
+import { PurchaseExportCSVModal } from './exportCsvModal';
 
 export const DashboardNav = () => {
-    const { fetchPurchaseCSV } = useExportPurchase();
-    const { currentCompany } = useCompany();
+
+
+    const [isOpen, setIsOpen] = useState(false)
+    // const [business, setBusinessFetched] = useState<BusinessType | null>(business)
+
+    const handleClose = () => {
+        setIsOpen(false)
+    }
+    const handleContinue = () => {
+        setIsOpen(false)
+    }
 
     return (
         <div className="flex items-center justify-between space-y-2">
@@ -36,6 +46,7 @@ export const DashboardNav = () => {
                         //         year: 2016,
                         //         month: 12,
                         //     })
+                        setIsOpen(true);
                     }}>
                     <ArrowUpRightIcon className='w-4 h-4 text-foreground ' />
                     Export CSV
@@ -50,6 +61,12 @@ export const DashboardNav = () => {
                     </Button>
                 </Link>
             </div>
+            <PurchaseExportCSVModal
+                isOpen={isOpen}
+                setIsOpen={setIsOpen}
+                handleClose={handleClose}
+                handleContinue={handleContinue}
+            />
         </div>
     )
 }

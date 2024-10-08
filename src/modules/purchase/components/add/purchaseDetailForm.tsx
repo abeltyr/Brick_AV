@@ -116,8 +116,9 @@ export default function PurchaseDetailForm() {
                                             name='receiptNumber'
                                             placeholder="0001"
                                             lengthData={8}
-                                        /> : <PriceInput
+                                        /> : <NormalInput
                                             form={form}
+                                            type='number'
                                             name={`receiptNumber`}
                                             placeholder="1"
                                         />}
@@ -213,8 +214,9 @@ export default function PurchaseDetailForm() {
 
                         {watchedWithholdingType === "noWithholding" && !vendor.business &&
                             <div className='flex-1'>
-                                <PriceInput
+                                <NormalInput
                                     form={form}
+                                    type='number'
                                     name='receiptNumber'
                                     title="Cash Receipt Voucher"
                                     placeholder="Cash Receipt Voucher"

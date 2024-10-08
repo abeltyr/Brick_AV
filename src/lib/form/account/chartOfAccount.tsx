@@ -39,5 +39,6 @@ export const chartOfAccountSchema = z.object({
 
 
 export const chartOfAccountsSchema = z.object({
-    accounts: z.array(chartOfAccountSchema).min(5, "At least one Chart of accounts are required"),
+    accounts: z.array(chartOfAccountSchema),
+    // .min(5, "At least one Chart of accounts are required"),
 })

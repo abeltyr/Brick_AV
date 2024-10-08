@@ -6,7 +6,7 @@ import { purchaseTypeConvertor } from "@/lib/form/product/data";
 import { stringify } from "csv-stringify/sync";
 import { DateRangeType } from "@/types/shared";
 
-type gebiwochPurchaseReport = {
+type PurchaseEtaxReport = {
   productType: string;
   calendar: string;
   purchaseType: number;
@@ -24,7 +24,15 @@ type gebiwochPurchaseReport = {
   grossAmount: string;
 };
 
-export const GebiwochPurchaseCSV = async ({
+// Custom formatter to preserve leading zeros
+const preserveLeadingZeros = (value: any) => {
+  if (typeof value === "string" && /^0+\d+$/.test(value)) {
+    return `="${value}"`; // Wrap with quotes and add = to force Excel to treat it as text
+  }
+  return value;
+};
+
+export const PurchaseEtaxCsvGenerator = async ({
   dateRange,
   companyId,
 }: {
@@ -87,32 +95,34 @@ This field is  mandatory.`,
       grossAmount: `value after vat`,
     };
 
-    let arrayData: gebiwochPurchaseReport[] = [];
+    let arrayData: PurchaseEtaxReport[] = [];
 
-    // for (const purchase of purchases) {
-    //   arrayData = [
-    //     ...arrayData,
-    //     {
-    //       productType: purchase.productType === "Good" ? "G" : "S",
-    //       calendar: "G",
-    //       purchaseType: purchaseTypeConvertor(purchase.purchaseType),
-    //       vendorTin: purchase.vatDetail ?? "",
-    //       sellerName: "",
-    //       date: purchase.date.toLocaleDateString("en-GB"),
-    //       MRCNumber: purchase.MRCNumber ?? "",
-    //       VatReceiptNumber: purchase.VatReceiptNumber ?? "",
-    //       description: purchase.description,
-    //       unit: purchase.unit,
-    //       totalQuantity: purchase.totalQuantity.toString(),
-    //       averagePrice: purchase.averagePrice.toString(),
-    //       totalValue: new Decimal(purchase.taxableAmount)
-    //         .plus(new Decimal(purchase.nonTaxableAmount))
-    //         .toString(),
-    //       totalVat: purchase.totalVat.toString(),
-    //       grossAmount: purchase.grossAmount.toString(),
-    //     },
-    //   ];
-    // }
+    for (const purchase of purchases) {
+      arrayData = [
+        ...arrayData,
+        {
+          productType: purchase.productType === "Good" ? "G" : "S",
+          calendar: "G",
+          purchaseType: purchaseTypeConvertor(purchase.purchaseType),
+          vendorTin: `${purchase.vendorTin}`,
+          sellerName: !purchase.vendorTin ? purchase.vendorName ?? "" : "",
+          date: purchase.date.toLocaleDateString("en-GB"),
+          MRCNumber: purchase.mrcNumber ?? "",
+          VatReceiptNumber: purchase.receiptNumber ?? "",
+          description: purchase.description,
+          unit: purchase.productType,
+          totalQuantity: purchase.quantity.toString(),
+          averagePrice: purchase.unitPrice.toString(),
+          totalValue: new Decimal(purchase.taxableAmount)
+            .plus(new Decimal(purchase.nonTaxableAmount))
+            .toString(),
+          totalVat: purchase.taxAmount.toString(),
+          grossAmount: purchase.grossAmount.toString(),
+        },
+      ];
+    }
+
+    console.log(arrayData);
 
     const data = Object.values(arrayData);
     const csv = stringify(data);

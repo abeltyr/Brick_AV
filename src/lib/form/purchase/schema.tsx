@@ -38,7 +38,7 @@ export const purchaseSchema = z.object({
     vatChartOfAccountId: z.string().optional(),
     withholdingChartOfAccountId: z.string().optional(),
     date: z.date({ required_error: "Date is required" }),
-    receiptNumber: z.number(),
+    receiptNumber: z.string(),
     mrcNumber: z.string().optional(),
     withholdingType: zProductInputWithholdingType,
     withholdingNumber: z.string().optional(),

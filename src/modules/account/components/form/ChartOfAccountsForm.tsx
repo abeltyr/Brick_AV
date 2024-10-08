@@ -15,6 +15,7 @@ import { useToast } from '@/modules/ui/use-toast'
 import { useAuth } from '@/lib/context/auth'
 import { useProfile } from '@/lib/context/account'
 import { chartOfAccountsSchema } from '@/lib/form/account/chartOfAccount'
+import { Button } from '@/modules/ui/button'
 
 
 interface OnboardingChartOfAccountFormProps extends React.HTMLAttributes<HTMLDivElement> { }
@@ -25,13 +26,14 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
     const { toast } = useToast()
 
     const { session } = useAuth();
-    const { address, createUser } = useOnboarding();
+    const { createUser } = useOnboarding();
     const { setProfile } = useProfile();
 
 
     const form = useForm<z.infer<typeof chartOfAccountsSchema>>({
         resolver: zodResolver(yearSchema),
         defaultValues: {
+            accounts: []
         },
     })
 
@@ -46,6 +48,7 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
 
 
     const onSubmit = async (values: z.infer<typeof chartOfAccountsSchema>) => {
+        alert("here")
         if (!isLoading) {
             setIsLoading(true)
             try {
@@ -77,7 +80,16 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
         <div className={cn("grid gap-6", className)} {...props}>
             <Form {...form}>
                 <div className='flex w-full gap-10'>
-
+                    <Button
+                        type="submit" variant='default'
+                        onClick={() => {
+                            // console.log(form.formState)
+                            // form.handleSubmit(onSubmit)()
+                            onSubmit({ accounts: [] })
+                        }}
+                    >
+                        Continue
+                    </Button>
                 </div>
             </Form>
         </div>

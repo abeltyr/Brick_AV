@@ -211,10 +211,7 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
                             disabled={!watchedStartDate}
                             type="submit" variant='default'
                             onClick={() => {
-                                form.clearErrors();
-                                console.log(form.formState)
                                 form.handleSubmit(onSubmit)()
-                                console.log(form.formState)
                             }}
                         >
                             Continue

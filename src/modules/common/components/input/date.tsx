@@ -67,7 +67,7 @@ export const DatePickerInput = (
                         </LanguageTranslator>
                     </FormLabel>}
                     <FormControl >
-                        <Popover >
+                        <Popover modal={true}>
                             <PopoverTrigger asChild disabled={disabled}>
                                 <Button
                                     variant={variant}
@@ -80,7 +80,7 @@ export const DatePickerInput = (
                                     {field.value ? format(field.value, "MMMM dd, yyyy") : <span>{placeholder}</span>}
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
+                            <PopoverContent className="w-auto p-0" >
                                 <Calendar
                                     mode="single"
                                     selected={field.value}
