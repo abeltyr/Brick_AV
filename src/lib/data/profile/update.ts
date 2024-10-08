@@ -1,15 +1,16 @@
 "use server";
 
 import { getPrisma } from "@/lib/utils/database";
-import { ProfileInputType } from "@/types/general";
+import { UpdateProfileInputType } from "@/types/profile";
 import { Profile } from "@prisma/client";
+import { profileIncludeData } from "./common/include";
 
 const prisma = getPrisma();
 
 export const updateProfileAction = async (
   id: string,
   data: {
-    profile?: ProfileInputType;
+    profile?: UpdateProfileInputType;
   },
 ): Promise<Profile> => {
   return await prisma.profile.update({
@@ -17,5 +18,6 @@ export const updateProfileAction = async (
     data: {
       ...data.profile,
     },
+    include: profileIncludeData,
   });
 };

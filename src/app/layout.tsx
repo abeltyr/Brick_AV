@@ -1,12 +1,30 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
-import "./globals.css";
+import { Inter } from "next/font/google";
 import { ThemeProvider } from '@/lib/context/theme';
 import { AuthProvider } from '@/lib/context/auth/user';
 import { Toaster } from "@/modules/ui/toaster"
-import { DrawerManagerProvider } from '@/lib/context/drawer/drawer';
+import "./globals.css";
+import { ProfileProvider } from '@/lib/context/account';
+import {
+  ContextMenu,
+  ContextMenuCheckboxItem,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "@/modules/ui/context-menu"
 
-const inter = Plus_Jakarta_Sans({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"]
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,9 +41,58 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <AuthProvider>
-            <DrawerManagerProvider>
+            <ProfileProvider>
+
+              {/* <ContextMenu>
+                <ContextMenuContent className="w-64">
+                  <ContextMenuItem inset>
+                    Back
+                    <ContextMenuShortcut>⌘[</ContextMenuShortcut>
+                  </ContextMenuItem>
+                  <ContextMenuItem inset disabled>
+                    Forward
+                    <ContextMenuShortcut>⌘]</ContextMenuShortcut>
+                  </ContextMenuItem>
+                  <ContextMenuItem inset>
+                    Reload
+                    <ContextMenuShortcut>⌘R</ContextMenuShortcut>
+                  </ContextMenuItem>
+                  <ContextMenuSub>
+                    <ContextMenuSubTrigger inset>More Tools</ContextMenuSubTrigger>
+                    <ContextMenuSubContent className="w-48">
+                      <ContextMenuItem>
+                        Save Page As...
+                        <ContextMenuShortcut>⇧⌘S</ContextMenuShortcut>
+                      </ContextMenuItem>
+                      <ContextMenuItem>Create Shortcut...</ContextMenuItem>
+                      <ContextMenuItem>Name Window...</ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem>Developer Tools</ContextMenuItem>
+                    </ContextMenuSubContent>
+                  </ContextMenuSub>
+                  <ContextMenuSeparator />
+                  <ContextMenuCheckboxItem checked>
+                    Show Bookmarks Bar
+                    <ContextMenuShortcut>⌘⇧B</ContextMenuShortcut>
+                  </ContextMenuCheckboxItem>
+                  <ContextMenuCheckboxItem>Show Full URLs</ContextMenuCheckboxItem>
+                  <ContextMenuSeparator />
+                  <ContextMenuRadioGroup value="pedro">
+                    <ContextMenuLabel inset>People</ContextMenuLabel>
+                    <ContextMenuSeparator />
+                    <ContextMenuRadioItem value="pedro">
+                      Pedro Duarte
+                    </ContextMenuRadioItem>
+                    <ContextMenuRadioItem value="colm">Colm Tuite</ContextMenuRadioItem>
+                  </ContextMenuRadioGroup>
+                </ContextMenuContent>
+
+                <ContextMenuTrigger > */}
+
               {children}
-            </DrawerManagerProvider>
+              {/* </ContextMenuTrigger>
+              </ContextMenu> */}
+            </ProfileProvider>
           </AuthProvider>
         </ThemeProvider>
         <Toaster />

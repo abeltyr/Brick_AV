@@ -1,0 +1,102 @@
+[
+  {
+    "id": 28,
+    "parent_id": 3,
+    "name": "Agew Awi",
+    "slug": "agew-awi",
+    "parent_ids": [
+      3
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 29,
+    "parent_id": 3,
+    "name": "East Gojjam",
+    "slug": "east-gojjam",
+    "parent_ids": [
+      3
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 30,
+    "parent_id": 3,
+    "name": "North Gondar",
+    "slug": "north-gondar",
+    "parent_ids": [
+      3
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 31,
+    "parent_id": 3,
+    "name": "North Shewa",
+    "slug": "north-shewa",
+    "parent_ids": [
+      3
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 32,
+    "parent_id": 3,
+    "name": "North Wollo",
+    "slug": "north-wollo",
+    "parent_ids": [
+      3
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 33,
+    "parent_id": 3,
+    "name": "South Gondar",
+    "slug": "south-gondar",
+    "parent_ids": [
+      3
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 34,
+    "parent_id": 3,
+    "name": "South Wollo",
+    "slug": "south-wollo",
+    "parent_ids": [
+      3
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 35,
+    "parent_id": 3,
+    "name": "Wag Hemra",
+    "slug": "wag-hemra",
+    "parent_ids": [
+      3
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 36,
+    "parent_id": 3,
+    "name": "West Gojjam",
+    "slug": "west-gojjam",
+    "parent_ids": [
+      3
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 37,
+    "parent_id": 3,
+    "name": "Bahir Dar",
+    "slug": "bahir-dar",
+    "parent_ids": [
+      3
+    ],
+    "is_popular": false
+  }
+]

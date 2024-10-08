@@ -1,20 +1,19 @@
 "use client"
 
 import AddSVG from '@/assets/icons/add'
-import ProfileForm from '../components/addForm/profile'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Form } from "@/modules/ui/form"
 import { useToast } from '@/modules/ui/use-toast'
 import { useState } from 'react'
-import { useAuth } from '@/lib/context/auth/user'
 import { useVendors } from '@/lib/context/vendor'
-import AddressForm from '../components/addForm/address'
 import { DrawerSheetHeader } from '@/modules/common/components/drawer/header'
 import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
 import { useDrawerManager } from '@/lib/context/drawer/drawer'
-import { vendorFormSchema } from '@/lib/form/vendor'
+import { useCompany } from '@/lib/context/account'
+import { GeneralVendorDetailForm } from '@/modules/common/components/form/generalVendorForm'
+import { vendorSchema } from '@/lib/form/vendor'
 
 
 export const AddVendorSection = () => {
@@ -23,31 +22,23 @@ export const AddVendorSection = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
 
-    const { currentCompany } = useAuth();
-    const { createVendor } = useVendors();
-    const form = useForm<z.infer<typeof vendorFormSchema>>({
-        resolver: zodResolver(vendorFormSchema),
+    const { currentCompany } = useCompany();
+    const { createVendor, setBusiness } = useVendors();
+    const form = useForm<z.infer<typeof vendorSchema>>({
+        resolver: zodResolver(vendorSchema),
         defaultValues: {
-            tinNumber: "0090866119",
-            vatNumber: "0090866119",
-            name: "Abel",
-            companyName: "Eurka",
-            email: "abel@eurka.co",
-            phoneNumber: "0911223989",
-            region: "Kolfe Kernio",
-            city: "",
-            woreda: "10",
-            houseNumber: "NEw",
-            description: "MExico KKcare Building",
+            isRegistered: "yes"
         },
     })
 
-    const onSubmit = async (values: z.infer<typeof vendorFormSchema>) => {
+
+    const onSubmit = async (values: z.infer<typeof vendorSchema>) => {
+        console.log("values", values)
         if (!isLoading) {
             setIsLoading(true)
             try {
                 if (currentCompany) {
-                    const vendor = await createVendor({
+                    await createVendor({
                         ...values,
                         companyId: currentCompany.companyId
                     })
@@ -60,17 +51,29 @@ export const AddVendorSection = () => {
                             </div>
                         ),
                     })
+                    setBusiness(null)
                 }
-            } catch (e) {
-                console.log(e)
-                toast({
-                    title: "Error Signing In",
-                    description: (
-                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue persists, please contact us here.
-                        </div>
-                    ),
-                })
+            } catch (error: any) {
+                console.log("message", error.message)
+                if (error.message.includes('Unique constraint failed')) {
+                    toast({
+                        title: "Error: Vendor Already exist",
+                        description: (
+                            <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-200 font-medium text-sm">
+                                {"There's already a record with the same Tin. Please check your tin input or check a your vendor list."}
+                            </div>
+                        ),
+                    });
+                } else {
+                    toast({
+                        title: "Error creating vendor",
+                        description: (
+                            <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
+                                An error occurred. Please try again. If the issue persists, please contact us here.
+                            </div>
+                        ),
+                    });
+                }
             }
             setIsLoading(false)
         }
@@ -79,19 +82,23 @@ export const AddVendorSection = () => {
 
     return (
         <div className='w-full h-full overflow-y-auto'>
-            <DrawerSheetHeader title={"Add Vendor"} />
-            <div className='h-20' />
+            <DrawerSheetHeader title={"Add Vendor"} description='Provided the vendor detail, if vendor is registered company the tin number will be used to validate and fetch the vendor detail' />
+            <div className='h-32' />
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full">
-                    <div className='flex flex-col p-4 pb-20 flex-1 relative w-full h-full  gap-6'>
-                        <ProfileForm form={form} />
-                        <AddressForm form={form} />
-                    </div>
-                    <DrawerSheetFooter
-                        isLoading={isLoading}
-                        createSVG={<AddSVG />}
-                    />
-                </form>
+                <div className='flex flex-col p-4 pb-20 flex-1 relative w-full h-full px-8 gap-6'>
+                    <GeneralVendorDetailForm form={form} />
+                </div>
+                <DrawerSheetFooter
+                    isLoading={isLoading}
+                    createSVG={<AddSVG />}
+                    closeFunction={() => {
+                        setAddVendorDrawer(false);
+                        setBusiness(null)
+                    }}
+                    createFunction={() => {
+                        form.handleSubmit(onSubmit)();
+                    }}
+                />
             </Form>
         </div>
 

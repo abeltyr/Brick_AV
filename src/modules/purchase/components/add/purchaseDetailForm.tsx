@@ -22,153 +22,332 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/modules/ui/popover"
-import { purchaseFormSchema } from '@/lib/form/purchase'
-import { UseFormReturn } from 'react-hook-form'
+import { purchaseSchema } from '@/lib/form/purchase'
+import { UseFormReturn, useWatch } from 'react-hook-form'
 import { z } from 'zod'
+import { ChartOfAccountDataType, ReceiptType, useAddPurchases } from '@/lib/context/purchase/addPurchase'
+import { ZeroAdjustableInput } from '@/modules/common/components/input/tin'
+import { RadioInput } from '@/modules/common/components/input/radio'
+import { RadioGroup, RadioGroupItem } from '@/modules/ui/radio-group'
+import { Label } from '@radix-ui/react-label'
+import { PriceInput } from '@/modules/common/components/input/price'
+import { NormalInput } from '@/modules/common/components/input/normal'
+import { ChartOfAccountInput } from '@/modules/common/components/input/coa'
+import { useCompany } from '@/lib/context/account'
+import { ChartOfAccountType } from '@/types/purchase'
+import Decimal from 'decimal.js'
+import { ErrorMessage } from '@/modules/common/components/errorMessage'
+import Link from 'next/link'
 
 
-export default function PurchaseDetailForm({ form }: { form: UseFormReturn<z.infer<typeof purchaseFormSchema>> }) {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>
-                    <LanguageTranslator>
-                        Purchase Detail
-                    </LanguageTranslator>
-                </CardTitle>
-                <CardDescription>
-                    <LanguageTranslator>
-                        Provided the needed Purchase Detail
-                    </LanguageTranslator>
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
+export default function PurchaseDetailForm() {
+    const { form, vendor, receiptType, setReceiptType, taxTotal, setChartOfAccount, chartOfAccount, withholding, watchedWithholdingType } = useAddPurchases();
+    const { currentCompany } = useCompany();
+
+
+    if (vendor) {
+        return (
+            <div className={`w-full px-6 flex flex-col gap-6`}>
+                <div>
+                    <p className='text-2xl font-bold'>
+                        <LanguageTranslator>
+                            Purchase Detail
+                        </LanguageTranslator>
+                    </p>
+                    <p className='text-sm font-light text-[#71717A]'>
+                        <LanguageTranslator>
+                            Provided the needed Purchase Detail
+                        </LanguageTranslator>
+                    </p>
+                </div>
                 <div className="grid gap-6">
-                    <div className="gap-3 flex">
-                        <div className='flex-1'>
-                            <FormField
-                                control={form.control}
-                                name="date"
-                                render={({ field }) => (
-                                    <FormItem className='flex  flex-col gap-1'>
-                                        <FormLabel className='text-sm'>
-                                            <LanguageTranslator>
-                                                Date
-                                            </LanguageTranslator>
-                                        </FormLabel>
-                                        <FormControl >
-                                            <Popover >
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant={"outline"}
-                                                        className={cn(
-                                                            "w-[full] justify-start text-left font-normal",
-                                                            !field.value && "text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value}
-                                                        onSelect={field.onChange}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                    {vendor.business && <div>
+                        <FormLabel className='text-sm font-medium'>
+                            <LanguageTranslator>
+                                With what was the receipt print
+                            </LanguageTranslator>
+                        </FormLabel>
+                        <FormControl className='pt-2'>
+                            <RadioGroup
+                                className={`flex  gap-6`}
+                                onValueChange={(data: ReceiptType) => {
+                                    setReceiptType(data)
+                                }}
+                                defaultValue={"Machine"}
+                                value={receiptType}
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem
+                                        value={"Machine"}
+                                        id={"Machine"}
+                                        onClick={() => {
+                                            // if (data.onClick) data.onClick()
+                                        }}
+                                    />
+                                    <Label htmlFor={"Machine"} className='text-sm font-medium'>{"Machine"}</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem
+                                        value={"Manual"}
+                                        id={"Manual"}
+                                        onClick={() => {
+                                            // if (data.onClick) data.onClick()
+                                        }}
+                                    />
+                                    <Label htmlFor={"Manual"} className='text-sm font-medium'>{"Manual"}</Label>
+                                </div>
+                            </RadioGroup>
+                        </FormControl>
+                    </div>}
 
+                    {vendor.business &&
+                        <div className="gap-3 flex">
+                            <div className='flex-1 flex flex-col space-y-2'>
+                                <FormLabel className='text-sm'>
+                                    Invoice Number
+                                </FormLabel>
+                                <div className='flex gap-1'>
+                                    <Button disabled variant={"secondary"}>
+                                        {receiptType === "Machine" ? "FS" : "CSI"}
+                                    </Button>
+                                    <div className='flex-1'>
+                                        {receiptType === "Machine" ? <ZeroAdjustableInput
+                                            form={form}
+                                            name='receiptNumber'
+                                            placeholder="0001"
+                                            lengthData={8}
+                                        /> : <NormalInput
+                                            form={form}
+                                            type='number'
+                                            name={`receiptNumber`}
+                                            placeholder="1"
+                                        />}
+                                    </div>
+                                </div>
+                            </div>
+                            {receiptType === "Machine" && <div className='flex-1'>
+                                <NormalInput
+                                    form={form}
+                                    name='mrcNumber'
+                                    title="Mrc Number"
+                                    type='text'
+                                    placeholder="Mrc Number"
+                                />
+                            </div>}
+                            {
+                                currentCompany &&
+                                vendor.taxType === "VAT" &&
+                                <div className='flex-1 flex flex-col space-y-2'>
+                                    <FormLabel className={`text-sm ${form!.formState.errors.vatChartOfAccountId ? "text-destructive" : ""}`}>
+                                        Vat Chart of account
+                                    </FormLabel>
+                                    <div className='flex gap-1 flex-1'>
+                                        <ChartOfAccountInput
+                                            companyId={currentCompany.companyId}
+                                            className=''
+                                            setChartOfAccount={(coa: ChartOfAccountType) => {
+                                                const data: ChartOfAccountDataType = {
+                                                    id: coa.id,
+                                                    amount: taxTotal.toNumber(),
+                                                    balanceType: coa.creditBased ? "credit" : "debit",
+                                                    name: coa.name,
+                                                    code: coa.code,
+                                                    accountType: coa.accountType,
+                                                }
+                                                form!.setValue("vatChartOfAccountId", coa.id);
+                                                form!.clearErrors("vatChartOfAccountId")
+                                                setChartOfAccount((prevState) => ({
+                                                    ...prevState, // Keep other properties unchanged
+                                                    vatAccount: data, // Update productsChartAccount
+                                                }));
+                                            }}
+                                            formData={form}
+                                            showIcon={true}
+                                            title='Chart Of Account'
+                                            variant={"outline"}
+                                            defaultCOAId={chartOfAccount.vatAccount?.id}
+                                        />
+                                    </div>
+
+                                    {form!.formState.errors.vatChartOfAccountId &&
+                                        <ErrorMessage message='Vat Receivable COA is Required' />
+                                    }
+                                </div>
+                            }
                         </div>
-                        <div className='flex-1'>
-                            <FormField
-                                control={form.control}
-                                name="invoiceNumber"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className='text-sm'>
-                                            <LanguageTranslator>
-                                                Invoice Number
-                                            </LanguageTranslator></FormLabel>
-                                        <FormControl>
-                                            <Input type="text" placeholder="0001" {...field} className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0
-                      ring-0 text-sm font-light placeholder:text-neutral-400' />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                        <div className='flex-1'>
-                            <FormField
-                                control={form.control}
-                                name="withholdingNumber"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className='text-sm'>
-                                            <LanguageTranslator>
-                                                Withholding Receipt Number
-                                            </LanguageTranslator>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input type="text" placeholder="1" {...field} className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0
-                      ring-0 text-sm font-light placeholder:text-neutral-400' />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                    </div>
+                    }
+                </div>
+
+                <div className="grid gap-8">
+
+                    {!vendor.business && <div className='w-full flex gap-4'>
+                        <Button
+                            onClick={() => {
+                                form!.setValue("withholdingType", "hasWithholding")
+                            }}
+                            variant={watchedWithholdingType === "hasWithholding" ? "default" : "secondary"}
+                            className='flex-1'>
+                            Withholding 30%
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                form!.setValue("withholdingType", "noWithholding")
+                            }}
+                            variant={watchedWithholdingType === "noWithholding" ? "default" : "secondary"}
+                            className='flex-1'>
+                            No Withholding
+                        </Button>
+                    </div>}
+
                     <div className="gap-3 flex">
-                        <div className='flex-1'>
-                            <FormField
-                                control={form.control}
-                                name="MRCNumber"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className='text-sm'>
-                                            <LanguageTranslator>
-                                                MRC Number
-                                            </LanguageTranslator></FormLabel>
-                                        <FormControl>
-                                            <Input type="text" placeholder="MR000a21" {...field} className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0 ring-0 text-sm font-light placeholder:text-neutral-400' />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                        <div className='flex-1'>
-                            <FormField
-                                control={form.control}
-                                name="VatReceiptNumber"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className='text-sm'>
-                                            <LanguageTranslator>
-                                                Vat Receipt Number
-                                            </LanguageTranslator>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input type="text" placeholder="Fs0001212" {...field} className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0
-                      ring-0 text-sm font-light placeholder:text-neutral-400' />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                        {(!vendor.business && watchedWithholdingType === "hasWithholding") || (vendor.business && withholding.greaterThan(0)) ?
+                            <div className='flex-1'>
+                                <NormalInput
+                                    form={form}
+                                    name='withholdingNumber'
+                                    title="Withholding Number"
+                                    type='text'
+                                    placeholder="Withholding Number"
+                                />
+                            </div>
+                            : <></>}
+
+                        {watchedWithholdingType === "noWithholding" && !vendor.business &&
+                            <div className='flex-1'>
+                                <NormalInput
+                                    form={form}
+                                    type='number'
+                                    name='receiptNumber'
+                                    title="Cash Receipt Voucher"
+                                    placeholder="Cash Receipt Voucher"
+                                />
+                            </div>
+                        }
+
+                        {
+                            currentCompany &&
+                            (!vendor.business && watchedWithholdingType === "hasWithholding" ||
+                                (vendor.business && withholding.greaterThan(0))) &&
+                            <div className='flex-1 flex flex-col space-y-2'>
+                                <FormLabel className={`text-sm ${form!.formState.errors.withholdingChartOfAccountId ? "text-destructive" : ""}`}>
+                                    Withholding Chart of account
+                                </FormLabel>
+                                <div className='flex gap-1 flex-1'>
+                                    <ChartOfAccountInput
+                                        companyId={currentCompany.companyId}
+                                        className=''
+                                        setChartOfAccount={(coa: ChartOfAccountType) => {
+                                            const data: ChartOfAccountDataType = {
+                                                id: coa.id,
+                                                amount: taxTotal.toNumber(),
+                                                balanceType: coa.creditBased ? "credit" : "debit",
+                                                name: coa.name,
+                                                code: coa.code,
+                                                accountType: coa.accountType,
+                                            }
+
+                                            form!.setValue("withholdingChartOfAccountId", coa.id);
+                                            form!.clearErrors("withholdingChartOfAccountId")
+                                            setChartOfAccount((prevState) => ({
+                                                ...prevState, // Keep other properties unchanged
+                                                withHolding: data, // Update productsChartAccount
+                                            }));
+                                        }}
+                                        formData={form}
+                                        showIcon={true}
+                                        title='Chart Of Account'
+                                        variant={"outline"}
+                                        defaultCOAId={chartOfAccount.withHolding?.id}
+                                    />
+                                </div>
+                                {form!.formState.errors.withholdingChartOfAccountId &&
+                                    <ErrorMessage message='Withholding Payable COA is Required' />
+                                }
+                            </div>
+                        }
                     </div>
                 </div>
 
-            </CardContent>
-        </Card>
-    )
+            </div>
+        )
+    } else {
+
+        return (
+            <div className={`w-full px-6 flex flex-col gap-6`}>
+                <div>
+                    <p className='text-2xl font-bold'>
+                        <LanguageTranslator>
+                            Purchase Detail
+                        </LanguageTranslator>
+                    </p>
+                    <p className='text-sm font-light text-[#71717A]'>
+                        <LanguageTranslator>
+                            Provided the needed Purchase Detail
+                        </LanguageTranslator>
+                    </p>
+                </div>
+                <div className="grid gap-6">
+
+                    {<div className="gap-3 flex">
+                        <div className='flex-1 flex flex-col space-y-2'>
+                            <FormLabel className='text-sm'>
+                                Invoice Number
+                            </FormLabel>
+                            <div className='flex gap-1'>
+                                <Button disabled variant={"secondary"}>
+                                    {receiptType === "Machine" ? "FS" : "CSI"}
+                                </Button>
+                                <div className='flex-1'>
+                                    {receiptType === "Machine" ? <ZeroAdjustableInput
+                                        form={form}
+                                        name='receiptNumber'
+                                        placeholder="0001"
+                                        lengthData={8}
+                                    /> : <PriceInput
+                                        form={form}
+                                        name={`receiptNumber`}
+                                        placeholder="1"
+                                    />}
+                                </div>
+                            </div>
+                        </div>
+                        {currentCompany && <div className='flex-1 flex flex-col space-y-2'>
+                            <FormLabel className='text-sm'>
+                                Vat Chart of account
+                            </FormLabel>
+                            <div className='flex gap-1 flex-1'>
+                                <ChartOfAccountInput
+                                    companyId={currentCompany.companyId}
+                                    className=''
+                                    setChartOfAccount={(coa: ChartOfAccountType) => {
+                                        const data: ChartOfAccountDataType = {
+                                            id: coa.id,
+                                            amount: taxTotal.toNumber(),
+                                            balanceType: coa.creditBased ? "credit" : "debit",
+                                            name: coa.name,
+                                            code: coa.code,
+                                            accountType: coa.accountType,
+                                        }
+                                        form!.setValue("vatChartOfAccountId", coa.id);
+                                        form!.clearErrors("vatChartOfAccountId")
+                                        setChartOfAccount((prevState) => ({
+                                            ...prevState, // Keep other properties unchanged
+                                            vatAccount: data, // Update productsChartAccount
+                                        }));
+                                    }}
+                                    formData={form}
+                                    showIcon={true}
+                                    title='Chart Of Account'
+                                    variant={"outline"}
+                                    defaultCOAId={chartOfAccount.vatAccount?.id}
+                                />
+                            </div>
+                        </div>}
+                    </div>}
+                </div>
+            </div>
+        )
+    }
+
+
 }

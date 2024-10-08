@@ -1,40 +1,41 @@
 "use server";
 
 import { getPrisma } from "@/lib/utils/database";
-import { AddressInputType, ProfileInputType } from "@/types/general";
-import { Vendor } from "@prisma/client";
+import { VendorInputType } from "@/types/vendor";
+import { Prisma, Vendor } from "@prisma/client";
+import { vendorIncludeData } from "./common/include";
 
 const prisma = getPrisma();
 
-export const createVenderAction = async (data: {
-  profile: ProfileInputType;
-  address: AddressInputType;
-  companyId: string;
-}): Promise<Vendor> => {
-  return await prisma.vendor.create({
-    data: {
-      profile: {
-        create: {
-          ...data.profile,
-          address: {
-            create: {
-              ...data.address,
-            },
-          },
-        },
+export const createVenderAction = async (
+  data: VendorInputType,
+): Promise<Vendor> => {
+  let value: Prisma.VendorCreateInput = {
+    name: data.name,
+    vat: data.vat,
+    email: data.email,
+    taxType: data.taxType,
+    phoneNumber: data.phoneNumber,
+    description: data.description,
+    company: {
+      connect: {
+        id: data.companyId,
       },
-      company: {
+    },
+  };
+
+  if (data.businessId)
+    value = {
+      ...value,
+      business: {
         connect: {
-          id: data.companyId,
+          id: data.businessId,
         },
       },
-    },
-    include: {
-      profile: {
-        include: {
-          address: true,
-        },
-      },
-    },
+    };
+
+  return await prisma.vendor.create({
+    data: value,
+    include: vendorIncludeData,
   });
 };

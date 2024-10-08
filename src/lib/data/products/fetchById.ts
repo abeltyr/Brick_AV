@@ -2,6 +2,7 @@
 
 import { getPrisma } from "@/lib/utils/database";
 import { Product } from "@prisma/client";
+import { productIncludeData } from "./common/include";
 const prisma = getPrisma();
 
 export const findProductByIdAction = async (
@@ -9,12 +10,6 @@ export const findProductByIdAction = async (
 ): Promise<Product | null> => {
   return await prisma.product.findUnique({
     where: { id },
-    include: {
-      ProductPrice: {
-        where: {
-          active: true,
-        },
-      },
-    },
+    include: productIncludeData,
   });
 };

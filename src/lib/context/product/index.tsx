@@ -3,55 +3,41 @@
 import { createProductAction } from '@/lib/data/products/create';
 import { fetchProductsByCompanyIdAction } from '@/lib/data/products/fetchByCompanyId';
 import { filter, Filter, loadLimit } from '@/types/shared';
-import { ProductType } from '@/types/product';
 import React, { useCallback, useContext, useState } from "react";
-import { ProductUnit, PurchaseType, ProductType as ProductInputType } from '@prisma/client';
-import { DateRangeType, RangeType } from '@/types/common';
-import { secondsInADay } from '@/lib/utils/calendar/date';
+import { DateRangeType, RangeType } from '@/types/shared';
+import { defaultDateRange } from '@/lib/utils/calendar/date';
+import { ProductInputType, ProductType } from '@/types/product';
 
 
 const initialValues: {
-    products: { [id: string]: ProductType[] };
+    loading: boolean;
+    error: boolean;
+    isLoading: boolean,
     loadMoreData: boolean;
-    fetchingProducts: boolean;
-    priceRange: RangeType;
-    initialLoading: boolean;
-    dateRange: DateRangeType;
-    createProduct: ({ }: {
-        name: string;
-        description?: string;
-        unit: ProductUnit,
-        unitPrice: number;
-        purchaseType: PurchaseType;
-        type: ProductInputType,
-        companyId: string;
-    }) => Promise<ProductType | null>;
+    products: { [id: string]: ProductType[] };
     fetchProducts: ({ companyId }: { companyId: string }) => void;
     getProduct: ({ companyId }: { companyId: string }) => void;
+
+    createProduct: ({ }: ProductInputType) => Promise<ProductType | null>;
+
+    priceRange: RangeType | null;
     setPriceRange: (value: RangeType) => void
+    dateRange: DateRangeType | null;
     setDateRange: (value: DateRangeType) => void
 } = {
-    products: {},
+    loading: true,
+    error: false,
     loadMoreData: true,
-    fetchingProducts: true,
-    initialLoading: true,
-    priceRange: {},
-    dateRange: {
-        startDate: new Date(new Date().getTime() - secondsInADay * 1000),
-        endDate: new Date(),
-    },
-    createProduct: async ({ }: {
-        name: string;
-        description?: string;
-        unit: ProductUnit,
-        unitPrice: number;
-        purchaseType: PurchaseType;
-        type: ProductInputType,
-        companyId: string;
-    }): Promise<ProductType | null> => { return null },
+    isLoading: false,
+    products: {},
     fetchProducts: ({ }: { companyId: string }) => { },
     getProduct: ({ }: { companyId: string }) => { },
+
+    createProduct: async ({ }: ProductInputType): Promise<ProductType | null> => { return null },
+
+    priceRange: null,
     setPriceRange: (value: RangeType) => { },
+    dateRange: null,
     setDateRange: (value: DateRangeType) => { }
 };
 
@@ -65,25 +51,27 @@ const useProducts = () => useContext(ProductsContext);
 
 const ProductsProvider: React.FC<Props> = ({ children }) => {
     const [products, setProducts] = useState<{ [id: string]: ProductType[] }>({});
+
     const [loadMoreData, setLoadMoreData] = useState<boolean>(true);
-    const [fetchingProducts, setFetchingProducts] = useState<boolean>(false);
-    const [initialLoading, setInitialLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<boolean>(false);
     const [priceRange, setPriceRange] = useState<RangeType>({});
+    const [dateRange, setDateRange] = useState<DateRangeType>({ ...defaultDateRange });
 
-    const [dateRange, setDateRange] = useState<DateRangeType>({
-        startDate: new Date(new Date().getTime() - secondsInADay * 1000),
-        endDate: new Date(),
-    });
 
-    const createProduct = async ({ name, description, unit, type, unitPrice, purchaseType, companyId }: {
-        name: string;
-        description?: string;
-        unit: ProductUnit,
-        unitPrice: number;
-        purchaseType: PurchaseType;
-        type: ProductInputType,
-        companyId: string;
-    }): Promise<ProductType | null> => {
+    const createProduct = async (
+        {
+            name,
+            description,
+            unit,
+            type,
+            unitPrice,
+            purchaseType,
+            companyId,
+            chartOfAccountId
+        }: ProductInputType
+    ): Promise<ProductType | null> => {
         try {
             const productsData = { ...products };
             const newProduct = await createProductAction({
@@ -94,6 +82,7 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
                 unitPrice,
                 purchaseType,
                 type,
+                chartOfAccountId
             });
             productsData[companyId] = [newProduct, ...productsData[companyId]];
             setProducts(productsData);
@@ -105,7 +94,7 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
 
     const getProduct = useCallback(
         async ({ companyId }: { companyId: string }) => {
-            setInitialLoading(true);
+            setLoading(true);
             try {
                 const newProducts = await fetchProductsByCompanyIdAction({
                     companyId,
@@ -115,6 +104,7 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
                         dateRange
                     },
                 });
+                console.log("newProducts", newProducts)
                 const productsData = { ...products };
                 productsData[companyId] = [...newProducts];
                 if (newProducts.length < loadLimit) {
@@ -123,18 +113,20 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
                     setLoadMoreData(true);
                 }
                 setProducts(productsData);
+                setLoading(false);
             } catch (e) {
                 console.log(e);
+                setLoading(false);
+                setError(true);
             }
-            setInitialLoading(false);
         },
         [dateRange, priceRange, products],
     );
 
     const fetchProducts = useCallback(
         async ({ companyId }: { companyId: string }) => {
-            if (!fetchingProducts) {
-                setFetchingProducts(true);
+            if (!isLoading) {
+                setIsLoading(true);
                 try {
                     const filter: Filter = {
                         limit: loadLimit,
@@ -163,30 +155,32 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
                     if (newProducts.length < loadLimit) {
                         setLoadMoreData(false);
                     }
+                    setIsLoading(false);
                 } catch (e) {
                     console.log(e);
-                    alert("e");
+                    setIsLoading(false);
+                    setError(true);
                 }
-                setFetchingProducts(false);
             }
         },
-        [fetchingProducts, products, priceRange],
+        [dateRange, isLoading, priceRange, products],
     );
 
     return (
         <ProductsContext.Provider
             value={{
-                products,
-                initialLoading,
+                loading,
+                error,
+                isLoading,
                 loadMoreData,
-                fetchingProducts,
+                products,
                 fetchProducts,
                 createProduct,
                 getProduct,
                 priceRange,
                 setPriceRange,
                 dateRange,
-                setDateRange
+                setDateRange,
             }}
         >
             {children}

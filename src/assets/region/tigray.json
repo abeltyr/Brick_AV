@@ -1,0 +1,72 @@
+[
+  {
+    "id": 117,
+    "parent_id": 11,
+    "name": "Central Tigray",
+    "slug": "central-tigray",
+    "parent_ids": [
+      11
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 118,
+    "parent_id": 11,
+    "name": "East Tigray",
+    "slug": "east-tigray",
+    "parent_ids": [
+      11
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 119,
+    "parent_id": 11,
+    "name": "North West Tigray",
+    "slug": "north-west-tigray",
+    "parent_ids": [
+      11
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 120,
+    "parent_id": 11,
+    "name": "South Tigray",
+    "slug": "south-tigray",
+    "parent_ids": [
+      11
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 121,
+    "parent_id": 11,
+    "name": "South East Tigray",
+    "slug": "south-east-tigray",
+    "parent_ids": [
+      11
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 122,
+    "parent_id": 11,
+    "name": "West Tigray",
+    "slug": "west-tigray",
+    "parent_ids": [
+      11
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 123,
+    "parent_id": 11,
+    "name": "Mekelle",
+    "slug": "mekelle",
+    "parent_ids": [
+      11
+    ],
+    "is_popular": false
+  }
+]

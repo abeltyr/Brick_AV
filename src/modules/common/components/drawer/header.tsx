@@ -8,14 +8,14 @@ import { LanguageTranslator } from '@/modules/language/components'
 export const DrawerSheetHeader = ({ title, description }: { title: string, description?: string }) => {
     return (
         <div className='absolute w-full z-20 top-0'>
-            <div className='flex justify-between p-5 px-6 items-center w-full bg-background text-foreground '>
+            <div className='flex justify-between p-5 px-6 items-start w-full bg-background text-foreground '>
                 <div className='flex flex-col gap-1'>
-                    <p className='font-black text-2xl text-foreground'>
+                    <p className='font-black text-3xl text-foreground'>
                         <LanguageTranslator>
                             {title}
                         </LanguageTranslator>
                     </p>
-                    <p className='text-tertiary text-sm font-normal max-w-[400px]'>
+                    <p className='text-[#78716C] text-sm font-normal max-w-[520px]'>
                         <LanguageTranslator>
                             {description}
                         </LanguageTranslator>

@@ -1,238 +1,107 @@
 
-import { purchaseFormSchema } from '@/lib/form/purchase'
 import { LanguageTranslator } from '@/modules/language/components'
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/modules/ui/card"
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/modules/ui/form'
-import { Input } from "@/modules/ui/input"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/modules/ui/select"
-import { productInputType, productInputUnit, purchaseInputType } from '@/types/product'
-import Decimal from 'decimal.js'
-import { UseFormReturn } from 'react-hook-form'
-import { z } from 'zod'
+import { productInputType, productInputUnit, purchaseInputType } from '@/lib/form/product/data'
+import { SelectInput } from '@/modules/common/components/input/select'
+import { useAddPurchases } from '@/lib/context/purchase/addPurchase'
+import { NormalInput } from '@/modules/common/components/input/normal'
+import { Button } from '@/modules/ui/button'
+import { NormalTextAreaInput } from '@/modules/common/components/input/textArea'
 
 
 
-export default function PurchaseDeclarationAdjustmentForm({ form, beforeTax, totalQuantity }: {
-    form: UseFormReturn<z.infer<typeof purchaseFormSchema>>
-    totalQuantity: number,
-    beforeTax: Decimal
-}) {
+export default function PurchaseGebiwochReportForm() {
+
+    const { form, totalQuantity, taxableAmount } = useAddPurchases();
+
     return (
-        <Card className=''>
-            <CardHeader>
-                <CardTitle>
+        <div className={`w-full px-6 flex flex-col gap-8`}>
+
+            <div>
+                <p className='text-2xl font-bold'>
                     <LanguageTranslator>
-                        Purchase Gebiwoch adjustment
+                        Gebiwoch Report Data
                     </LanguageTranslator>
-                </CardTitle>
-                <CardDescription>
+                </p>
+                <p className='text-sm font-light text-[#71717A]'>
                     <LanguageTranslator>
                         This is the data that will be setup on the gebiwoch csv export data
                     </LanguageTranslator>
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
+                </p>
+            </div>
+            <div>
                 <div className="grid gap-6">
                     <div className=" gap-3 flex justify-between">
-
                         <div className="flex-1">
-                            <FormField
-                                control={form.control}
-                                name="purchaseType"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className='text-sm'>
-                                            <LanguageTranslator>
-                                                Purchase Type
-                                            </LanguageTranslator>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Select
-                                                {...field}
-                                                onValueChange={field.onChange}
-                                                defaultValue={field.value}
-                                                value={field.value}
-                                            >
-                                                <SelectTrigger id="PurchaseType" aria-label="Purchase Type">
-                                                    <SelectValue placeholder="Select purchase type" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {purchaseInputType.map((purchaseTypeData, index) => {
-                                                        return (
-                                                            <SelectItem value={purchaseTypeData.value} key={index}>
-                                                                {purchaseTypeData.data}
-                                                            </SelectItem>
-                                                        )
-                                                    })}
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                            <SelectInput
+                                form={form}
+                                name={`gebiwoch.purchaseType`}
+                                selectTitle={{
+                                    name: "Purchase Type",
+                                    value: "PurchaseType"
+                                }}
+                                values={[...purchaseInputType]}
+                                title='Purchase Type'
                             />
                         </div>
                         <div className="flex-1">
-                            <FormField
-                                control={form.control}
-                                name="type"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className='text-sm'>
-                                            <LanguageTranslator>
-                                                Product Type
-                                            </LanguageTranslator></FormLabel>
-                                        <FormControl>
-                                            <Select
-                                                {...field}
-                                                onValueChange={field.onChange}
-                                                defaultValue={field.value}
-                                                value={field.value}
-                                            >
-                                                <SelectTrigger id="ProductType" aria-label="Product Type">
-                                                    <SelectValue placeholder="Product Type" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {productInputType.map((productInputData, index) => {
-                                                        return (
-                                                            <SelectItem value={productInputData} key={index}>
-                                                                {productInputData}
-                                                            </SelectItem>
-                                                        )
-                                                    })}
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                            <SelectInput
+                                form={form}
+                                name={`gebiwoch.productCategoryType`}
+                                selectTitle={{
+                                    name: "Product Type",
+                                    value: "ProductType"
+                                }}
+                                values={[...productInputType]}
+                                title='Product Type'
                             />
                         </div>
                     </div>
                     <div className=" gap-3 flex justify-between">
                         <div className="flex-1">
-                            <FormField
-                                control={form.control}
-                                name="unit"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className='text-sm'>
-                                            <LanguageTranslator>
-                                                Purchase Unit
-                                            </LanguageTranslator></FormLabel>
-                                        <FormControl>
-                                            <Select
-                                                {...field}
-                                                onValueChange={field.onChange}
-                                                defaultValue={field.value}
-                                                value={field.value}
-                                            >
-                                                <SelectTrigger id="PurchaseUnit" aria-label="Purchase Unit">
-                                                    <SelectValue placeholder="Purchase Unit" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {productInputUnit.map((productUnitData, index) => {
-                                                        return (
-                                                            <SelectItem value={productUnitData} key={index}>
-                                                                {productUnitData}
-                                                            </SelectItem>
-                                                        )
-                                                    })}
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                            <SelectInput
+                                form={form}
+                                name={"gebiwoch.unit"}
+                                selectTitle={{
+                                    name: "Product Unit",
+                                    value: "ProductUnit"
+                                }}
+                                values={[...productInputUnit]}
+                                title='Product Unit'
                             />
                         </div>
                         <div className="flex-1">
-                            <FormField
-                                control={form.control}
-                                name="description"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className='text-sm'>
-                                            <LanguageTranslator>
-                                                Purchase Description
-                                            </LanguageTranslator>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input   {...field}
-                                                type="text"
-                                                step="0.01"
-                                                className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0 ring-0 text-sm font-light placeholder:text-neutral-400' />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <div className=" gap-3 flex justify-between">
+                                <div className='flex flex-col gap-3 flex-1'>
+                                    <p className='text-sm font-medium'>
+                                        Quantity
+                                    </p>
+                                    <Button variant={"outline"} disabled className="flex-1 flex justify-start">
+                                        {totalQuantity}
+                                    </Button>
+                                </div>
+                                <div className='flex flex-col gap-3 flex-1'>
+                                    <p className='text-sm font-medium'>
+                                        Unit Price
+                                    </p>
+                                    <Button variant={"outline"} disabled className="flex-1 flex justify-start">
+                                        {taxableAmount.toNumber().toLocaleString('en-US')}
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className=" gap-3 flex justify-between">
+                    <NormalTextAreaInput
+                        form={form}
+                        name="gebiwoch.description"
+                        title='Purchase Description'
+                        placeholder="Description to be added to purchase on the report"
+                        disabled={false}
+                    />
 
-                        <div className="flex-1">
-                            <FormField
-                                name="totalQuantity"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className='text-sm'>
-                                            <LanguageTranslator>
-                                                Quantity
-                                            </LanguageTranslator>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                value={totalQuantity}
-                                                readOnly
-                                                type="text"
-                                                step="0.01"
-                                                className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0 ring-0 text-sm font-light placeholder:text-neutral-400' />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                        <div className="flex-1">
-                            <FormField
-                                name="unitPrice"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className='text-sm'>
-                                            <LanguageTranslator>
-                                                Unit Price
-                                            </LanguageTranslator>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                value={beforeTax.toString()}
-                                                readOnly
-                                                type="text"
-                                                step="0.01"
-                                                className='px-4 py-3 focus:ring-0 focus:outline-none focus:border-0 ring-0 text-sm font-light placeholder:text-neutral-400' />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                    </div>
+
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     )
 }

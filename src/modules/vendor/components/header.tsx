@@ -8,12 +8,14 @@ import { Sheet, SheetContent, SheetTrigger } from '@/modules/ui/sheet'
 import React from 'react'
 import { AddVendorSection } from '../templates/add'
 import { useDrawerManager } from '@/lib/context/drawer/drawer'
+import { useVendors } from '@/lib/context/vendor'
 
 
 
 export const VendorHeader = () => {
 
     const { addVendorDrawer, setAddVendorDrawer } = useDrawerManager()
+    const { setBusiness } = useVendors();
 
     return (
         <section className='w-full flex justify-between items-center'>
@@ -25,7 +27,9 @@ export const VendorHeader = () => {
             >
                 <SheetTrigger asChild>
                     <Button className='flex gap-2 p-x4 py-2'
-                        onClick={() => { }}
+                        onClick={() => {
+                            setBusiness(null)
+                        }}
                     >
                         <AddSVG />
                         <LanguageTranslator>
@@ -33,7 +37,7 @@ export const VendorHeader = () => {
                         </LanguageTranslator>
                     </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="max-w-[400px] min-w-[50%] p-0 flex flex-col h-full ">
+                <SheetContent side="right" className="max-w-[400px] min-w-[800px] p-0 flex flex-col h-full ">
                     <AddVendorSection />
                 </SheetContent>
             </Sheet>

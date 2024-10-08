@@ -1,20 +1,24 @@
 import { z } from 'zod';
+import { zVendorInputTaxType } from '../product';
 
-export const vendorFormSchema = z.object({
-    tinNumber: z.string().min(10, {
-        message: "Please Provide a valid TIN number. ",
-    }),
-    name: z.string().optional(),
-    companyName: z.string().optional(),
-    vatNumber: z.string().optional(),
-    email: z.string().email({
-        message: "Please provided a valid email.",
-    }).optional(),
-    phoneNumber: z.string().optional(),
-    region: z.string().optional(),
-    city: z.string().optional(),
-    woreda: z.string().optional(),
-    houseNumber: z.string().optional(),
+export const vendorSchema = z.object({
+    isRegistered: z.enum(['yes', 'no']),
+    tin: z.string().optional(),
+    name: z.string().min(1, 'Provide a valid vendor name'),
     description: z.string().optional(),
+    email: z.string().email().optional(),
+    taxType: zVendorInputTaxType,
+    phoneNumber: z.string()
+        .regex(/^(9|7)\d{8}$/, 'Invalid Ethiopian phone number')
+        .or(z.literal('').optional())
+        .optional(),
+    vat: z.string().optional(),
+}).refine((data) => {
+    if (data.isRegistered === 'yes') {
+        return data.tin && data.tin.length === 10;
+    }
+    return true;
+}, {
+    message: "TIN number is required for registered businesses",
+    path: ['tin']
 })
-

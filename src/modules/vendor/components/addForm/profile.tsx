@@ -31,7 +31,7 @@ export default function ProfileForm({ form }: { form: any }) {
                     <div className=" gap-3">
                         <FormField
                             control={form.control}
-                            name="tinNumber"
+                            name="tin"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className='text-sm'>

@@ -4,16 +4,16 @@ import React, { useEffect } from 'react'
 import { ProductHeader } from '../components/header'
 import { ProductEmptyState } from '@/modules/empty/templates/product'
 import { useProducts } from '@/lib/context/product'
-import { useAuth } from '@/lib/context/auth/user'
 import ProductsTableList from '../components/table'
 import { Skeleton } from '@/modules/ui/skeleton'
 import { CalendarDateRangePicker } from '@/modules/common/components/dateRange'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/modules/ui/select'
+import { useCompany } from '@/lib/context/account'
 
 export const ProductListTempo = () => {
 
-    const { products, getProduct, initialLoading } = useProducts()
-    const { currentCompany } = useAuth();
+    const { products, getProduct, loading } = useProducts()
+    const { currentCompany } = useCompany();
 
 
     useEffect(() => {
@@ -21,7 +21,8 @@ export const ProductListTempo = () => {
             if (!products[currentCompany.companyId])
                 getProduct({ companyId: currentCompany.companyId })
         }
-    }, [currentCompany, getProduct, products])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentCompany])
 
 
     return (
@@ -32,25 +33,22 @@ export const ProductListTempo = () => {
                 <div className='flex gap-4'>
                     <Select>
                         <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Select time period" />
+                            <SelectValue placeholder="Select Time Period" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="today">Today</SelectItem>
-                            <SelectItem value="last7days">Last 7 days</SelectItem>
-                            <SelectItem value="last4weeks">Last 4 weeks</SelectItem>
-                            <SelectItem value="last3months">Last 3 months</SelectItem>
-                            <SelectItem value="last12months">Last 12 months</SelectItem>
-                            <SelectItem value="monthtodate">Month to date</SelectItem>
-                            <SelectItem value="quartertodate">Quarter to date</SelectItem>
-                            <SelectItem value="yeartodate">Year to date</SelectItem>
-                            <SelectItem value="alltime">All time</SelectItem>
+                            <SelectItem value="Weekly">Last 7 days</SelectItem>
+                            <SelectItem value="Bi-Weekly">Last 2 days</SelectItem>
+                            <SelectItem value="Monthly">Last Month</SelectItem>
+                            <SelectItem value="Quarterly">Last 4 months</SelectItem>
+                            <SelectItem value="Yearly">Last 12 months</SelectItem>
+                            <SelectItem value="Custom Range">Custom Range</SelectItem>
                         </SelectContent>
                     </Select>
 
                     <CalendarDateRangePicker />
                 </div>
 
-                {initialLoading ?
+                {loading ?
                     <div className='w-full h-full'>
                         <Skeleton className='w-full h-[12.5%] rounded-md' />
                         <div className='w-full py-1' />

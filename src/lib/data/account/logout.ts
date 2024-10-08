@@ -7,8 +7,11 @@ export const logoutAction = async () => {
 
   const response = await supabase.auth.signOut();
 
+  console.log("response", response);
+
   if (response.error) {
-    throw new Error("");
+    console.log(response.error);
+    throw new Error();
   }
 
   return null;

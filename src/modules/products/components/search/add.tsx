@@ -11,11 +11,10 @@ import { useAuth } from '@/lib/context/auth/user'
 import { useProducts } from '@/lib/context/product'
 import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
 import { useDrawerManager } from '@/lib/context/drawer/drawer'
-import { productFormSchema } from '@/lib/form/product'
+import { useCompany } from '@/lib/context/account'
 import { ProductType } from '@/types/product'
-import { Decimal } from 'decimal.js'
-import ProductDetailForm from '@/modules/products/components/add/productDetailForm'
-import ProductTypeForm from '@/modules/products/components/add/productTypeForm'
+import { productSchema } from '@/lib/form/product'
+import { GeneralProductForm } from '@/modules/common/components/form/generalProductForm'
 
 
 export const DrawerAddProductSection = ({
@@ -29,20 +28,18 @@ export const DrawerAddProductSection = ({
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
 
-    const { currentCompany } = useAuth();
+    const { currentCompany } = useCompany();
     const { createProduct } = useProducts();
-    const form = useForm<z.infer<typeof productFormSchema>>({
-        resolver: zodResolver(productFormSchema),
+    const form = useForm<z.infer<typeof productSchema>>({
+        resolver: zodResolver(productSchema),
         defaultValues: {
-            name: "Pen",
-            purchaseType: "taxableLocalCapitalAssets",
-            type: "Service",
-            unit: "LIT",
-            "unitPrice": 4200,
+
+
         },
     })
 
-    const onSubmit = async (values: z.infer<typeof productFormSchema>) => {
+
+    const onSubmit = async (values: z.infer<typeof productSchema>) => {
         if (!isLoading) {
             setIsLoading(true)
             try {
@@ -54,31 +51,46 @@ export const DrawerAddProductSection = ({
                         unitPrice: values.unitPrice,
                         purchaseType: values.purchaseType,
                         type: values.type,
-                        companyId: currentCompany.companyId
+                        companyId: currentCompany.companyId,
+                        chartOfAccountId: values.chartOfAccountId,
+
                     })
                     if (product)
                         updateProduct([product]);
-
                     setPurchaseProductListingDrawer(false);
                     toast({
                         title: "Product Created",
                         description: (
                             <div className="mt-2 w-full rounded-md p-4 bg-green-300 text-foreground font-medium text-sm">
-                                New Product has been added to your company data set.
+                                New Product has been added to your inventory data set.
                             </div>
                         ),
                     })
                 }
-            } catch (e) {
-                console.log(e)
+            } catch (error: any) {
+                console.log("message", error.message, error.message.includes('Unique constraint failed'))
+                let message = {
+                    title: "Chart of account creation failed",
+                    description: "An error occurred. Please try again. If the issue persists, please contact us here."
+                }
+
+
+                if (error.message.includes('Unique constraint failed')) {
+                    message = {
+                        title: "Error: Chart of account with this Account Id Already exist",
+                        description: "There's already a record with the same Account Id. Please check your Account Id input or check a your chart of account list."
+                    }
+                }
+
+
                 toast({
-                    title: "Error Signing In",
+                    title: message.title,
                     description: (
-                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue persists, please contact us here.
+                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-200 font-medium text-sm">
+                            {message.description}
                         </div>
                     ),
-                })
+                });
             }
             setIsLoading(false)
         }
@@ -87,10 +99,9 @@ export const DrawerAddProductSection = ({
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full h-full relative pb-20" >
+            <div className="space-y-2 w-full h-full relative pb-20" >
                 <div className='flex flex-col pb-20 flex-1 relative w-full h-full gap-6 overflow-y-auto p-6'>
-                    <ProductDetailForm form={form} />
-                    <ProductTypeForm form={form} />
+                    <GeneralProductForm form={form} />
                 </div>
 
                 <DrawerSheetFooter
@@ -100,8 +111,11 @@ export const DrawerAddProductSection = ({
                         event.preventDefault();
                         setIsAddingProduct(false)
                     }}
+                    createFunction={() => {
+                        form.handleSubmit(onSubmit)()
+                    }}
                 />
-            </form>
+            </div>
         </Form>
 
 

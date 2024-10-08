@@ -4,26 +4,8 @@ import { getPrisma } from "@/lib/utils/database";
 import { Purchase } from "@prisma/client";
 const prisma = getPrisma();
 
-export const findPurchaseByIdAction = async (
-  id: string,
-): Promise<Purchase | null> => {
-  return await prisma.purchase.findUnique({
-    where: { id },
-    include: {
-      PurchaseProduct: {
-        include: {
-          product: true,
-        },
-      },
-      vendor: {
-        include: {
-          profile: {
-            include: {
-              address: true,
-            },
-          },
-        },
-      },
-    },
-  });
+export const findPurchaseReportByIdAction = async (id: string) => {
+  // return await prisma.purchaseReport.findUnique({
+  //   where: { id },
+  // });
 };

@@ -1,0 +1,92 @@
+[
+  {
+    "id": 47,
+    "parent_id": 7,
+    "name": "Amir-Nur",
+    "slug": "amir-nur",
+    "parent_ids": [
+      7
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 48,
+    "parent_id": 7,
+    "name": "Abadir",
+    "slug": "abadir",
+    "parent_ids": [
+      7
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 49,
+    "parent_id": 7,
+    "name": "Shenkor",
+    "slug": "shenkor",
+    "parent_ids": [
+      7
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 50,
+    "parent_id": 7,
+    "name": "Jin'Eala",
+    "slug": "jin-eala",
+    "parent_ids": [
+      7
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 51,
+    "parent_id": 7,
+    "name": "Aboker",
+    "slug": "aboker",
+    "parent_ids": [
+      7
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 52,
+    "parent_id": 7,
+    "name": "Hakim",
+    "slug": "hakim",
+    "parent_ids": [
+      7
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 53,
+    "parent_id": 7,
+    "name": "Sofi",
+    "slug": "sofi",
+    "parent_ids": [
+      7
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 54,
+    "parent_id": 7,
+    "name": "Erer",
+    "slug": "erer",
+    "parent_ids": [
+      7
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 55,
+    "parent_id": 7,
+    "name": "Dire-Teyara",
+    "slug": "dire-teyara",
+    "parent_ids": [
+      7
+    ],
+    "is_popular": false
+  }
+]

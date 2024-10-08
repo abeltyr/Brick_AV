@@ -1,110 +1,36 @@
 'use client'
 
-import { createPurchaseAction } from '@/lib/data/purchase/create';
 import { fetchPurchasesByCompanyIdAction } from '@/lib/data/purchase/fetchByCompanyId';
 import { filter, Filter, loadLimit } from '@/types/shared';
-import { PurchaseReportType, PurchaseType } from '@/types/purchase';
+import { PurchaseType } from '@/types/purchase';
 import React, { useCallback, useContext, useState } from "react";
-import Decimal from 'decimal.js';
-import { ProductUnit } from '@prisma/client';
-import { ProductInputType, PurchaseInputType } from '@/types/product'
-import { toEthiopian, } from '@/lib/utils/calendar';
-import { fetchPurchaseReportAction } from '@/lib/data/purchaseReport/fetchByCompanyId';
-import { boolean } from 'zod';
-import { DateRangeType } from '@/types/common';
-import { secondsInADay } from '@/lib/utils/calendar/date';
+import { DateRangeType } from '@/types/shared';
+import { defaultDateRange } from '@/lib/utils/calendar/date';
 
 const initialValues: {
-    purchases: { [id: string]: PurchaseType[] };
-    purchasesReport: { [id: string]: PurchaseReportType[] };
+    loading: boolean;
+    error: boolean;
+    isLoading: boolean,
     loadMoreData: boolean;
-    setupPurchasesData: ({ dataPurchases, companyId }: { dataPurchases: PurchaseType[], companyId: string }) => void;
+    purchases: { [id: string]: PurchaseType[] };
     fetchPurchases: ({ companyId }: { companyId: string }) => void;
     getPurchase: ({ companyId }: {
         companyId: string,
-        yearData: number,
-        monthData: number,
     }) => void;
-    fetchingPurchases: boolean;
-    initialLoading: boolean;
-    createPurchase: ({ }: {
-        companyId: string;
-        data: {
-            vendorId: string;
-            date: Date;
-            MRCNumber?: string;
-            VatReceiptNumber?: string;
-            invoiceNumber?: string;
-            productType: ProductInputType;
-            purchaseType: PurchaseInputType;
-            unit: ProductUnit;
-            description: string,
-            purchaseProducts: {
-                productId: string;
-                type: ProductInputType;
-                purchaseType: PurchaseInputType;
-                unit: ProductUnit;
-                unitPrice: number;
-                quantity: number;
-            }[];
-
-        }
-    }) => void;
-    year: number,
-    updateYear: (value: number) => void
-    month: number,
-    updateMonth: (value: number) => void
-    getPurchaseReport: ({ companyId }: {
-        companyId: string,
-        yearData: number,
-        monthData: number,
-    }) => void;
-    fetchingPurchaseReport: boolean
+    dateRange: DateRangeType,
+    setDateRange: (date: DateRangeType,) => void
 } = {
-    purchases: {},
-    purchasesReport: {},
+    loading: true,
+    error: false,
     loadMoreData: true,
-    setupPurchasesData: ({ }: { dataPurchases: PurchaseType[], companyId: string }) => { },
+    isLoading: false,
+    purchases: {},
     fetchPurchases: ({ }: { companyId: string }) => { },
     getPurchase: ({ }: {
         companyId: string,
-        yearData: number,
-        monthData: number,
     }) => { },
-    fetchingPurchases: true,
-    initialLoading: true,
-    createPurchase: ({ }: {
-        companyId: string;
-        data: {
-            vendorId: string;
-            date: Date;
-            MRCNumber?: string;
-            VatReceiptNumber?: string;
-            invoiceNumber?: string;
-            productType: ProductInputType;
-            purchaseType: PurchaseInputType;
-            unit: ProductUnit;
-            purchaseProducts: {
-                productId: string;
-                type: ProductInputType;
-                purchaseType: PurchaseInputType;
-                unit: ProductUnit;
-                unitPrice: number;
-                quantity: number;
-            }[];
-
-        }
-    }) => { },
-    year: 2016,
-    updateYear: (value: number) => { },
-    month: 12,
-    updateMonth: (value: number) => { },
-    getPurchaseReport: ({ companyId }: {
-        companyId: string,
-        yearData: number,
-        monthData: number,
-    }) => { },
-    fetchingPurchaseReport: true
+    dateRange: { ...defaultDateRange },
+    setDateRange: (date: DateRangeType,) => { }
 };
 
 
@@ -118,137 +44,23 @@ const PurchasesContext = React.createContext(initialValues);
 const usePurchases = () => useContext(PurchasesContext);
 
 const PurchasesProvider: React.FC<Props> = ({ children }) => {
-    const georgiaYear = new Date();
-    const ethiopiaYear = toEthiopian({
-        date: 1,
-        month: georgiaYear.getMonth() + 1,
-        year: georgiaYear.getFullYear()
-    });
 
     const [purchases, setPurchases] = useState<{ [id: string]: PurchaseType[] }>({});
     const [loadMoreData, setLoadMoreData] = useState<boolean>(true);
-    const [fetchingPurchases, setFetchingPurchases] = useState<boolean>(false);
-    const [initialLoading, setInitialLoading] = useState<boolean>(true);
-    const [year, setYear] = useState<number>(ethiopiaYear ? ethiopiaYear.year : 2016);
-    const [month, setMonth] = useState<number>(ethiopiaYear ? ethiopiaYear.month : 12);
-
-    const [dateRange, setDateRange] = useState<DateRangeType>({
-        startDate: new Date(new Date().getTime() - secondsInADay * 1000),
-        endDate: new Date(),
-    });
-
-    const [purchasesReport, setPurchasesReport] = useState<{ [id: string]: PurchaseReportType[] }>({});
-    const [fetchingPurchaseReport, setFetchingPurchaseReport] = useState<boolean>(false);
-
-    const getPurchaseReport = useCallback(
-        async ({ companyId, yearData, monthData }: {
-            companyId: string,
-            yearData: number,
-            monthData: number,
-        }) => {
-            setFetchingPurchaseReport(true);
-            try {
-                const purchaseReport = await fetchPurchaseReportAction({
-                    companyId,
-                    year: yearData,
-                    month: monthData
-                });
-                const purchasesData = { ...purchasesReport };
-                purchasesData[`${companyId}_${yearData}_${monthData}`] = [...purchaseReport];
-
-                setPurchasesReport(purchasesData);
-            } catch (e) {
-                console.log(e);
-            }
-            setFetchingPurchaseReport(false);
-        },
-        [purchasesReport],
-    );
-
-
-
-    const updateYear = (value: number) => {
-        setYear(value);
-    }
-
-    const updateMonth = (value: number) => {
-        setMonth(value);
-    }
-
-
-
-    const setupPurchasesData = ({ dataPurchases, companyId }: { dataPurchases: PurchaseType[], companyId: string }) => {
-        const purchasesData = { ...purchases };
-        purchasesData[companyId] = dataPurchases;
-        setPurchases(purchasesData);
-
-        if (dataPurchases.length < loadLimit) {
-            setLoadMoreData(false);
-        } else {
-            setLoadMoreData(true);
-        }
-        setFetchingPurchases(false);
-    };
-
-    const createPurchase = async ({ data, companyId }: {
-        companyId: string;
-        data: {
-            vendorId: string;
-            date: Date;
-            MRCNumber?: string;
-            VatReceiptNumber?: string;
-            invoiceNumber?: string;
-            productType: ProductInputType;
-            purchaseType: PurchaseInputType;
-            unit: ProductUnit;
-            description: string;
-            purchaseProducts: {
-                productId: string;
-                type: ProductInputType;
-                purchaseType: PurchaseInputType;
-                unit: ProductUnit;
-                unitPrice: number;
-                quantity: number;
-            }[];
-        }
-    }) => {
-        try {
-            const purchasesData = { ...purchases };
-            const newPurchase = await createPurchaseAction({
-                companyId,
-                ...data
-            });
-            if (newPurchase) {
-
-                if (purchasesData[companyId]) {
-                    purchasesData[companyId] = [newPurchase.purchase, ...purchasesData[companyId]];
-                } else {
-                    purchasesData[companyId] = [newPurchase.purchase];
-                }
-                setPurchases(purchasesData);
-
-                return newPurchase;
-            }
-        } catch (e) {
-            console.log(e)
-            throw new Error("Error Creating the purchase");
-        }
-    };
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<boolean>(false);
+    const [dateRange, setDateRange] = useState<DateRangeType>({ ...defaultDateRange });
 
     const getPurchase = useCallback(
-        async ({ companyId, yearData, monthData }: {
+        async ({ companyId }: {
             companyId: string,
-            yearData: number,
-            monthData: number,
-
         }) => {
-            setInitialLoading(true);
+            setLoading(true);
             try {
                 const newPurchases = await fetchPurchasesByCompanyIdAction({
                     companyId,
                     filter,
-                    year: yearData,
-                    month: monthData
                 });
                 const purchasesData = { ...purchases };
                 purchasesData[companyId] = [...newPurchases];
@@ -258,18 +70,20 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                     setLoadMoreData(true);
                 }
                 setPurchases(purchasesData);
+                setLoading(false);
             } catch (e) {
                 console.log(e);
+                setLoading(false);
+                setError(true);
             }
-            setInitialLoading(false);
         },
         [purchases],
     );
 
     const fetchPurchases = useCallback(
         async ({ companyId }: { companyId: string }) => {
-            if (!fetchingPurchases) {
-                setFetchingPurchases(true);
+            if (!isLoading) {
+                setIsLoading(true);
                 try {
                     const filter: Filter = {
                         limit: loadLimit,
@@ -282,8 +96,6 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                     const newPurchases = await fetchPurchasesByCompanyIdAction({
                         companyId,
                         filter,
-                        year,
-                        month
                     });
 
                     if (purchasesData[companyId]) {
@@ -296,34 +108,29 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                     if (newPurchases.length < loadLimit) {
                         setLoadMoreData(false);
                     }
+                    setIsLoading(false);
                 } catch (e) {
                     console.log(e);
-                    alert("e");
+                    setIsLoading(false);
+                    setError(true);
                 }
-                setFetchingPurchases(false);
             }
         },
-        [fetchingPurchases, purchases, year, month],
+        [isLoading, purchases],
     );
 
     return (
         <PurchasesContext.Provider
             value={{
                 purchases,
-                initialLoading,
+                loading,
+                error,
                 loadMoreData,
-                setupPurchasesData,
-                fetchingPurchases,
                 fetchPurchases,
-                createPurchase,
                 getPurchase,
-                year,
-                month,
-                updateMonth,
-                updateYear,
-                getPurchaseReport,
-                purchasesReport,
-                fetchingPurchaseReport
+                dateRange,
+                setDateRange,
+                isLoading
             }}
         >
             {children}

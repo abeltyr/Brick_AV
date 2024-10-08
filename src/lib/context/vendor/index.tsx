@@ -1,10 +1,12 @@
 'use client'
 
 
+import { fetchBusinessApi } from '@/lib/data/business/create';
 import { createVenderAction } from '@/lib/data/vendor/create';
 import { fetchVendorsByCompanyIdAction } from '@/lib/data/vendor/fetchByCompanyId';
+import { BusinessType } from '@/types/business';
 import { filter, Filter, loadLimit } from '@/types/shared';
-import { VendorType } from '@/types/vendor';
+import { VendorInputType, VendorType } from '@/types/vendor';
 import React, { useCallback, useContext, useState } from "react";
 
 
@@ -16,21 +18,11 @@ const initialValues: {
     getVendor: ({ companyId }: { companyId: string }) => void,
     fetchingVendors: boolean,
     initialLoading: boolean,
-    createVendor: ({ }: {
-        name?: string;
-        tinNumber: string;
-        companyName?: string;
-        vatNumber?: string;
-        email?: string;
-        phoneNumber?: string;
-        region?: string;
-        city?: string;
-        woreda?: string;
-        houseNumber?: string;
-        description?: string;
-        companyId: string;
-    }) => Promise<VendorType | null>,
+    createVendor: ({ }: VendorInputType) => Promise<VendorType | null>,
     searchVendor: ({ companyId, keyTerm }: { companyId: string, keyTerm: string }) => Promise<VendorType[]>
+    fetchBusiness: (tin: string) => Promise<BusinessType | null>
+    business: BusinessType | null,
+    setBusiness: (business: BusinessType | null) => void,
 } = {
     vendors: {},
     loadMoreData: true,
@@ -39,21 +31,11 @@ const initialValues: {
     getVendor: ({ }: { companyId: string }) => { },
     fetchingVendors: true,
     initialLoading: true,
-    createVendor: async ({ }: {
-        name?: string;
-        tinNumber: string;
-        companyName?: string;
-        vatNumber?: string;
-        email?: string;
-        phoneNumber?: string;
-        region?: string;
-        city?: string;
-        woreda?: string;
-        houseNumber?: string;
-        description?: string;
-        companyId: string;
-    }): Promise<VendorType | null> => { return null },
-    searchVendor: async ({ companyId, keyTerm }: { companyId: string, keyTerm: string }): Promise<VendorType[]> => { return [] }
+    createVendor: async ({ }: VendorInputType): Promise<VendorType | null> => { return null },
+    searchVendor: async ({ companyId, keyTerm }: { companyId: string, keyTerm: string }): Promise<VendorType[]> => { return [] },
+    fetchBusiness: async (tin: string) => { return null },
+    business: null,
+    setBusiness: (business) => { },
 };
 
 type Props = {
@@ -69,6 +51,21 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
     const [loadMoreData, setLoadMoreData] = useState<boolean>(true)
     const [fetchingVendors, setFetchingVendors] = useState<boolean>(false)
     const [initialLoading, setInitialLoading] = useState<boolean>(true)
+
+    const [business, setBusiness] = useState<BusinessType | null>(null);
+
+
+
+    const fetchBusiness = async (tin: string): Promise<BusinessType | null> => {
+        try {
+            const businessData = await fetchBusinessApi(tin);
+            setBusiness(businessData);
+            return businessData
+        } catch (e: any) {
+            console.log(e)
+            throw new Error(e)
+        }
+    }
 
 
 
@@ -91,49 +88,21 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
 
 
 
-    const createVendor = async ({ name, tinNumber, companyName, vatNumber, email, phoneNumber, region, city, woreda, houseNumber, description, companyId }: {
-        name?: string;
-        tinNumber: string;
-        companyName?: string;
-        vatNumber?: string;
-        email?: string;
-        phoneNumber?: string;
-        region?: string;
-        city?: string;
-        woreda?: string;
-        houseNumber?: string;
-        description?: string;
-        companyId: string;
-    }): Promise<VendorType | null> => {
+    const createVendor = async (data: VendorInputType): Promise<VendorType | null> => {
 
         try {
             const vendorsData = { ...vendors }
-            console.log("companyId", companyId)
             const newVendor = await createVenderAction({
-                companyId,
-                address: {
-                    city,
-                    description,
-                    houseNumber,
-                    region,
-                    woreda
-                },
-                profile: {
-                    name,
-                    companyName,
-                    phoneNumber,
-                    email,
-                    tinNumber,
-                    vatNumber,
-                }
-            })
-            vendorsData[companyId] = [newVendor, ...vendorsData[companyId]];
+                ...data,
+                businessId: business ? business.id : undefined,
+                phoneNumber: data.phoneNumber ? `+251${data.phoneNumber}` : undefined
+            }) as VendorType
+            vendorsData[data.companyId] = [newVendor, ...vendorsData[data.companyId]];
             setVendors(vendorsData);
             return newVendor;
         }
-        catch (e) {
-            console.log(e)
-            throw new Error("Error Creating the vendor")
+        catch (e: any) {
+            throw new Error(e.message)
         }
 
     };
@@ -146,7 +115,7 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
                 const newVendors = await fetchVendorsByCompanyIdAction({
                     companyId,
                     filter
-                });
+                }) as VendorType[];
                 const vendorsData = { ...vendors };
                 vendorsData[companyId] = [...newVendors]
                 if (newVendors.length < loadLimit) {
@@ -183,10 +152,11 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
                         filter
                     });
 
-                    if (vendorsData[companyId])
-                        vendorsData[companyId] = [...vendorsData[companyId], ...newVendors]
+                    if (vendorsData[companyId]) {
+                        vendorsData[companyId] = [...vendorsData[companyId] as VendorType[], ...newVendors as VendorType[]];
+                    }
                     else {
-                        vendorsData[companyId] = [...newVendors]
+                        vendorsData[companyId] = [...newVendors as VendorType[]]
                     }
 
                     setVendors(vendorsData);
@@ -211,7 +181,7 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
                 keyTerm,
                 filter
             });
-            return newVendors
+            return newVendors as VendorType[]
         },
         [],
     );
@@ -228,7 +198,10 @@ const VendorsProvider: React.FC<Props> = ({ children }) => {
                 fetchVendors,
                 createVendor,
                 getVendor,
-                searchVendor
+                searchVendor,
+                business,
+                setBusiness,
+                fetchBusiness
             }}
         >
             {children}

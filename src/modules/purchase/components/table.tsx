@@ -1,6 +1,7 @@
 "use client"
 
 import LoadingSVG from '@/assets/icons/loading'
+import { useCompany } from '@/lib/context/account'
 import { useAuth } from '@/lib/context/auth/user'
 import { usePurchases } from '@/lib/context/purchase'
 import { LanguageTranslator } from '@/modules/language/components'
@@ -26,8 +27,8 @@ import {
 
 export default function PurchasesTableList({ companyId }: { companyId: string }) {
 
-    const { getPurchase, loadMoreData, fetchingPurchases, fetchPurchases, purchases } = usePurchases();
-    const { currentCompany } = useAuth();
+    const { getPurchase, loadMoreData, isLoading, fetchPurchases, purchases, loading } = usePurchases();
+    const { currentCompany } = useCompany();
     return (
         <Card>
             <CardHeader className="px-7 ">
@@ -74,9 +75,9 @@ export default function PurchasesTableList({ companyId }: { companyId: string })
                                         {
                                             purchase &&
                                                 purchase.vendor &&
-                                                purchase.vendor.profile &&
-                                                purchase.vendor.profile.tinNumber ?
-                                                purchase.vendor.profile.tinNumber :
+                                                purchase.vendor.business &&
+                                                purchase.vendor.business.tin ?
+                                                purchase.vendor.business.tin :
                                                 "---"
                                         }
                                     </div>
@@ -84,13 +85,12 @@ export default function PurchasesTableList({ companyId }: { companyId: string })
                                 <TableCell className="hidden sm:table-cell text-center">
                                     {purchase &&
                                         purchase.vendor &&
-                                        purchase.vendor.profile &&
-                                        purchase.vendor.profile.companyName ?
-                                        purchase.vendor.profile.companyName :
+                                        purchase.vendor.name ?
+                                        purchase.vendor.name :
                                         "---"}
                                 </TableCell>
                                 <TableCell className="hidden sm:table-cell text-center">
-                                    {purchase && purchase.totalVat ? `${purchase.totalVat}` : "---"}
+                                    {purchase && purchase.taxAmount ? `${purchase.taxAmount}` : "---"}
                                 </TableCell>
                                 <TableCell className="table-cell text-center">
                                     {purchase && purchase.taxableAmount ? `${purchase.taxableAmount}` : "---"}
@@ -121,7 +121,7 @@ export default function PurchasesTableList({ companyId }: { companyId: string })
                 <div className='w-full flex justify-center'>
                     {loadMoreData && <div className='w-full flex justify-center'>
                         <Button
-                            disabled={fetchingPurchases}
+                            disabled={isLoading}
                             variant={"outline"}
                             className='px-5 py-2'
                             onClick={() => {
@@ -129,7 +129,7 @@ export default function PurchasesTableList({ companyId }: { companyId: string })
                                     fetchPurchases({ companyId: currentCompany?.companyId });
                             }}>
 
-                            {fetchingPurchases && <div className='animate-spin '>
+                            {isLoading && <div className='animate-spin '>
                                 <LoadingSVG className="h-5 w-5 stroke-[1]" />
                             </div>}
                             Load More

@@ -1,0 +1,162 @@
+[
+  {
+    "id": 77,
+    "parent_id": 9,
+    "name": "Sitti (Shinile)",
+    "slug": "sitti",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 78,
+    "parent_id": 9,
+    "name": "Fafan (Jigjiga)",
+    "slug": "fafan",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 79,
+    "parent_id": 9,
+    "name": "Jarar (Degehabur)",
+    "slug": "jarar",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 80,
+    "parent_id": 9,
+    "name": "Nogob (Fiq)",
+    "slug": "nogob",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 81,
+    "parent_id": 9,
+    "name": "Erer",
+    "slug": "erer-somali",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 82,
+    "parent_id": 9,
+    "name": "Dollo (Warder)",
+    "slug": "dollo",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 83,
+    "parent_id": 9,
+    "name": "Korahe",
+    "slug": "korahe",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 84,
+    "parent_id": 9,
+    "name": "Shabelle (Godey)",
+    "slug": "shabelle",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 85,
+    "parent_id": 9,
+    "name": "Afder",
+    "slug": "afder",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 86,
+    "parent_id": 9,
+    "name": "Liben",
+    "slug": "liben",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 87,
+    "parent_id": 9,
+    "name": "Harawo",
+    "slug": "harawo",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 88,
+    "parent_id": 9,
+    "name": "Tog Wajale",
+    "slug": "tog-wajale",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 89,
+    "parent_id": 9,
+    "name": "Gode",
+    "slug": "gode",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 90,
+    "parent_id": 9,
+    "name": "Kebri Beyah",
+    "slug": "kebri-beyah",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 91,
+    "parent_id": 9,
+    "name": "Degehabur",
+    "slug": "degehabur",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  },
+  {
+    "id": 92,
+    "parent_id": 9,
+    "name": "Dawa",
+    "slug": "dawa",
+    "parent_ids": [
+      9
+    ],
+    "is_popular": false
+  }
+]

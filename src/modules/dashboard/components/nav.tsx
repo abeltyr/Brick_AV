@@ -1,16 +1,24 @@
-import FileCSV from '@/assets/icons/file';
-import { useAuth } from '@/lib/context/auth/user';
+import { useCompany } from '@/lib/context/account';
 import { useExportPurchase } from '@/lib/context/purchaseExport';
-import { CalendarDateRangePicker } from '@/modules/common/components/dateSelector';
 import { LanguageTranslator } from '@/modules/language/components';
 import { Button } from '@/modules/ui/button';
-import { ArrowUpLeftIcon, ArrowUpRightIcon, CirclePlus, File } from 'lucide-react';
+import { ArrowUpRightIcon, CirclePlus } from 'lucide-react';
 import Link from 'next/link';
-import React from 'react'
+import React, { useState } from 'react'
+import { PurchaseExportCSVModal } from './exportCsvModal';
 
 export const DashboardNav = () => {
-    const { fetchPurchaseCSV } = useExportPurchase();
-    const { currentCompany } = useAuth();
+
+
+    const [isOpen, setIsOpen] = useState(false)
+    // const [business, setBusinessFetched] = useState<BusinessType | null>(business)
+
+    const handleClose = () => {
+        setIsOpen(false)
+    }
+    const handleContinue = () => {
+        setIsOpen(false)
+    }
 
     return (
         <div className="flex items-center justify-between space-y-2">
@@ -32,12 +40,13 @@ export const DashboardNav = () => {
                     variant={"secondary"}
                     className='text-foreground gap-1 flex items-center'
                     onClick={() => {
-                        if (currentCompany)
-                            fetchPurchaseCSV({
-                                companyId: currentCompany.companyId,
-                                year: 2016,
-                                month: 12,
-                            })
+                        // if (currentCompany)
+                        //     fetchPurchaseCSV({
+                        //         companyId: currentCompany.companyId,
+                        //         year: 2016,
+                        //         month: 12,
+                        //     })
+                        setIsOpen(true);
                     }}>
                     <ArrowUpRightIcon className='w-4 h-4 text-foreground ' />
                     Export CSV
@@ -52,6 +61,12 @@ export const DashboardNav = () => {
                     </Button>
                 </Link>
             </div>
+            <PurchaseExportCSVModal
+                isOpen={isOpen}
+                setIsOpen={setIsOpen}
+                handleClose={handleClose}
+                handleContinue={handleContinue}
+            />
         </div>
     )
 }

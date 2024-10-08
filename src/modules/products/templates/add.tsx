@@ -9,36 +9,31 @@ import {
 } from "@/modules/ui/form"
 import { useToast } from '@/modules/ui/use-toast'
 import { useState } from 'react'
-import { useAuth } from '@/lib/context/auth/user'
 import { useProducts } from '@/lib/context/product'
-import ProductTypeForm from '../components/add/productTypeForm'
-import ProductDetailForm from '../components/add/productDetailForm'
-import { productFormSchema } from '@/lib/form/product'
+import { productSchema } from '@/lib/form/product'
 import { useDrawerManager } from '@/lib/context/drawer/drawer'
 import { DrawerSheetHeader } from '@/modules/common/components/drawer/header'
 import { DrawerSheetFooter } from '@/modules/common/components/drawer/footer'
+import { useCompany } from '@/lib/context/account'
+import { GeneralProductForm } from '@/modules/common/components/form/generalProductForm'
 
 export const AddProductSection = () => {
     const { setAddProductDrawer } = useDrawerManager();
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
 
-    const { currentCompany } = useAuth();
+    const { currentCompany } = useCompany();
     const { createProduct } = useProducts();
-    const form = useForm<z.infer<typeof productFormSchema>>({
-        resolver: zodResolver(productFormSchema),
+    const form = useForm<z.infer<typeof productSchema>>({
+        resolver: zodResolver(productSchema),
         defaultValues: {
-            name: "Pen",
-            purchaseType: "taxableLocalCapitalAssets",
-            type: "Service",
-            unit: "LIT",
-            "unitPrice": 4200
+
 
         },
     })
 
 
-    const onSubmit = async (values: z.infer<typeof productFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof productSchema>) => {
         if (!isLoading) {
             setIsLoading(true)
             try {
@@ -50,7 +45,9 @@ export const AddProductSection = () => {
                         unitPrice: values.unitPrice,
                         purchaseType: values.purchaseType,
                         type: values.type,
-                        companyId: currentCompany.companyId
+                        companyId: currentCompany.companyId,
+                        chartOfAccountId: values.chartOfAccountId,
+
                     })
                     console.log("product", product)
                     setAddProductDrawer(false);
@@ -63,16 +60,30 @@ export const AddProductSection = () => {
                         ),
                     })
                 }
-            } catch (e) {
-                console.log(e)
+            } catch (error: any) {
+                console.log("message", error.message, error.message.includes('Unique constraint failed'))
+                let message = {
+                    title: "Chart of account creation failed",
+                    description: "An error occurred. Please try again. If the issue persists, please contact us here."
+                }
+
+
+                if (error.message.includes('Unique constraint failed')) {
+                    message = {
+                        title: "Error: Chart of account with this Account Id Already exist",
+                        description: "There's already a record with the same Account Id. Please check your Account Id input or check a your chart of account list."
+                    }
+                }
+
+
                 toast({
-                    title: "Error Creating Product",
+                    title: message.title,
                     description: (
-                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue persists, please contact us here.
+                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-200 font-medium text-sm">
+                            {message.description}
                         </div>
                     ),
-                })
+                });
             }
             setIsLoading(false)
         }
@@ -80,26 +91,28 @@ export const AddProductSection = () => {
 
     return (
         <div className='w-full h-full overflow-y-auto'>
-            <DrawerSheetHeader title={"Add Product"} />
-            <div className='h-20' />
+            <DrawerSheetHeader title={"Add Purchase Items"} description='Provided the needed detail about the items' />
+            <div className='h-28' />
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 w-full">
-
-                    <div className='flex flex-col p-4 pb-20 flex-1 relative w-full h-full  gap-6'>
-                        <ProductDetailForm form={form} />
-                        <ProductTypeForm form={form} />
-                    </div>
-                    <DrawerSheetFooter
-                        isLoading={isLoading}
-                        createSVG={<AddSVG />}
-                        closeFunction={
-                            (event: React.MouseEvent) => {
-                                event.preventDefault();
-                                setAddProductDrawer(false)
-                            }
+                <div className='flex flex-col p-4 pb-40 flex-1 relative w-full h-full  gap-6'>
+                    <GeneralProductForm form={form} />
+                </div>
+                <DrawerSheetFooter
+                    isLoading={isLoading}
+                    createSVG={<AddSVG />}
+                    closeFunction={
+                        (event: React.MouseEvent) => {
+                            event.preventDefault();
+                            setAddProductDrawer(false)
                         }
-                    />
-                </form>
+                    }
+                    createFunction={
+                        (event: React.MouseEvent) => {
+                            event.preventDefault();
+                            form.handleSubmit(onSubmit)()
+                        }
+                    }
+                />
             </Form>
         </div>
 

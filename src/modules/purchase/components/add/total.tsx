@@ -29,7 +29,7 @@ export default function TotalPurchaseData({
     grossAmount,
     nonTaxableAmount,
     taxableAmount,
-    totalVat,
+    taxTotal,
     importedGoodSummaryAmount,
     importedGoodWithholding,
     localGoodSummaryAmount,
@@ -41,7 +41,7 @@ export default function TotalPurchaseData({
     purchaseProducts: ProductArrayType,
     taxableAmount: number,
     nonTaxableAmount: number,
-    totalVat: number,
+    taxTotal: number,
     grossAmount: number,
     importedGoodSummaryAmount: number,
     importedGoodWithholding: number,
@@ -85,7 +85,7 @@ export default function TotalPurchaseData({
                             </li>}
                             <li className="flex items-center justify-between">
                                 <span className="text-muted-foreground">15% Vat</span>
-                                <span>ETB {`${totalVat}`}</span>
+                                <span>ETB {`${taxTotal}`}</span>
                             </li>
                             {withholding && new Decimal(withholding).greaterThan(0) && <li className="flex items-center justify-between">
                                 <span className="text-muted-foreground">WithHolding</span>

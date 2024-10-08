@@ -32,7 +32,7 @@ export const ProductHeader = () => {
                         </LanguageTranslator>
                     </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="max-w-[400px] min-w-[50%] p-0 flex flex-col h-full ">
+                <SheetContent side="right" className="max-w-[400px] w-[50%] min-w-[800px] p-0 flex flex-col h-full ">
                     <AddProductSection />
                 </SheetContent>
             </Sheet>
