@@ -1,3 +1,3 @@
 export * from "./create"
-export * from "./fetchById"
+export * from "./fetch"
 export * from "./update"
