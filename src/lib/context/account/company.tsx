@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { fetchMemberCompanyAction } from '@/lib/data/companyMember/fetchById';
 import { CompanyMemberType } from '@/types/company';
 

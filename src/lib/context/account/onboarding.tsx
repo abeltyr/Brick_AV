@@ -2,10 +2,10 @@
 
 import { fetchBusinessApi } from '@/lib/data/business/create';
 import { onBoardingAction } from '@/lib/data/user/create';
-import { addressSchema, companyInTakeSchema, companySchema, ownerSchema, profileSchema } from '@/lib/form/account';
+import { addressSchema, companyInTakeSchema, companySchema, profileSchema } from '@/lib/form/account';
 import yearSchema from '@/lib/form/account/accountPeriod';
 import { chartOfAccountsSchema } from '@/lib/form/account/chartOfAccount';
-import { OnboardingAddressForm, OnboardingCompanyForm, OnboardingCompanyInTakeForm, OnboardingOwnerAddressForm, OnboardingOwnerForm, OnboardingProfileForm } from '@/modules/account/components/form';
+import { OnboardingAddressForm, OnboardingCompanyForm, OnboardingCompanyInTakeForm, OnboardingProfileForm } from '@/modules/account/components/form';
 import { OnboardingAccountingPeriodForm } from '@/modules/account/components/form/AccountingPeroidForm';
 import { OnboardingChartOfAccountForm } from '@/modules/account/components/form/ChartOfAccountsForm';
 import { BusinessType } from '@/types/business';
