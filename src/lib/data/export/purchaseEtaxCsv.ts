@@ -24,14 +24,6 @@ type PurchaseEtaxReport = {
   grossAmount: string;
 };
 
-// Custom formatter to preserve leading zeros
-const preserveLeadingZeros = (value: any) => {
-  if (typeof value === "string" && /^0+\d+$/.test(value)) {
-    return `="${value}"`; // Wrap with quotes and add = to force Excel to treat it as text
-  }
-  return value;
-};
-
 export const PurchaseEtaxCsvGenerator = async ({
   dateRange,
   companyId,
@@ -95,34 +87,25 @@ This field is  mandatory.`,
       grossAmount: `value after vat`,
     };
 
-    let arrayData: PurchaseEtaxReport[] = [];
-
-    for (const purchase of purchases) {
-      arrayData = [
-        ...arrayData,
-        {
-          productType: purchase.productType === "Good" ? "G" : "S",
-          calendar: "G",
-          purchaseType: purchaseTypeConvertor(purchase.purchaseType),
-          vendorTin: `${purchase.vendorTin}`,
-          sellerName: !purchase.vendorTin ? purchase.vendorName ?? "" : "",
-          date: purchase.date.toLocaleDateString("en-GB"),
-          MRCNumber: purchase.mrcNumber ?? "",
-          VatReceiptNumber: purchase.receiptNumber ?? "",
-          description: purchase.description,
-          unit: purchase.productType,
-          totalQuantity: purchase.quantity.toString(),
-          averagePrice: purchase.unitPrice.toString(),
-          totalValue: new Decimal(purchase.taxableAmount)
-            .plus(new Decimal(purchase.nonTaxableAmount))
-            .toString(),
-          totalVat: purchase.taxAmount.toString(),
-          grossAmount: purchase.grossAmount.toString(),
-        },
-      ];
-    }
-
-    console.log(arrayData);
+    const arrayData: PurchaseEtaxReport[] = purchases.map((purchase) => ({
+      productType: purchase.productType === "Good" ? "G" : "S",
+      calendar: "G",
+      purchaseType: purchaseTypeConvertor(purchase.purchaseType),
+      vendorTin: purchase.vendorTin ?? "",
+      sellerName: !purchase.vendorTin ? purchase.vendorName ?? "" : "",
+      date: purchase.date.toLocaleDateString("en-GB"),
+      MRCNumber: purchase.mrcNumber ?? "",
+      VatReceiptNumber: purchase.receiptNumber ?? "",
+      description: purchase.description,
+      unit: purchase.productType,
+      totalQuantity: purchase.quantity.toFixed(2),
+      averagePrice: purchase.unitPrice.toFixed(2),
+      totalValue: new Decimal(purchase.taxableAmount)
+        .plus(new Decimal(purchase.nonTaxableAmount))
+        .toFixed(2),
+      totalVat: purchase.taxAmount.toFixed(2),
+      grossAmount: purchase.grossAmount.toFixed(2),
+    }));
 
     const data = Object.values(arrayData);
     const csv = stringify(data);

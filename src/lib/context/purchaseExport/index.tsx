@@ -10,6 +10,9 @@ import { DateRangeType } from '@/types/shared';
 import { open } from '@tauri-apps/plugin-shell'
 import { useToast } from '@/modules/ui/use-toast';
 import { File } from 'lucide-react';
+import { PurchaseTassCsvGenerator } from '@/lib/data/export/purchaseTassCSV';
+import { PurchaseLtoCsvGenerator } from '@/lib/data/export/purchaseLtoCSV';
+import { WithholdingEtaxCSVGenerator } from '@/lib/data/export/withholdingEtaxCSV';
 
 const initialValues: {
     purchaseEtaxCsv: { [id: string]: string };
@@ -144,182 +147,264 @@ const ExportPurchaseProvider: React.FC<Props> = ({ children }) => {
                     ),
                 })
             }
+            setLoading(false)
         }
-        setLoading(false)
     }
 
+
     const fetchPurchaseTassCsv = async ({ dateRange, companyId }: { companyId: string, dateRange: DateRangeType, }) => {
-        // if (!loading) {
-        //     setLoading(true)
-        //     try {
-        //         const result = await GebiwochPurchaseCsv({
-        //             companyId, dateRange
-        //         })
-        //         if (result.success && result.data) {
-        //             const blob = new Blob([result.data], { type: 'text/csv' })
-        //             const url = window.URL.createObjectURL(blob)
-        //             const a = document.createElement('a')
-        //             a.style.display = 'none'
-        //             const filePathData = `PURCHASE_TASS_${dateRange.startDate}_${dateRange.endDate}.csv`;
+        if (!loading) {
+            setLoading(true)
+            try {
+                const result = await PurchaseTassCsvGenerator({
+                    companyId,
+                    dateRange
+                })
+                if (result.success && result.data) {
+                    const blob = new Blob([result.data], { type: 'text/csv' })
+                    const url = window.URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.style.display = 'none'
+                    const filePathData = `PURCHASE_TASS_${dateRange.startDate.getDate()}-${dateRange.startDate.getMonth() + 1}-${dateRange.startDate.getFullYear()}_${dateRange.endDate.getDate()}-${dateRange.endDate.getMonth() + 1}-${dateRange.endDate.getFullYear()}.csv`;
 
-        //             a.href = url
-        //             a.download = filePathData;
-        //             document.body.appendChild(a)
-        //             a.click()
-        //             window.URL.revokeObjectURL(url)
+                    a.href = url
+                    a.download = filePathData;
+                    document.body.appendChild(a)
+                    a.click()
+                    window.URL.revokeObjectURL(url)
 
-        //             try {
-        //                 // Open a file dialog for the user to choose where to save the file
-        //                 const filePath = await save({
-        //                     filters: [{
-        //                         name: 'Csv File',
-        //                         extensions: ['csv']
-        //                     }],
-        //                     defaultPath: filePathData
-        //                 });
+                    try {
+                        // Open a file dialog for the user to choose where to save the file
+                        const filePath = await save({
+                            filters: [{
+                                name: 'Csv File',
+                                extensions: ['csv']
+                            }],
+                            defaultPath: filePathData
+                        });
 
-        //                 // If the user cancels the save dialog, filePath will be null
-        //                 if (filePath === null) {
-        //                     console.log('File save cancelled');
-        //                     return;
-        //                 }
+                        // If the user cancels the save dialog, filePath will be null
+                        if (filePath === null) {
+                            console.log('File save cancelled');
+                            return;
+                        }
 
-        //                 // Write the Csv content to the selected file
-        //                 await writeTextFile(filePath, result.data, {
-        //                     baseDir: BaseDirectory.AppConfig,
-        //                 });
-        //                 console.log('File saved successfully at:', filePath);
+                        // Write the Csv content to the selected file
+                        await writeTextFile(filePath, result.data, {
+                            baseDir: BaseDirectory.AppConfig,
+                        });
 
-        //             } catch (e) {
-        //                 console.log(e);
-        //                 console.log('File not saved at:', filePathData, e);
-        //                 throw new Error('Failed Saving file')
-        //             }
-        //         } else {
-        //             throw new Error('Failed to generate Csv')
-        //         }
-        //         setLoading(false)
-        //     } catch (e) {
-        //         setLoading(false)
-        //         throw new Error('Failed generate file')
-        //     }
-        // }
+                        toast({
+                            title: 'Report Generated and downloaded',
+                            description: (
+                                <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-green-300 font-medium text-sm flex flex-col gap-2">
+                                    <p>
+                                        Your report has been downloaded can access it here
+                                    </p>
+                                    <div className='flex gap-2 bg-white text-black cursor-pointer w-full px-3 py-2 rounded-md' onClick={() => { open(filePath.split(`/${filePathData}`)[0]); }}>
+                                        <File />
+                                        Open in Folder
+                                    </div>
+                                </div>
+                            ),
+                        })
+                    } catch (e) {
+                        console.log(e);
+                        console.log('File not saved at:', filePathData, e);
+                        toast({
+                            title: 'Failed Saving file',
+                            description: (
+                                <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
+                                    An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
+                                </div>
+                            ),
+                        })
+                    }
+                } else {
+                    throw new Error('Failed to generate Csv')
+                }
+            } catch (e) {
+                toast({
+                    title: "Failed generate Report",
+                    description: (
+                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
+                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
+                        </div>
+                    ),
+                })
+            }
+            setLoading(false)
+        }
     }
 
     const fetchPurchaseLtoCsv = async ({ dateRange, companyId }: { companyId: string, dateRange: DateRangeType, }) => {
-        // if (!loading) {
-        //     setLoading(true)
-        //     try {
-        //         const result = await GebiwochPurchaseCsv({
-        //             companyId, dateRange
-        //         })
-        //         if (result.success && result.data) {
-        //             const blob = new Blob([result.data], { type: 'text/csv' })
-        //             const url = window.URL.createObjectURL(blob)
-        //             const a = document.createElement('a')
-        //             a.style.display = 'none'
-        //             const filePathData = `PURCHASE_ETAX_${dateRange.startDate}_${dateRange.endDate}.csv`;
+        if (!loading) {
+            setLoading(true)
+            try {
+                const result = await PurchaseLtoCsvGenerator({
+                    companyId,
+                    dateRange
+                })
+                if (result.success && result.data) {
+                    const blob = new Blob([result.data], { type: 'text/csv' })
+                    const url = window.URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.style.display = 'none'
+                    const filePathData = `PURCHASE_LTO_${dateRange.startDate.getDate()}-${dateRange.startDate.getMonth() + 1}-${dateRange.startDate.getFullYear()}_${dateRange.endDate.getDate()}-${dateRange.endDate.getMonth() + 1}-${dateRange.endDate.getFullYear()}.csv`;
 
-        //             a.href = url
-        //             a.download = filePathData;
-        //             document.body.appendChild(a)
-        //             a.click()
-        //             window.URL.revokeObjectURL(url)
+                    a.href = url
+                    a.download = filePathData;
+                    document.body.appendChild(a)
+                    a.click()
+                    window.URL.revokeObjectURL(url)
 
-        //             try {
-        //                 // Open a file dialog for the user to choose where to save the file
-        //                 const filePath = await save({
-        //                     filters: [{
-        //                         name: 'Csv File',
-        //                         extensions: ['csv']
-        //                     }],
-        //                     defaultPath: filePathData
-        //                 });
+                    try {
+                        // Open a file dialog for the user to choose where to save the file
+                        const filePath = await save({
+                            filters: [{
+                                name: 'Csv File',
+                                extensions: ['csv']
+                            }],
+                            defaultPath: filePathData
+                        });
 
-        //                 // If the user cancels the save dialog, filePath will be null
-        //                 if (filePath === null) {
-        //                     console.log('File save cancelled');
-        //                     return;
-        //                 }
+                        // If the user cancels the save dialog, filePath will be null
+                        if (filePath === null) {
+                            console.log('File save cancelled');
+                            return;
+                        }
 
-        //                 // Write the Csv content to the selected file
-        //                 await writeTextFile(filePath, result.data, {
-        //                     baseDir: BaseDirectory.AppConfig,
-        //                 });
-        //                 console.log('File saved successfully at:', filePath);
+                        // Write the Csv content to the selected file
+                        await writeTextFile(filePath, result.data, {
+                            baseDir: BaseDirectory.AppConfig,
+                        });
 
-        //             } catch (e) {
-        //                 console.log(e);
-        //                 console.log('File not saved at:', filePathData, e);
-        //                 throw new Error('Failed Saving file')
-        //             }
-        //         } else {
-        //             throw new Error('Failed to generate Csv')
-        //         }
-        //         setLoading(false)
-        //     } catch (e) {
-        //         setLoading(false)
-        //         throw new Error('Failed generate file')
-        //     }
-        // }
+                        toast({
+                            title: 'Report Generated and downloaded',
+                            description: (
+                                <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-green-300 font-medium text-sm flex flex-col gap-2">
+                                    <p>
+                                        Your report has been downloaded can access it here
+                                    </p>
+                                    <div className='flex gap-2 bg-white text-black cursor-pointer w-full px-3 py-2 rounded-md' onClick={() => { open(filePath.split(`/${filePathData}`)[0]); }}>
+                                        <File />
+                                        Open in Folder
+                                    </div>
+                                </div>
+                            ),
+                        })
+                    } catch (e) {
+                        console.log(e);
+                        console.log('File not saved at:', filePathData, e);
+                        toast({
+                            title: 'Failed Saving file',
+                            description: (
+                                <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
+                                    An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
+                                </div>
+                            ),
+                        })
+                    }
+                } else {
+                    throw new Error('Failed to generate Csv')
+                }
+            } catch (e) {
+                toast({
+                    title: "Failed generate Report",
+                    description: (
+                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
+                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
+                        </div>
+                    ),
+                })
+            }
+            setLoading(false)
+        }
     }
 
     const fetchWithholdingEtaxCsv = async ({ dateRange, companyId }: { dateRange: DateRangeType, companyId: string }) => {
-        // if (!loading) {
-        //     setLoading(true)
-        //     try {
-        //         const result = await GebiwochPurchaseCsv({
-        //             companyId, dateRange
-        //         })
-        //         if (result.success && result.data) {
-        //             const blob = new Blob([result.data], { type: 'text/csv' })
-        //             const url = window.URL.createObjectURL(blob)
-        //             const a = document.createElement('a')
-        //             a.style.display = 'none'
-        //             const filePathData = `PURCHASE_ETAX_${dateRange.startDate}_${dateRange.endDate}.csv`;
+        if (!loading) {
+            setLoading(true)
+            try {
+                const result = await WithholdingEtaxCSVGenerator({
+                    companyId,
+                    dateRange
+                })
+                if (result.success && result.data) {
+                    const blob = new Blob([result.data], { type: 'text/csv' })
+                    const url = window.URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.style.display = 'none'
+                    const filePathData = `WITHHOLDING_ETAX_${dateRange.startDate.getDate()}-${dateRange.startDate.getMonth() + 1}-${dateRange.startDate.getFullYear()}_${dateRange.endDate.getDate()}-${dateRange.endDate.getMonth() + 1}-${dateRange.endDate.getFullYear()}.csv`;
 
-        //             a.href = url
-        //             a.download = filePathData;
-        //             document.body.appendChild(a)
-        //             a.click()
-        //             window.URL.revokeObjectURL(url)
+                    a.href = url
+                    a.download = filePathData;
+                    document.body.appendChild(a)
+                    a.click()
+                    window.URL.revokeObjectURL(url)
 
-        //             try {
-        //                 // Open a file dialog for the user to choose where to save the file
-        //                 const filePath = await save({
-        //                     filters: [{
-        //                         name: 'Csv File',
-        //                         extensions: ['csv']
-        //                     }],
-        //                     defaultPath: filePathData
-        //                 });
+                    try {
+                        // Open a file dialog for the user to choose where to save the file
+                        const filePath = await save({
+                            filters: [{
+                                name: 'Csv File',
+                                extensions: ['csv']
+                            }],
+                            defaultPath: filePathData
+                        });
 
-        //                 // If the user cancels the save dialog, filePath will be null
-        //                 if (filePath === null) {
-        //                     console.log('File save cancelled');
-        //                     return;
-        //                 }
+                        // If the user cancels the save dialog, filePath will be null
+                        if (filePath === null) {
+                            console.log('File save cancelled');
+                            return;
+                        }
 
-        //                 // Write the Csv content to the selected file
-        //                 await writeTextFile(filePath, result.data, {
-        //                     baseDir: BaseDirectory.AppConfig,
-        //                 });
-        //                 console.log('File saved successfully at:', filePath);
+                        // Write the Csv content to the selected file
+                        await writeTextFile(filePath, result.data, {
+                            baseDir: BaseDirectory.AppConfig,
+                        });
 
-        //             } catch (e) {
-        //                 console.log(e);
-        //                 console.log('File not saved at:', filePathData, e);
-        //                 throw new Error('Failed Saving file')
-        //             }
-        //         } else {
-        //             throw new Error('Failed to generate Csv')
-        //         }
-        //         setLoading(false)
-        //     } catch (e) {
-        //         setLoading(false)
-        //         throw new Error('Failed generate file')
-        //     }
-        // }
+                        toast({
+                            title: 'Report Generated and downloaded',
+                            description: (
+                                <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-green-300 font-medium text-sm flex flex-col gap-2">
+                                    <p>
+                                        Your report has been downloaded can access it here
+                                    </p>
+                                    <div className='flex gap-2 bg-white text-black cursor-pointer w-full px-3 py-2 rounded-md' onClick={() => { open(filePath.split(`/${filePathData}`)[0]); }}>
+                                        <File />
+                                        Open in Folder
+                                    </div>
+                                </div>
+                            ),
+                        })
+                    } catch (e) {
+                        console.log(e);
+                        console.log('File not saved at:', filePathData, e);
+                        toast({
+                            title: 'Failed Saving file',
+                            description: (
+                                <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
+                                    An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
+                                </div>
+                            ),
+                        })
+                    }
+                } else {
+                    throw new Error('Failed to generate Csv')
+                }
+            } catch (e) {
+                toast({
+                    title: "Failed generate Report",
+                    description: (
+                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
+                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
+                        </div>
+                    ),
+                })
+            }
+            setLoading(false)
+        }
     }
 
     return (

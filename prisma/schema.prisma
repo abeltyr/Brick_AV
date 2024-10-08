@@ -427,7 +427,7 @@ model Inventory {
   id               String            @id @default(uuid())
   productId        String
   product          Product           @relation(fields: [productId], references: [id])
-  quantity         Decimal           @default(0)
+  quantity         Float             @default(0)
   lastUpdated      DateTime          @default(now()) @updatedAt
   productPrice     ProductPrice[]
   purchaseProduct  PurchaseProduct[]
@@ -459,7 +459,7 @@ model BillOfMaterial {
 
   childInventoryId String
   childInventory   Inventory @relation("childInventory", fields: [childInventoryId], references: [id])
-  quantityRequired Decimal
+  quantityRequired Float
 
   @@unique([parentProductId, childInventoryId]) // Ensure a component can only appear once per finished product
   @@index([parentProductId])
@@ -527,14 +527,16 @@ model Purchase {
   purchaseType ProductPurchaseType
   productType  ProductCategoryType
   description  String              @db.Text()
-  quantity     Decimal             @default(0)
+  quantity     Float               @default(0)
   unitPrice    Decimal             @default(0)
 
   date DateTime
 
-  taxableAmount    Decimal @default(0)
-  nonTaxableAmount Decimal @default(0)
-  totalAmount      Decimal @default(0)
+  goodSummaryAmount    Decimal @default(0)
+  serviceSummaryAmount Decimal @default(0)
+  taxableAmount        Decimal @default(0)
+  nonTaxableAmount     Decimal @default(0)
+  totalAmount          Decimal @default(0)
 
   taxAmount         Decimal @default(0)
   withholdingAmount Decimal @default(0)
@@ -565,7 +567,7 @@ model PurchaseProduct {
   purchaseType ProductPurchaseType
   unit         ProductUnitType
   unitPrice    Decimal
-  quantity     Int
+  quantity     Float
   totalValue   Decimal             @default(0)
   tax          Decimal             @default(0)
   withholding  Decimal             @default(0)

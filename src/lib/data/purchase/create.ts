@@ -198,6 +198,7 @@ export const createPurchaseAction = async ({
   const purchaseId = v4();
   if (vendor && vendor.business && vendor.business?.tin) {
     createData.vendorTin = vendor.business?.tin;
+    createData.vendorName = vendor.business.businessName;
     if (vendor.taxType === "VAT") {
       const sum = vatPurchaseSummation({
         purchaseProducts: purchaseInput.purchaseProducts,
@@ -252,6 +253,11 @@ export const createPurchaseAction = async ({
       createData.totalAmount = totalAmount;
       createData.withholdingAmount = withholdingAmount;
       createData.grossAmount = grossAmount;
+      createData.serviceSummaryAmount = serviceSummaryAmount;
+      createData.goodSummaryAmount = importedGoodSummaryAmount.plus(
+        localGoodSummaryAmount,
+      );
+      createData.taxAmount = taxAmount;
 
       let value:
         | Prisma.ChartOfAccountTransactionCreateNestedOneWithoutVatDetailInput
@@ -369,6 +375,8 @@ export const createPurchaseAction = async ({
       createData.totalAmount = totalAmount;
       createData.taxAmount = taxAmount;
       createData.withholdingAmount = withholdingAmount;
+      createData.serviceSummaryAmount = serviceSummaryAmount;
+      createData.goodSummaryAmount = goodSummaryAmount;
 
       createData.totDetail = {
         create: {
@@ -443,6 +451,8 @@ export const createPurchaseAction = async ({
     createData.totalAmount = totalAmount;
     createData.taxAmount = 0;
     createData.withholdingAmount = withholdingAmount;
+    createData.serviceSummaryAmount = serviceSummaryAmount;
+    createData.goodSummaryAmount = goodSummaryAmount;
 
     if (withholdingAmount.greaterThan(0)) {
       let value:
