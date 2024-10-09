@@ -43,10 +43,11 @@ export const AddPurchaseTopSection = ({ form, companyId }: {
                                 paymentAccount: {
                                     id: coa.id,
                                     accountType: coa.accountType,
-                                    balanceType: coa.creditBased ? "credit" : "debit",
                                     code: coa.code,
                                     name: coa.name,
-                                    balance: coa.chartOfAccountBalance && coa.chartOfAccountBalance.balance ? new Decimal(coa.chartOfAccountBalance.balance).toNumber() : 0,
+                                    balance: coa.chartOfAccountBalance &&
+                                        coa.chartOfAccountBalance.length > 0 &&
+                                        coa.chartOfAccountBalance[0].balance ? new Decimal(coa.chartOfAccountBalance[0].balance).toNumber() : 0,
                                     amount: 0,
                                     quantity: 1
                                 }, // Update productsChartAccount

@@ -53,7 +53,7 @@ export const ChartOfAccountInput = ({
     const [showNewTeamDialog, setShowNewTeamDialog] = useState(false)
     const [chartOfAccountsData, setChartOfAccountsData] = useState<ChartOfAccountType[]>([])
 
-    const { currentCompany } = useCompany()
+    const { currentCompany, fiscalYear } = useCompany()
     const { profile } = useProfile()
 
     const { chartOfAccounts, getChartOfAccounts, loading, createCOA } = useChartOfAccount()
@@ -66,10 +66,12 @@ export const ChartOfAccountInput = ({
             console.log("chartOfAccounts", chartOfAccounts, !chartOfAccounts[currentCompany.companyId] ||
                 chartOfAccounts[currentCompany.companyId] && chartOfAccounts[currentCompany.companyId].length === 0);
             if (
-                !chartOfAccounts[currentCompany.companyId] ||
-                chartOfAccounts[currentCompany.companyId] && chartOfAccounts[currentCompany.companyId].length === 0)
+                fiscalYear != null &&
+                (!chartOfAccounts[currentCompany.companyId] ||
+                    chartOfAccounts[currentCompany.companyId] && chartOfAccounts[currentCompany.companyId].length === 0))
                 getChartOfAccounts({
-                    companyId: currentCompany.companyId
+                    companyId: currentCompany.companyId,
+                    fiscalYearId: fiscalYear.id
                 })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -103,7 +105,6 @@ export const ChartOfAccountInput = ({
         defaultValues: {
             balance: {
                 amount: 0,
-                balanceType: "credit"
             },
         },
     })
@@ -119,7 +120,6 @@ export const ChartOfAccountInput = ({
                         data: {
                             accountType: values.accountType,
                             amount: values.balance.amount,
-                            balanceType: values.balance.balanceType,
                             code: values.code,
                             name: values.name,
                             type: accountTypeObject[values.accountType].type

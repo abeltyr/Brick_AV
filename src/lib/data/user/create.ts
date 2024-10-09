@@ -34,9 +34,10 @@ export const onBoardingAction = async (data: {
           accountType: accounts.accountType,
           code: accounts.code,
           name: accounts.name,
-          creditBased: accounts.balance.balanceType === "credit",
+          balanceCreditBased:
+            accountTypeObject[accounts.accountType].normal_balance === "credit",
           type: accountTypeObject[accounts.accountType].type,
-          createdBy: createdBy,
+          // createdBy: createdBy,
           company: {
             connect: {
               id: companyId,
@@ -47,7 +48,6 @@ export const onBoardingAction = async (data: {
               balance: accounts.balance.amount,
               initialBalance: accounts.balance.amount,
               fiscalYearId,
-              creatorId: data.profile.userId,
             },
           },
         },

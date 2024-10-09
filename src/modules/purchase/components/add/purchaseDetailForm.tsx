@@ -149,7 +149,6 @@ export default function PurchaseDetailForm() {
                                                 const data: ChartOfAccountDataType = {
                                                     id: coa.id,
                                                     amount: taxTotal.toNumber(),
-                                                    balanceType: coa.creditBased ? "credit" : "debit",
                                                     name: coa.name,
                                                     code: coa.code,
                                                     accountType: coa.accountType,
@@ -240,7 +239,6 @@ export default function PurchaseDetailForm() {
                                             const data: ChartOfAccountDataType = {
                                                 id: coa.id,
                                                 amount: taxTotal.toNumber(),
-                                                balanceType: coa.creditBased ? "credit" : "debit",
                                                 name: coa.name,
                                                 code: coa.code,
                                                 accountType: coa.accountType,
@@ -323,7 +321,6 @@ export default function PurchaseDetailForm() {
                                         const data: ChartOfAccountDataType = {
                                             id: coa.id,
                                             amount: taxTotal.toNumber(),
-                                            balanceType: coa.creditBased ? "credit" : "debit",
                                             name: coa.name,
                                             code: coa.code,
                                             accountType: coa.accountType,

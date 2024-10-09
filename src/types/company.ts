@@ -3,6 +3,7 @@ import {
   CompanyMember,
   CompanyMemberRole,
   File,
+  FiscalYear,
 } from "@prisma/client";
 import { BusinessType } from "./business";
 import { ProfileType } from "./profile";
@@ -11,10 +12,11 @@ export type CompanyType = Company & {
   business?: BusinessType;
   logo?: File;
   companyMember?: CompanyMember[];
+  fiscalYear?: FiscalYear[];
 };
 
 export type CompanyMemberType = CompanyMember & {
-  company?: Company;
+  company?: CompanyType;
   profile?: ProfileType;
 };
 

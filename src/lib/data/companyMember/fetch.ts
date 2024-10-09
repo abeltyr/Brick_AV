@@ -1,19 +1,28 @@
 "use server";
 
 import { getPrisma } from "@/lib/utils/database";
+import { cache } from "react";
 const prisma = getPrisma();
 
-export async function fetchMemberCompanyAction(profileId: string) {
+export const fetchMemberCompanyAction = cache(async (profileId: string) => {
   return await prisma.companyMember.findMany({
     where: {
       profileId,
       active: true,
     },
     include: {
-      company: true,
+      company: {
+        include: {
+          fiscalYear: {
+            where: {
+              status: "OPEN",
+            },
+          },
+        },
+      },
     },
   });
-}
+});
 
 export async function fetchCompanyMemberAction(companyId: string) {
   return await prisma.companyMember.findMany({

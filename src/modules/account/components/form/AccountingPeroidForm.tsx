@@ -64,7 +64,6 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
 
 
     useEffect(() => {
-
         if (watchedStartDate) {
             let currentDate = new Date(watchedStartDate); // Start from the watched start date
             let endDate = new Date(watchedStartDate.getTime() + secondsInAYear * 1000 - secondsInADay * 1000); // End date from the watched end date
@@ -114,7 +113,6 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
     }, [watchedStartDate])
 
     useEffect(() => {
-
         if (watchedEndDate && watchedStartDate) {
             let currentDate = new Date(watchedStartDate); // Start from the watched start date
             let endDate = new Date(watchedEndDate); // End date from the watched end date
@@ -175,8 +173,8 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
 
                                 <div className='flex flex-col gap-2 pt-1 items-center'>
                                     <div className='w-3 h-3 bg-[#D9D9D9] rounded-full' />
-                                    <div className={`w-[2px] ${watchedStartDate ? "h-[64px]" : "h-12"} bg-[#D9D9D9] transition-all duration-300`} />
-                                    <div className={`${watchedStartDate ? "scale-100" : "scale-0"} w-3 h-3 bg-[#D9D9D9] rounded-full transition-all duration-300`} />
+                                    <div className={`w-[2px] h-[64px] bg-[#D9D9D9] transition-all duration-300`} />
+                                    <div className={` w-3 h-3 bg-[#D9D9D9] rounded-full transition-all duration-300`} />
                                 </div>
                                 <div className='flex flex-col gap-5 w-[284px]'>
                                     <div className='w-[284px]'>
@@ -190,23 +188,23 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
 
                                         />
                                     </div>
-                                    {watchedStartDate &&
-                                        <div className='w-[284px]'>
-                                            <DatePickerInput
-                                                form={form}
-                                                name='endDate'
-                                                title='End date'
-                                                variant={"outline"}
-                                                parent={`periods`}
-                                                placeholder='Choose End Date'
-                                                minDate={watchedStartDate ? new Date(watchedStartDate.getTime() + secondsInAMonth * 1000 * 2) : new Date()}
-                                            />
-                                        </div>}
+
+                                    <div className='w-[284px]'>
+                                        <DatePickerInput
+                                            form={form}
+                                            name='endDate'
+                                            title='End date'
+                                            variant={"outline"}
+                                            parent={`periods`}
+                                            placeholder='Choose End Date'
+                                            disabled={!watchedStartDate}
+                                            minDate={watchedStartDate ? new Date(watchedStartDate.getTime() + secondsInAMonth * 1000 * 2) : new Date()}
+                                        />
+                                    </div>
                                 </div>
 
                             </div>
                         </div>
-
                         <Button
                             disabled={!watchedStartDate}
                             type="submit" variant='default'
@@ -219,7 +217,7 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
                     </div>
                     {watchedStartDate && fields.length > 0 && <ArrowRightSVG className=' mt-32 text-[#A8A29E] stroke-1' />}
                     {watchedStartDate && fields.length > 0 &&
-                        <div className='flex flex-col gap-4 justify-start'>
+                        <div className='flex flex-col gap-4 justify-start pb-14'>
                             <div>
                                 <p className='text-lg text-[#09090B]'>
                                     Edit Accounting Period
@@ -256,7 +254,6 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
                                         />
                                     </div>
                                     <div className='flex gap-2 items-center'>
-
                                         <AddCircleSVG
                                             className='text-[#A8A29E] stroke-1 cursor-pointer'
                                             onClick={() => insert(index + 1, { start: new Date(new Date(form.getValues(`periods.${index}.end`)).getTime() + secondsInADay * 1000), end: new Date(new Date(form.getValues(`periods.${index}.end`)).getTime() + 30 * secondsInADay * 1000) })}

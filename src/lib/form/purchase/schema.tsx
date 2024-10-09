@@ -4,7 +4,6 @@ import { z } from 'zod';
 
 export const ChartOfAccountValueInput = z.object({
     id: z.string(),
-    balanceType: z.enum(["credit", "debit"]),
     name: z.string(),
     accountType: z.string(),
     code: z.number(),

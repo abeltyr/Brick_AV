@@ -202,7 +202,6 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                         amount: amount.toNumber(),
                         quantity,
                         balance: data.chartOfAccount.balance,
-                        balanceType: data.chartOfAccount.balanceType
                     }
                 }
             }

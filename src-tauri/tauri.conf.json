@@ -41,16 +41,18 @@
     },
     "productName": "brick",
     "version": "0.1.0",
-    "identifier": "com.tauri.dev",
+    "identifier": "com.eurka.brick",
     "plugins": {},
     "app": {
-        "windows": [{
-            "fullscreen": true,
-            "height": 600,
-            "resizable": true,
-            "title": "Brick",
-            "width": 1000
-        }],
+        "windows": [
+            {
+                "fullscreen": true,
+                "height": 600,
+                "resizable": true,
+                "title": "Brick",
+                "width": 1000
+            }
+        ],
         "security": {
             "csp": null
         }

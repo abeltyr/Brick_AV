@@ -11,13 +11,13 @@ const initialValues: {
     loading: boolean,
     error: boolean,
     chartOfAccounts: { [id: string]: ChartOfAccountType[] },
-    getChartOfAccounts: ({ companyId, refetch }: { companyId: string, refetch?: boolean }) => void,
+    getChartOfAccounts: ({ companyId, refetch }: { companyId: string, fiscalYearId: string, refetch?: boolean }) => void,
     createCOA: ({ }: { companyId: string, creatorId: string, data: ChartOfAccountInputType }) => Promise<ChartOfAccountType | null>
 } = {
     loading: true,
     error: true,
     chartOfAccounts: {},
-    getChartOfAccounts: ({ }: { companyId: string, refetch?: boolean }) => { },
+    getChartOfAccounts: ({ }: { companyId: string, fiscalYearId: string, refetch?: boolean }) => { },
     createCOA: async ({ }: { companyId: string, creatorId: string, data: ChartOfAccountInputType }): Promise<ChartOfAccountType | null> => { return null }
 };
 
@@ -61,7 +61,7 @@ const ChartOfAccountProvider: React.FC<Props> = ({ children }) => {
     };
 
     const getChartOfAccounts = useCallback(
-        async ({ companyId, refetch = false }: { companyId: string, refetch?: boolean }) => {
+        async ({ companyId, fiscalYearId, refetch = false }: { companyId: string, fiscalYearId: string, refetch?: boolean }) => {
             setLoading(true);
             setError(false);
             try {
@@ -82,6 +82,7 @@ const ChartOfAccountProvider: React.FC<Props> = ({ children }) => {
                 if (fetchData) {
                     const newChartOfAccountsData = await fetchChartOfAccountAction({
                         companyId,
+                        fiscalYearId,
                         filter: {
                             limit: 1000
                         },

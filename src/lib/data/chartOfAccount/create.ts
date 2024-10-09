@@ -4,6 +4,7 @@ import { getPrisma } from "@/lib/utils/database";
 import { chartOfAccountIncludeData } from "./common/include";
 import { ChartOfAccountInputType, ChartOfAccountType } from "@/types/purchase";
 import { Prisma } from "@prisma/client";
+import { accountTypeObject } from "@/lib/utils/chartOfAccount/values";
 
 const prisma = getPrisma();
 
@@ -54,7 +55,8 @@ export const createChartOfAccountAction = async ({
       },
     },
     type: data.type,
-    creditBased: data.balanceType === "credit",
+    balanceCreditBased:
+      accountTypeObject[data.accountType].normal_balance === "credit",
   };
 
   createChartOfAccount.chartOfAccountBalance = {
@@ -71,8 +73,14 @@ export const createChartOfAccountAction = async ({
         transactionType: "DEPOSIT",
         companyId: companyId,
         createdById: creatorId,
-        credit: data.balanceType === "credit" ? data.amount : 0,
-        debit: data.balanceType === "debit" ? data.amount : 0,
+        credit:
+          accountTypeObject[data.accountType].normal_balance === "credit"
+            ? data.amount
+            : 0,
+        debit:
+          accountTypeObject[data.accountType].normal_balance === "debit"
+            ? data.amount
+            : 0,
         date: date,
         accountPeriodId: accountPeriods[0].id,
       },

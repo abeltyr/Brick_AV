@@ -2,14 +2,13 @@
 
 import * as React from "react"
 import { format, parse } from "date-fns"
-import { ArrowDown, Calendar as CalendarIcon } from "lucide-react"
+import { Calendar as CalendarIcon } from "lucide-react"
 import { Calendar } from "@/modules/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/modules/ui/popover"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/modules/ui/form';
 import { LanguageTranslator } from '@/modules/language/components'
 import { Button } from '@/modules/ui/button'
 import { cn } from '@/lib/utils'
-import { Input } from '@/modules/ui/input'
 
 export const DatePickerInput = (
     {
@@ -33,29 +32,9 @@ export const DatePickerInput = (
         variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | null | undefined,
         parent?: string
     }) => {
-    const [date, setDate] = React.useState<Date>()
-    const [opened, setOpened] = React.useState<boolean>(false)
-    const [inputValue, setInputValue] = React.useState<string>("")
 
-    const handleDateSelect = (selectedDate: Date | undefined) => {
-        setDate(selectedDate)
-        setInputValue(selectedDate ? format(selectedDate, "dd-MM-yyyy") : "")
-    }
-
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value
-        setInputValue(value)
-
-        const parsedDate = parse(value, "dd-MM-yyyy", new Date())
-        if (!isNaN(parsedDate.getTime())) {
-            setDate(parsedDate)
-        } else {
-            setDate(undefined)
-        }
-    }
-
+    const [opened, setOpened] = React.useState<boolean>(false);
     return (
-
         <FormField
             control={form.control}
             name={name}
@@ -67,7 +46,7 @@ export const DatePickerInput = (
                         </LanguageTranslator>
                     </FormLabel>}
                     <FormControl >
-                        <Popover modal={true}>
+                        <Popover open={opened} onOpenChange={setOpened} modal={opened} >
                             <PopoverTrigger asChild disabled={disabled}>
                                 <Button
                                     variant={variant}
@@ -94,6 +73,7 @@ export const DatePickerInput = (
                                         before: minDate,
                                         after: maxDate
                                     }}
+                                    setOpened={setOpened}
                                 />
                             </PopoverContent>
                         </Popover>

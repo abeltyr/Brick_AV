@@ -3,6 +3,7 @@ import Decimal from "decimal.js";
 import { getPrisma } from "@/lib/utils/database";
 import { PurchaseProductInput } from "@/types/purchase";
 import { v4 } from "uuid";
+import { accountTypeObject } from "../chartOfAccount/values";
 const prisma = getPrisma();
 
 export const dbCodeGenerator = ({
@@ -110,8 +111,16 @@ export const dbCodeGenerator = ({
         companyId: companyId,
         date: date,
         createdById: creatorId,
-        credit: chartOfAccount.balanceType === "credit" ? totalValue : 0,
-        debit: chartOfAccount.balanceType === "debit" ? totalValue : 0,
+        credit:
+          accountTypeObject[chartOfAccount.accountType].normal_balance ===
+          "credit"
+            ? totalValue
+            : 0,
+        debit:
+          accountTypeObject[chartOfAccount.accountType].normal_balance ===
+          "debit"
+            ? totalValue
+            : 0,
       },
     });
   }

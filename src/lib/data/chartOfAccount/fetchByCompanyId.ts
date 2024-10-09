@@ -12,9 +12,11 @@ const prisma = getPrisma();
 export const fetchChartOfAccountAction = cache(
   async ({
     companyId,
+    fiscalYearId,
     filter,
   }: {
     companyId: string;
+    fiscalYearId: string;
     filter: Filter;
   }): Promise<ChartOfAccountType[]> => {
     let limit = limitSetter({ limit: filter.limit });
@@ -46,8 +48,8 @@ export const fetchChartOfAccountAction = cache(
       skip,
       include: {
         chartOfAccountBalance: {
-          include: {
-            fiscalYear: true,
+          where: {
+            fiscalYearId,
           },
         },
       },

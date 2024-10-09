@@ -61,8 +61,9 @@ export const GeneralProfileForm = ({ form, readOnlyValues = [], hideForm = [] }:
                     name={`dateOfBirth`}
                     variant={"outline"}
                     placeholder='Date of birth'
-                    maxDate={new Date(new Date().getTime() - secondsInAYear * 1000 * 10)}
+                    maxDate={new Date(new Date().getTime() - secondsInAYear * 1000 * 14)}
                     title='Date of birth'
+
                 />
             }
 

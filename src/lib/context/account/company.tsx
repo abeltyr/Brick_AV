@@ -3,6 +3,7 @@
 import React, { useCallback, useContext, useState } from "react";
 import { fetchMemberCompanyAction } from '@/lib/data/companyMember';
 import { CompanyMemberType } from '@/types/company';
+import { FiscalYear } from '@prisma/client';
 
 
 const initialValues: {
@@ -13,6 +14,7 @@ const initialValues: {
     currentCompany: CompanyMemberType | null,
     updateCompanyIndex: (index: number) => void,
     fetchCompanies: ({ userId, refetch }: { userId: string, refetch?: boolean }) => void
+    fiscalYear: FiscalYear | null
 } = {
     loading: true,
     error: true,
@@ -20,7 +22,8 @@ const initialValues: {
     companyIndex: 0,
     currentCompany: null,
     updateCompanyIndex: (index: number) => { },
-    fetchCompanies: ({ }: { userId: string, refetch?: boolean }) => { }
+    fetchCompanies: ({ }: { userId: string, refetch?: boolean }) => { },
+    fiscalYear: null
 };
 
 type Props = {
@@ -36,12 +39,22 @@ const CompanyProvider: React.FC<Props> = ({ children }) => {
     const [error, setError] = useState(false);
     const [companies, setCompanies] = useState<CompanyMemberType[]>([])
     const [currentCompany, setCurrentCompany] = useState<CompanyMemberType | null>(null)
+    const [fiscalYear, setFiscalYear] = useState<FiscalYear | null>(null)
     const [companyIndex, setCompanyIndex] = useState<number>(0)
 
     const updateCompanyIndex = useCallback(
         async (index: number) => {
             setCompanyIndex(index)
             setCurrentCompany(companies && companies[index])
+            if (companies &&
+                companies.length > index &&
+                companies[index].company && companies[index].company.fiscalYear &&
+                companies[index].company.fiscalYear.length > index &&
+                companies[index].company.fiscalYear[index]) {
+
+                setFiscalYear(companies[index].company.fiscalYear[index])
+
+            }
         },
         [companies],
     );
@@ -74,6 +87,9 @@ const CompanyProvider: React.FC<Props> = ({ children }) => {
                     setCompanies(memberData);
                     setCurrentCompany(memberData && memberData[0])
                     console.log("new Save");
+                    if (memberData && memberData.length > 0 && memberData[0].company.fiscalYear.length > 0 && memberData[0].company.fiscalYear[0]) {
+                        setFiscalYear(memberData[0].company.fiscalYear[0])
+                    }
 
                 }
                 setLoading(false);
@@ -95,7 +111,8 @@ const CompanyProvider: React.FC<Props> = ({ children }) => {
                 companies,
                 updateCompanyIndex,
                 currentCompany,
-                fetchCompanies
+                fetchCompanies,
+                fiscalYear
             }}
         >
             {children}

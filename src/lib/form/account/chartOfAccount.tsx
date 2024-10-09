@@ -3,12 +3,12 @@
 import { z } from 'zod';
 
 export const chartOfAccountSchema = z.object({
-    name: z.string().min(1, 'Account Code is required'),
+    name: z.string().min(1, 'Account Name is required'),
     code: z.number(
         {
-            invalid_type_error: "The give code need to be a number"
+            invalid_type_error: "The account id is invalid "
         }
-    ).min(4, 'The give code need to be at least 4 digits'),
+    ).min(4, 'The account id needs at least 4 digits'),
     accountType: z.enum([
         "Account_payable",
         "Account_receivable",
@@ -29,7 +29,6 @@ export const chartOfAccountSchema = z.object({
         required_error: 'You must select at least one account type!',
     }),
     balance: z.object({
-        balanceType: z.enum(["credit", "debit"]).default("credit"),
         amount: z.number({
             required_error: 'Balance amount is required!',
             invalid_type_error: 'Balance amount must be a number!',
@@ -39,6 +38,6 @@ export const chartOfAccountSchema = z.object({
 
 
 export const chartOfAccountsSchema = z.object({
-    accounts: z.array(chartOfAccountSchema),
+    accounts: z.array(chartOfAccountSchema)
     // .min(5, "At least one Chart of accounts are required"),
 })

@@ -54,7 +54,6 @@ export const onBoardingSteps = [
         description: "Please Setup the Chart of account for the company, you can also setup just the basic to get started with, and add the rest later",
         subSteps: [{
             name: '',
-            // "Setup Accounting Period"
             form: <OnboardingChartOfAccountForm />,
             className: ""
         }]

@@ -16,6 +16,7 @@ import { useAuth, useAuthFlow } from '@/lib/context/auth'
 import { profileSchema } from '@/lib/form/account/profile'
 import { GeneralProfileForm } from '@/modules/common/components/form'
 import { useOnboarding } from '@/lib/context/account/onboarding'
+import { secondsInAYear } from '@/lib/utils/calendar/date'
 
 
 
@@ -32,6 +33,7 @@ export function OnboardingProfileForm({ className, ...props }: OnboardingProfile
         resolver: zodResolver(profileSchema),
         defaultValues: {
             gender: "male",
+            dateOfBirth: new Date((new Date().getTime() - secondsInAYear * 14 * 1000)),
             ...profile,
             email: session && session.user && session.user.email ? session.user.email : '',
             fullName: session && session.user && session.user.user_metadata ? session.user.user_metadata.name : '',

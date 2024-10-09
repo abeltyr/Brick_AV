@@ -45,7 +45,7 @@ export type WithholdingDetailType = WithholdingDetail & {
 export type ChartOfAccountType = ChartOfAccount & {
   company?: CompanyType;
   createdBy?: ProfileType;
-  chartOfAccountBalance?: ChartOfAccountBalance;
+  chartOfAccountBalance?: ChartOfAccountBalance[];
 };
 
 export type ChartOfAccountTransactionType = ChartOfAccountTransaction & {
@@ -59,7 +59,6 @@ export type ChartOfAccountInputType = {
   code: number;
   accountType: ChartOfAccountsCategoryType;
   type: ChartOfAccountsType;
-  balanceType: "credit" | "debit";
   amount: number;
 };
 

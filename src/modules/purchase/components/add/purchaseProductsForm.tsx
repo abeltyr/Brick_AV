@@ -113,7 +113,6 @@ export default function PurchaseProductsForm() {
                                             form!.setValue(`purchaseProducts.${index}.chartOfAccount`, {
                                                 id: coa.id,
                                                 amount: new Decimal(form!.getValues(`purchaseProducts.${index}.unitPrice`)).mul(new Decimal(form!.getValues(`purchaseProducts.${index}.quantity`))).toNumber(),
-                                                balanceType: coa.creditBased ? "credit" : "debit",
                                                 name: coa.name,
                                                 code: coa.code,
                                                 accountType: coa.accountType,
@@ -303,7 +302,6 @@ export default function PurchaseProductsForm() {
                                     if (product.inventory[0].chartOfAccount) {
                                         chartOfAccount = {
                                             id: product.inventory[0].chartOfAccount.id,
-                                            balanceType: product.inventory[0].chartOfAccount.creditBased ? "credit" : "debit",
                                             name: product.inventory[0].chartOfAccount.name,
                                             code: product.inventory[0].chartOfAccount.code,
                                             amount: new Decimal(unitPrice).mul(new Decimal(indexData === -1 ? 1 : watchedProducts[indexData].quantity + 1)).toNumber(),

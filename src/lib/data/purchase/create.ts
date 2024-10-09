@@ -270,14 +270,8 @@ export const createPurchaseAction = async ({
             companyId: companyId,
             date: purchaseInput.date,
             chartOfAccountId: vatAccount!.id,
-            credit:
-              purchaseInput.chartOfAccount.vatAccount?.balanceType === "credit"
-                ? taxAmount
-                : 0,
-            debit:
-              purchaseInput.chartOfAccount.vatAccount?.balanceType === "debit"
-                ? taxAmount
-                : 0,
+            credit: 0,
+            debit: taxAmount,
             status: "CONFIRMED",
             createdById: creatorId,
           },
@@ -493,14 +487,8 @@ export const createPurchaseAction = async ({
       companyId: companyId,
       date: purchaseInput.date,
       chartOfAccountId: paymentAccount!.id,
-      credit:
-        purchaseInput.chartOfAccount.paymentAccount?.balanceType === "credit"
-          ? totalAmount.plus(taxAmount)
-          : 0,
-      debit:
-        purchaseInput.chartOfAccount.paymentAccount?.balanceType === "debit"
-          ? totalAmount.plus(taxAmount)
-          : 0,
+      credit: totalAmount.plus(taxAmount),
+      debit: 0,
       status: "PENDING",
       createdById: creatorId,
     },
