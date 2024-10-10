@@ -19,6 +19,12 @@ export const createChartOfAccountAction = async ({
 }): Promise<ChartOfAccountType> => {
   let date = new Date();
 
+  console.log("date", {
+    date,
+
+    polop: date.toISOString().split("T")[0] + "T00:00:00.000Z",
+  });
+
   const fiscalYear = await prisma.fiscalYear.findUnique({
     where: {
       companyId_year: {
@@ -27,6 +33,7 @@ export const createChartOfAccountAction = async ({
       },
     },
   });
+  console.log("fiscalYear", fiscalYear);
 
   if (!fiscalYear) throw new Error("Financial period not found");
 
@@ -34,10 +41,10 @@ export const createChartOfAccountAction = async ({
     where: {
       fiscalYearId: fiscalYear.id,
       startDate: {
-        lte: date,
+        lte: date.toISOString().split("T")[0] + "T00:00:00.001Z",
       },
       endDate: {
-        gte: date,
+        gte: date.toISOString().split("T")[0] + "T00:00:00.001Z",
       },
     },
   });

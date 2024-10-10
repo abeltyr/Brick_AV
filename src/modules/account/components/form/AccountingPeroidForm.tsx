@@ -46,6 +46,7 @@ export function OnboardingAccountingPeriodForm({ className, ...props }: Onboardi
 
 
     const onSubmit = async (values: z.infer<typeof yearSchema>) => {
+        console.log(values)
         setFiscalYear(values);
         setOnBoardingId(3)
         setOnBoardingSubSet(0)

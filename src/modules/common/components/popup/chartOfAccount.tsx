@@ -10,6 +10,7 @@ import { ChartOfAccountType } from '@/types/purchase'
 import { Separator } from '@/modules/ui/separator'
 import { Button } from '@/modules/ui/button'
 import { ScrollArea } from '@/modules/ui/scroll-area'
+import { Checkbox } from '@/modules/ui/checkbox'
 
 interface ChartOfAccountPopupProps {
     chartOfAccountsData: ChartOfAccountType[]
@@ -73,10 +74,10 @@ export const ChartOfAccountPopup: React.FC<ChartOfAccountPopupProps> = ({
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead className="w-10  bg-popover z-10">Selected</TableHead>
                                     <TableHead className='w-10 bg-popover z-10'>Account Id</TableHead>
                                     <TableHead className='w-32 text-left bg-popover z-10'>Name</TableHead>
                                     <TableHead className='w-32 bg-popover z-10'>Account Type</TableHead>
-                                    <TableHead className="w-10 text-right bg-popover z-10">Selected</TableHead>
                                 </TableRow>
                             </TableHeader>
 
@@ -109,28 +110,23 @@ export const ChartOfAccountPopup: React.FC<ChartOfAccountPopupProps> = ({
                                                 setOpen(false)
                                             }}
                                         >
+
+                                            <TableCell>
+                                                <Checkbox
+                                                    checked={chartOfAccountIndex != null &&
+                                                        chartOfAccounts &&
+                                                        chartOfAccounts[companyId] &&
+                                                        chartOfAccounts[companyId].length > chartOfAccountIndex &&
+                                                        chartOfAccounts[companyId][chartOfAccountIndex].id === chartOfAccount.id}
+
+                                                />
+                                            </TableCell>
                                             <TableCell className='w-10'>{chartOfAccount.code}</TableCell>
                                             <TableCell className="table-cell w-6 text-left">
                                                 {chartOfAccount.name}
                                             </TableCell>
                                             <TableCell className="table-cell w-32">
                                                 {accountTypeObject[chartOfAccount.accountType].data}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="h-6 w-6 ml-5 border-2 border-black flex justify-center items-center rounded-md">
-                                                    <CheckIcon
-                                                        className={cn(
-                                                            "h-4 w-4",
-                                                            chartOfAccountIndex != null &&
-                                                                chartOfAccounts &&
-                                                                chartOfAccounts[companyId] &&
-                                                                chartOfAccounts[companyId].length > chartOfAccountIndex &&
-                                                                chartOfAccounts[companyId][chartOfAccountIndex].id === chartOfAccount.id
-                                                                ? "opacity-100"
-                                                                : "opacity-0"
-                                                        )}
-                                                    />
-                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))

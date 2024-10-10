@@ -12,6 +12,24 @@ import { BusinessType } from '@/types/business';
 import { ProfileInputType, ProfileType } from '@/types/profile';
 import React, { useContext, useState } from "react";
 import { z } from 'zod';
+import { DateTime } from 'luxon';
+
+
+function processAndSendDate(inputDate: Date) {
+    // If inputDate is a string or JS Date, convert it to a Luxon DateTime object
+    const date = DateTime.fromJSDate(new Date(inputDate));  // Or DateTime.fromISO if string
+
+    // Normalize the date by setting the time to midnight (local timezone)
+    const localDate = date.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+
+    // Convert to 'YYYY-MM-DD' format to send to the backend
+    const formattedDate = localDate.toFormat('yyyy-MM-dd');
+
+    // Send `formattedDate` to your backend (for demonstration purposes, we'll log it)
+    console.log(formattedDate); // Example: '2024-10-15'
+
+    // Send `formattedDate` to backend using your API (e.g., fetch or axios)
+}
 
 export const onBoardingSteps = [
     {
@@ -170,6 +188,7 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
             dateBirth: profile.dateOfBirth,
             gender: profile.gender === "male" ? "Male" : "Female",
             phoneNumber: profile.phoneNumber ?? "",
+            email: profile.email,
             address: {
                 description: address.description,
                 houseNumber: address.houseNumber,
@@ -179,8 +198,16 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
                 kebele: address.kebele
             }
         }
-
-
+        console.log("fiscalYear", {
+            startDate: DateTime.fromJSDate(fiscalYear.startDate).toISO(),
+            endDate: fiscalYear.endDate.toDateString(),
+            periods: fiscalYear.periods.map((data) => {
+                return {
+                    start: data.start,
+                    end: data.end,
+                }
+            })
+        });
         try {
             const profileData = await onBoardingAction({
                 company: {

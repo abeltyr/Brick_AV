@@ -64,7 +64,7 @@ export const GeneralCompanyForm = ({ form, title = "Manager Name", readOnlyValue
                         form={form}
                         name='companyPhone'
                         title="Company Phone"
-                        placeholder="922998885"
+                        placeholder="911223344"
                     />
                 </div>
             </div>

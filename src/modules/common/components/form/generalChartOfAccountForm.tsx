@@ -46,14 +46,7 @@ export const GeneralChartAccountForm = ({ form, readOnlyValues = [] }: { form: U
                 />
             </div>
             <div className='flex flex-col gap-3'>
-                <RadioInput
-                    form={form}
-                    name='balance.balanceType'
-                    title="Account Initial Balance"
-                    description='Select which side is the balance when negative'
-                    values={[...BalanceTypeData]}
-                    alignment='horizontal'
-                />
+
                 <PriceInput
                     form={form}
                     name='balance.amount'

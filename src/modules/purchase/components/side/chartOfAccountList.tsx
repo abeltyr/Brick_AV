@@ -18,7 +18,7 @@ import { Separator } from '@/modules/ui/separator'
 export default function ChartOfAccountListSection() {
 
 
-    const { chartOfAccount, taxTotal, withholding, vendor, taxableAmount } = useAddPurchases()
+    const { chartOfAccount, taxTotal, withholding, vendor, taxableAmount, nonTaxableAmount } = useAddPurchases()
 
     const [opened, setOpened] = useState(false)
 
@@ -102,7 +102,7 @@ export default function ChartOfAccountListSection() {
                                         </span>
                                         {data.quantity && data.amount &&
                                             <span className="text-primary text-sm">
-                                                ETB {`${new Decimal(data.amount).toNumber().toLocaleString('en-US')}`}
+                                                {`${new Decimal(data.amount).toNumber().toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}`}
                                             </span>
                                         }
                                     </li>
@@ -112,7 +112,7 @@ export default function ChartOfAccountListSection() {
                                         {chartOfAccount.vatAccount?.name}
                                     </span>
                                     <span className="text-primary text-sm">
-                                        {taxTotal && taxTotal.toNumber().toLocaleString('en-US')}
+                                        {taxTotal && taxTotal.toNumber().toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}
                                     </span>
                                 </li>}
                                 {withholding.greaterThan(0) && chartOfAccount.withHolding && <li className="flex items-center justify-between">
@@ -120,7 +120,7 @@ export default function ChartOfAccountListSection() {
                                         {chartOfAccount.withHolding?.name}
                                     </span>
                                     <span className="text-primary text-sm">
-                                        {withholding && withholding.toNumber().toLocaleString('en-US')}
+                                        {withholding && withholding.toNumber().toLocaleString('en-US', { style: 'currency', currency: 'ETB' }).replace('ETB', 'ETB -')}
                                     </span>
                                 </li>}
                             </ul>
@@ -138,7 +138,7 @@ export default function ChartOfAccountListSection() {
                                     <span className="text-primary text-sm">
                                         {chartOfAccount.paymentAccount &&
                                             chartOfAccount.paymentAccount.balance ?
-                                            new Decimal(chartOfAccount.paymentAccount.balance).minus(taxTotal).minus(taxableAmount).toNumber().toLocaleString('en-US', { style: 'currency', currency: 'ETB' })
+                                            new Decimal(chartOfAccount.paymentAccount.balance).minus(taxTotal).minus(taxableAmount).minus(nonTaxableAmount).plus(withholding).toNumber().toLocaleString('en-US', { style: 'currency', currency: 'ETB' })
 
                                             : 0}
                                     </span>

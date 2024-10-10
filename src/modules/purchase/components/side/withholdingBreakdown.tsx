@@ -8,7 +8,6 @@ import {
 } from "@/modules/ui/collapsible"
 import { useAddPurchases } from '@/lib/context/purchase/addPurchase'
 import { useEffect, useState } from 'react'
-import { useWatch } from 'react-hook-form'
 import { Separator } from '@/modules/ui/separator'
 
 
@@ -37,7 +36,7 @@ export default function WithholdingBreakdownSection() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [withholding])
 
-    if (vendor && vendor.business && vendor.taxType === "VAT")
+    if (vendor && vendor.business && vendor.taxType === "VAT" && withholding.greaterThan(0))
         return (<div>
             <Separator className='my-8' />
             <Collapsible open={opened}>

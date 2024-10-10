@@ -7,7 +7,7 @@ export const PhoneNumberInput = ({
     title = "Phone number",
     form,
     name = "phoneNumber",
-    placeholder = "922998885",
+    placeholder = "911223344",
     disabled = false,
     description
 }: {

@@ -43,7 +43,7 @@ export const PriceInput = ({
                                 console.log("value", value)
                                 if (value === "") {
                                     console.log("value", value)
-                                    field.onChange("");
+                                    field.onChange(0);
                                 }
                                 else {
                                     field.onChange(Math.abs(Number(value)));

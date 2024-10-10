@@ -45,7 +45,37 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
     const form = useForm<z.infer<typeof chartOfAccountsSchema>>({
         resolver: zodResolver(chartOfAccountsSchema),
         defaultValues: {
-            accounts: []
+            accounts: [
+                {
+                    accountType: "Cash",
+                    balance: {
+                        amount: 0
+                    },
+                    name: "",
+                    code: 1001,
+                }, {
+                    accountType: "Account_receivable",
+                    balance: {
+                        amount: 0
+                    },
+                    name: "Vat Receivable",
+                    code: 1011,
+                }, {
+                    accountType: "Equity_does_not_close",
+                    balance: {
+                        amount: 0
+                    },
+                    name: "",
+                    code: 3001,
+                }, {
+                    accountType: "Account_payable",
+                    balance: {
+                        amount: 0
+                    },
+                    name: "Withholding Payable",
+                    code: 4001,
+                }
+            ]
         },
     })
 
@@ -90,6 +120,17 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
         if (!isLoading) {
             setIsLoading(true)
             try {
+                if (!totalDebit.minus(totalCredit).equals(0)) {
+                    toast({
+                        title: "The",
+                        description: (
+                            <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
+                                An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
+                            </div>
+                        ),
+                    })
+                    return
+                }
                 if (session && session.user && session?.user.id) {
                     const profileData = await createUser({ userId: session.user.id, chartOfAccounts: values });
                     if (profileData)
@@ -99,7 +140,7 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
             } catch (e) {
                 console.log(e)
                 toast({
-                    title: "Error Signing up",
+                    title: "Error Creating the account",
                     description: (
                         <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
                             An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
@@ -208,7 +249,7 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
 
                         <div>
                             {form!.formState.errors.accounts &&
-                                <ErrorMessage message='At least one item is required for the purchase' />
+                                <ErrorMessage message={form!.formState.errors.accounts.message ?? "Please setup all the chart of the account needed"} />
                             }
                         </div>
                     </div>

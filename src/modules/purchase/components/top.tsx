@@ -8,12 +8,15 @@ import { ChartOfAccountInput } from '@/modules/common/components/input/coa';
 import { useAddPurchases } from '@/lib/context/purchase/addPurchase';
 import Decimal from 'decimal.js';
 import { ErrorMessage } from '@/modules/common/components/errorMessage';
+import { useCompany } from '@/lib/context/account';
 
 export const AddPurchaseTopSection = ({ form, companyId }: {
     companyId: string, form: UseFormReturn<z.infer<typeof purchaseSchema>>
 }) => {
 
     const { setChartOfAccount, chartOfAccount } = useAddPurchases()
+
+    const { fiscalYear } = useCompany();
     return (
         <div className='w-full flex justify-between item-center gap-6 my-10'>
             <div className='flex flex-col gap-1'>
@@ -29,6 +32,12 @@ export const AddPurchaseTopSection = ({ form, companyId }: {
                     <DatePickerInput
                         form={form}
                         name='date'
+                        minDate={
+                            fiscalYear?.startDate
+                        }
+                        maxDate={
+                            fiscalYear?.endDate
+                        }
                     />
                 </div>
                 <div className={`${form!.formState.errors.paymentChartOfAccountId ? "space-y-3" : ""}`}>

@@ -12,7 +12,7 @@ export type ProfileInputType = {
   name: string;
   userId?: string;
   preferredName?: string;
-  email?: string;
+  email: string;
   phoneNumber?: string;
   gender?: Gender;
   dateBirth?: Date;

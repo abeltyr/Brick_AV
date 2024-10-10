@@ -22,12 +22,10 @@ export const onBoardingAction = async (data: {
 
   const companyId = v4();
   const fiscalYearId = v4();
+  const profileId = v4();
   let chartOfAccountDataSet: Prisma.Prisma__ChartOfAccountClient<{}>[] = [];
 
   for (let accounts of data.chartOfAccounts.accounts) {
-    let createdBy = {};
-    if (data.profile.userId)
-      createdBy = { connect: { id: data.profile.userId } };
     const chartOfAccountData: Prisma.Prisma__ChartOfAccountClient<{}> =
       prisma.chartOfAccount.create({
         data: {
@@ -37,7 +35,7 @@ export const onBoardingAction = async (data: {
           balanceCreditBased:
             accountTypeObject[accounts.accountType].normal_balance === "credit",
           type: accountTypeObject[accounts.accountType].type,
-          // createdBy: createdBy,
+          createdBy: { connect: { id: profileId } },
           company: {
             connect: {
               id: companyId,
@@ -48,6 +46,7 @@ export const onBoardingAction = async (data: {
               balance: accounts.balance.amount,
               initialBalance: accounts.balance.amount,
               fiscalYearId,
+              creatorId: profileId,
             },
           },
         },
@@ -56,9 +55,36 @@ export const onBoardingAction = async (data: {
       chartOfAccountDataSet = [...chartOfAccountDataSet, chartOfAccountData];
   }
 
+  console.log("fiscalYear", data.fiscalYear);
+
+  const fiscalStartDate = new Date(data.fiscalYear.startDate);
+  const fiscalEndDate = new Date(data.fiscalYear.endDate);
+
+  fiscalStartDate.setHours(24, 0, 0, 0);
+  fiscalEndDate.setHours(24, 0, 0, 0);
+
+  // console.log({
+  //   startDate: fiscalStartDate.toISOString().split("T")[0] + "T00:00:00.000Z",
+  //   endDate: fiscalEndDate.toISOString().split("T")[0] + "T23:59:59.999Z",
+  //   data: data.fiscalYear.periods.map((period, index) => {
+  //     const start = period.start;
+  //     const end = period.end;
+  //     start.setHours(24, 0, 0, 0);
+  //     end.setHours(24, 0, 0, 0);
+  //     return {
+  //       startDate: start.toISOString().split("T")[0] + "T00:00:00.000Z",
+  //       endDate: end.toISOString().split("T")[0] + "T23:59:59.999Z",
+  //       name: months[start.getMonth()] ? months[start.getMonth()].full : "",
+  //       order: index,
+  //     };
+  //   }),
+  // });
+
+  // throw new Error();
   const [profile] = await prisma.$transaction([
     prisma.profile.create({
       data: {
+        id: profileId,
         userId: data.profile.userId,
         dateBirth: data.profile.dateBirth,
         email: data.profile.email,
@@ -112,9 +138,10 @@ export const onBoardingAction = async (data: {
     prisma.fiscalYear.create({
       data: {
         id: fiscalYearId,
-        startDate: data.fiscalYear.startDate,
-        endDate: data.fiscalYear.endDate,
-        year: data.fiscalYear.startDate.getFullYear(),
+        startDate:
+          fiscalStartDate.toISOString().split("T")[0] + "T00:00:00.000Z",
+        endDate: fiscalEndDate.toISOString().split("T")[0] + "T23:59:59.999Z",
+        year: fiscalStartDate.getFullYear(),
         company: {
           connect: {
             id: companyId,
@@ -122,14 +149,21 @@ export const onBoardingAction = async (data: {
         },
         accountPeriods: {
           createMany: {
-            data: data.fiscalYear.periods.map((period, index) => ({
-              startDate: period.start,
-              endDate: period.end,
-              name: months[period.start.getMonth()]
-                ? months[period.start.getMonth()].full
-                : "",
-              order: index,
-            })),
+            data: data.fiscalYear.periods.map((period, index) => {
+              const start = period.start;
+              const end = period.end;
+              start.setHours(24, 0, 0, 0);
+              end.setHours(24, 0, 0, 0);
+
+              return {
+                startDate: start.toISOString().split("T")[0] + "T00:00:00.000Z",
+                endDate: end.toISOString().split("T")[0] + "T23:59:59.999Z",
+                name: months[start.getMonth()]
+                  ? months[start.getMonth()].full
+                  : "",
+                order: index,
+              };
+            }),
           },
         },
       },

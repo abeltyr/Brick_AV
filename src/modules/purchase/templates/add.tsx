@@ -48,9 +48,19 @@ export const AddPurchaseSection = () => {
             receiptType === "Machine" &&
             (!form!.getValues("mrcNumber") || form!.getValues("mrcNumber") === "")) {
 
-            console.log("data mrc number")
             form?.setError("mrcNumber", {
                 message: "MRC Number Is Required"
+            })
+            error = true;
+        }
+
+        if (
+            vendor &&
+            vendor.taxType != "NONE" &&
+            receiptType === "Machine" &&
+            form!.getValues("receiptNumber").length != 8) {
+            form?.setError("receiptNumber", {
+                message: "Receipt Number length should be 8 digits"
             })
             error = true;
         }
@@ -71,7 +81,10 @@ export const AddPurchaseSection = () => {
             }
         }
 
-        if (error) return
+        console.log("form?.formState.errors", form?.formState.errors)
+        if (error || (form?.formState.errors &&
+            form?.formState.errors.date &&
+            form?.formState.errors.date.message === "Out of account period range")) return
 
 
         form?.clearErrors()
@@ -106,12 +119,25 @@ export const AddPurchaseSection = () => {
                     // if (error.message.includes("vendorTin`,`receiptNumber`"))
                     message = {
                         title: "Receipt number already exist",
-                        description: "A Purchase with the given receipt number for this vendor already exists"
+                        description: "A purchase with the given receipt number for this vendor already exists"
                     }
                     form?.setError("receiptNumber", {
                         message: "Receipt number already exist",
                     })
                 }
+
+                if (error.message.includes('Account Period is not setup right')) {
+                    // if (error.message.includes("vendorTin`,`receiptNumber`"))
+                    message = {
+                        title: "Account Period Issues",
+                        description: "The date you have selected is out of the current fiscal year"
+                    }
+                    form?.setError("date", {
+                        message: "Out of fiscal year range",
+                    })
+                }
+
+
 
 
                 toast({
