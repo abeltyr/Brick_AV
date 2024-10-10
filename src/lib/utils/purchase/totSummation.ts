@@ -20,9 +20,6 @@ export const totPurchaseSummation = ({
   let goodSummaryAmount = new Decimal(0);
   let serviceSummaryAmount = new Decimal(0);
 
-  let serviceWithholdingAmount = new Decimal("0");
-  let goodWithholdingAmount = new Decimal("0");
-
   let serviceTaxAmount = new Decimal("0");
   let goodTaxAmount = new Decimal("0");
 
@@ -44,11 +41,9 @@ export const totPurchaseSummation = ({
         serviceSummaryAmount = serviceSummaryAmount.plus(totalValue);
         tax = totalValue.times(new Decimal(TOT_RATE.service));
         serviceTaxAmount = serviceTaxAmount.plus(tax);
-        serviceWithholdingAmount = serviceWithholdingAmount.plus(withholding);
       } else {
         goodSummaryAmount = goodSummaryAmount.plus(totalValue);
         goodTaxAmount = goodTaxAmount.plus(tax);
-        goodWithholdingAmount = goodWithholdingAmount.plus(withholding);
       }
 
       if (databaseGenerator) {
@@ -61,7 +56,7 @@ export const totPurchaseSummation = ({
           tax,
           grossAmount,
           index,
-          totalValue,
+          totalValue: totalValue.plus(taxAmount),
           withholding,
           ...databaseGenerator,
         });
@@ -79,12 +74,12 @@ export const totPurchaseSummation = ({
       }
     });
 
-  let withholdingAmount = serviceWithholdingAmount.plus(goodWithholdingAmount);
+  // let withholdingAmount = serviceWithholdingAmount.plus(goodWithholdingAmount);
   let totalAmount = serviceSummaryAmount.plus(goodSummaryAmount);
   let taxAmount = serviceTaxAmount.plus(goodTaxAmount);
 
   let grossAmount: Decimal = totalAmount
-    .plus(withholdingAmount)
+    // .plus(withholdingAmount)
     .plus(taxAmount);
 
   let totalQuantity: number = 1;
@@ -100,9 +95,6 @@ export const totPurchaseSummation = ({
       goodSummaryAmount,
       serviceSummaryAmount,
       totalAmount,
-      goodWithholdingAmount,
-      serviceWithholdingAmount,
-      withholdingAmount,
       taxAmount,
       grossAmount,
       totalQuantity,

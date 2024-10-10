@@ -155,9 +155,9 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
             } else {
                 throw new Error("Error Creating the purchase");
             }
-        } catch (e) {
+        } catch (e: any) {
             console.log(e)
-            throw new Error("Error Creating the purchase");
+            throw new Error(e.message);
         }
     };
 
@@ -185,6 +185,13 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                     }
                     let amount = new Decimal(quantity).mul(new Decimal(unitPrice)) ?? new Decimal(0);
 
+                    if (vendor && vendor.taxType === "TOT") {
+                        if (data.type === "Good") {
+                            amount = amount.mul(1.02)
+                        } else {
+                            amount = amount.mul(1.10)
+                        }
+                    }
                     if (amount && chartOfAccountData[code] && chartOfAccountData[code].amount) {
                         amount = new Decimal(chartOfAccountData[code].amount).plus(amount);
                     }
@@ -192,7 +199,7 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                     if (quantity && chartOfAccountData[code] && chartOfAccountData[code].quantity) {
                         quantity = new Decimal(chartOfAccountData[code].quantity).plus(quantity).toNumber();
                     }
-                    console.log("amount", amount);
+
 
                     chartOfAccountData[code] = {
                         id: data.chartOfAccount.id,
@@ -249,16 +256,12 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
                 setTotalAmount(summation.totalAmount)
                 setTaxableAmount(summation.totalAmount)
                 setTaxTotal(summation.taxAmount)
-                setWithholding(summation.withholdingAmount)
                 setLocalGoodSummaryAmount(summation.goodSummaryAmount)
-                setLocalGoodWithholding(summation.goodWithholdingAmount)
                 setServiceSummaryAmount(summation.serviceSummaryAmount)
-                setServiceWithholding(summation.serviceWithholdingAmount)
                 setGrossAmount(summation.grossAmount)
                 setGoodTotTotal(summation.goodTaxAmount)
                 setServiceTotTotal(summation.serviceTaxAmount)
 
-                withholdingAmountData = summation.withholdingAmount;
             }
 
         } else {

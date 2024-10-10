@@ -313,8 +313,8 @@ export const createPurchaseAction = async ({
               companyId: companyId,
               date: purchaseInput.date,
               chartOfAccountId: withHolding.id,
-              credit: 0,
-              debit: withholdingAmount,
+              credit: withholdingAmount,
+              debit: 0,
               status: "PENDING",
               createdById: creatorId,
             },
@@ -353,9 +353,6 @@ export const createPurchaseAction = async ({
       goodSummaryAmount = sum.summation.goodSummaryAmount;
       serviceSummaryAmount = sum.summation.serviceSummaryAmount;
       totalAmount = sum.summation.totalAmount;
-      goodWithholdingAmount = sum.summation.goodWithholdingAmount;
-      serviceWithholdingAmount = sum.summation.serviceWithholdingAmount;
-      withholdingAmount = sum.summation.withholdingAmount;
       taxAmount = sum.summation.taxAmount;
       grossAmount = sum.summation.grossAmount;
       totalQuantity = sum.summation.totalQuantity;
@@ -380,40 +377,6 @@ export const createPurchaseAction = async ({
           taxAmount: taxAmount,
         },
       };
-      if (
-        withholdingAmount.greaterThan(0) &&
-        purchaseInput.chartOfAccount.withHolding
-      ) {
-        let value:
-          | Prisma.ChartOfAccountTransactionCreateNestedOneWithoutVatDetailInput
-          | undefined;
-        if (withHolding) {
-          value = {
-            create: {
-              transactionType: "TAX",
-              accountPeriodId: accountPeriod.id,
-              companyId: companyId,
-              date: purchaseInput.date,
-              chartOfAccountId: withHolding.id,
-              credit: 0,
-              debit: withholdingAmount,
-              status: "PENDING",
-              createdById: creatorId,
-            },
-          };
-        }
-        createData.withholdingDetail = {
-          create: {
-            serviceSummaryAmount: serviceSummaryAmount,
-            serviceWithholding: serviceWithholdingAmount,
-            localGoodSummaryAmount: goodSummaryAmount,
-            localGoodWithholding: goodWithholdingAmount,
-            taxableAmount: totalAmount,
-            totalWithholding: withholdingAmount,
-            chartOfAccountTransaction: value,
-          },
-        };
-      }
     }
   } else {
     createData.vendorName = vendor.name ?? "";
@@ -460,8 +423,8 @@ export const createPurchaseAction = async ({
             companyId: companyId,
             date: purchaseInput.date,
             chartOfAccountId: withHolding.id,
-            credit: 0,
-            debit: withholdingAmount,
+            credit: withholdingAmount,
+            debit: 0,
             status: "PENDING",
             createdById: creatorId,
           },
@@ -479,7 +442,6 @@ export const createPurchaseAction = async ({
 
   createData.id = purchaseId;
 
-  console.log("paymentAccount!.id", paymentAccount!.id);
   createData.chartOfAccountTransaction = {
     create: {
       transactionType: "PAYMENT",

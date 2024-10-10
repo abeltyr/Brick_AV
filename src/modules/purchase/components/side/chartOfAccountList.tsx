@@ -10,6 +10,7 @@ import {
 import { useAddPurchases } from '@/lib/context/purchase/addPurchase'
 import Decimal from 'decimal.js'
 import { useEffect, useState } from 'react'
+import { Separator } from '@/modules/ui/separator'
 
 
 
@@ -17,7 +18,7 @@ import { useEffect, useState } from 'react'
 export default function ChartOfAccountListSection() {
 
 
-    const { chartOfAccount, taxTotal, withholding, vendor } = useAddPurchases()
+    const { chartOfAccount, taxTotal, withholding, vendor, taxableAmount } = useAddPurchases()
 
     const [opened, setOpened] = useState(false)
 
@@ -88,6 +89,8 @@ export default function ChartOfAccountListSection() {
                             flex flex-col gap-3 
                             ${chartOfAccount && Object.values(chartOfAccount.productsChartAccount).length > 0 || taxTotal.greaterThan(0) || withholding.greaterThan(0) ? "mt-6" : "mt-0"}`}>
 
+                            {chartOfAccount &&
+                                <Separator className='my-1 opacity-30' />}
                             {chartOfAccount && Object.values(chartOfAccount.productsChartAccount).length > 0 && <ul className="flex flex-col gap-3 ">
                                 {Object.values(chartOfAccount.productsChartAccount).map((data, index) => {
                                     return <li className="flex items-center justify-between" key={index}>
@@ -95,9 +98,6 @@ export default function ChartOfAccountListSection() {
                                             {data.name} {" x "}
                                             <span>
                                                 {data.quantity}
-                                            </span>
-                                            {" - "}<span className='text-xs px-1 py-1 bg-green-200 rounded-md'>
-                                                D
                                             </span>
                                         </span>
                                         {data.quantity && data.amount &&
@@ -125,17 +125,25 @@ export default function ChartOfAccountListSection() {
                                 </li>}
                             </ul>
                             }
-                            {/* {taxTotal.greaterThan(0) && <ul className="flex flex-col gap-3 ">
+                            {chartOfAccount.paymentAccount &&
+                                <Separator className='my-1 opacity-30' />
+                            }
+
+                            {chartOfAccount.paymentAccount && <ul className="flex flex-col gap-3" >
                                 <li className="flex items-center justify-between">
                                     <span className="text-[#828282] text-sm">
-                                        Vat Receivable
+                                        {chartOfAccount.paymentAccount && chartOfAccount.paymentAccount?.name}
+
                                     </span>
                                     <span className="text-primary text-sm">
-                                        {taxTotal && taxTotal.toNumber().toLocaleString('en-US')}
+                                        {chartOfAccount.paymentAccount &&
+                                            chartOfAccount.paymentAccount.balance ?
+                                            new Decimal(chartOfAccount.paymentAccount.balance).minus(taxTotal).minus(taxableAmount).toNumber().toLocaleString('en-US', { style: 'currency', currency: 'ETB' })
+
+                                            : 0}
                                     </span>
                                 </li>
                             </ul>}
-                             */}
                             {/* {withholding.greaterThan(0) && <ul className="flex flex-col gap-3 ">
                                 <li className="flex items-center justify-between">
                                     <span className="text-[#828282] text-sm">

@@ -37,7 +37,7 @@ export default function WithholdingBreakdownSection() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [withholding])
 
-    if (vendor && vendor.business)
+    if (vendor && vendor.business && vendor.taxType === "VAT")
         return (<div>
             <Separator className='my-8' />
             <Collapsible open={opened}>

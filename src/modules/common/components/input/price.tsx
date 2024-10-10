@@ -46,7 +46,7 @@ export const PriceInput = ({
                                     field.onChange("");
                                 }
                                 else {
-                                    field.onChange(Number(value));
+                                    field.onChange(Math.abs(Number(value)));
                                 }
                             }}
                             onBlur={(e) => {

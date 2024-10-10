@@ -1,4 +1,4 @@
-import { useAddPurchases } from '@/lib/context/purchase/addPurchase'
+import LoadingSVG from '@/assets/icons/loading'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/modules/ui/breadcrumb'
 import { Button } from '@/modules/ui/button'
 import { Separator } from '@/modules/ui/separator'
@@ -7,9 +7,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
-export const AddPurchaseHeader = ({ actionFunction }: { actionFunction: Function }) => {
+export const AddPurchaseHeader = ({ actionFunction, isLoading }: { actionFunction: Function, isLoading: boolean }) => {
 
-    const { form } = useAddPurchases();
     const { back } = useRouter();
     return (
         <div className='flex flex-col w-full fixed top-[8vh] left-0 right-0  bg-background z-10 '>
@@ -39,10 +38,17 @@ export const AddPurchaseHeader = ({ actionFunction }: { actionFunction: Function
                             e.preventDefault();
                             form!.reset();
                         }}> Save Purchase</Button> */}
-                        <Button size="sm" onClick={(e) => {
-                            e.preventDefault();
-                            actionFunction()
-                        }}> Save Purchase</Button>
+                        <Button size="sm"
+                            className='gap-2'
+                            disabled={isLoading}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                actionFunction()
+                            }}>
+                            {isLoading && <div className='animate-spin '>
+                                <LoadingSVG className="h-4 w-4 stroke-[1]" />
+                            </div>}
+                            Save Purchase</Button>
                     </div>
                 </div>
             </div>

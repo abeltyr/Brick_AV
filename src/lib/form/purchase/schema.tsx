@@ -38,7 +38,7 @@ export const purchaseSchema = z.object({
     withholdingChartOfAccountId: z.string().optional(),
     date: z.date({ required_error: "Date is required" }),
     receiptNumber: z.string(),
-    mrcNumber: z.string().optional(),
+    mrcNumber: z.string().min(10, "MRC Number must be 10 digit").max(10, "MRC Number must be 10 digit").optional(),
     withholdingType: zProductInputWithholdingType,
     withholdingNumber: z.string().optional(),
     gebiwoch: z.object({

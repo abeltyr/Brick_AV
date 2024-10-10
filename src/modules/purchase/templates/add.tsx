@@ -94,15 +94,34 @@ export const AddPurchaseSection = () => {
                         ),
                     })
                 }
-            } catch (e) {
+            } catch (error: any) {
+                console.log("message", error.message, error.message.includes('Unique constraint failed'))
+                let message = {
+                    title: "Error Recording the purchase failed",
+                    description: "An error occurred. Please try again. If the issue persists, please contact us here."
+                }
+
+
+                if (error.message.includes('Unique constraint failed')) {
+                    // if (error.message.includes("vendorTin`,`receiptNumber`"))
+                    message = {
+                        title: "Receipt number already exist",
+                        description: "A Purchase with the given receipt number for this vendor already exists"
+                    }
+                    form?.setError("receiptNumber", {
+                        message: "Receipt number already exist",
+                    })
+                }
+
+
                 toast({
-                    title: "Error Creating Purchase",
+                    title: message.title,
                     description: (
-                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                            An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue persists, please contact us here.
+                        <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-200 font-medium text-sm">
+                            {message.description}
                         </div>
                     ),
-                })
+                });
             }
             setIsLoading(false)
         }
@@ -119,6 +138,7 @@ export const AddPurchaseSection = () => {
                             console.log(form?.formState);
                             form?.handleSubmit(onSubmit)()
                         }}
+                        isLoading={isLoading}
                     />
                     <div className='h-[8vh]' />
                     <AddPurchaseTopSection
