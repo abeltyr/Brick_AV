@@ -136,10 +136,6 @@ export const AddPurchaseSection = () => {
                         message: "Out of fiscal year range",
                     })
                 }
-
-
-
-
                 toast({
                     title: message.title,
                     description: (

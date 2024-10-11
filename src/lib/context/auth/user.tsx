@@ -57,6 +57,7 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
                 await logoutAction();
                 setSession(null);
                 localStorage.clear();
+                window.location.reload();
             } catch (e) {
                 console.error(e)
             }

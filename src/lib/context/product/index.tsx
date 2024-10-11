@@ -1,7 +1,7 @@
 'use client'
 
 import { createProductAction } from '@/lib/data/products/create';
-import { fetchProductsByCompanyIdAction } from '@/lib/data/products/fetchByCompanyId';
+import { fetchProductsByCompanyIdAction } from '@/lib/data/products/fetchByProdcutId';
 import { filter, Filter, loadLimit } from '@/types/shared';
 import React, { useCallback, useContext, useState } from "react";
 import { DateRangeType, RangeType } from '@/types/shared';
