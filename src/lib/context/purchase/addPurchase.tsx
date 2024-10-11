@@ -1,8 +1,8 @@
 'use client'
 
-import { createPurchaseAction } from '@/lib/data/purchase/create';
+import { createPurchaseAction } from '@/lib/data/purchase/create/create';
 import { ChartOfAccountValueInput, purchaseProducts, purchaseSchema } from '@/lib/form/purchase';
-import { PurchaseInputType } from '@/types/purchase';
+import { PurchaseInputType, PurchaseType } from '@/types/purchase';
 import React, { useContext, useEffect, useState } from "react";
 import { useForm, UseFormReturn, useWatch } from 'react-hook-form';
 import { z } from 'zod';
@@ -10,6 +10,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { VendorType } from '@/types/vendor';
 import Decimal from 'decimal.js';
 import { totPurchaseSummation, UnregisteredPurchaseSummation, vatPurchaseSummation } from '@/lib/utils/purchase';
+import { chartOfAccountSummation } from '@/lib/utils/purchase/chartOfAccountSummation';
+import { PurchaseReportType } from '@/types/report';
 
 
 export type ChartOfAccountDataType = z.infer<typeof ChartOfAccountValueInput>
@@ -26,7 +28,16 @@ export type ReceiptType = "Machine" | "Manual";
 
 type purchaseProductsType = z.infer<typeof purchaseProducts>
 const initialValues: {
-    createPurchase: ({ }: { companyId: string, creatorId: string, purchaseInput: PurchaseInputType }) => void;
+    createPurchase: ({ }: {
+        companyId: string,
+        fiscalYearId: string, creatorId: string, purchaseInput: PurchaseInputType
+    }) => Promise<{
+        purchase: PurchaseType | null;
+        purchaseDailyReport: PurchaseReportType | null;
+        purchaseWeeklyReport: PurchaseReportType | null;
+        purchaseAccountPeriodReport: PurchaseReportType | null;
+        purchaseFiscalYearReport: PurchaseReportType | null;
+    }>;
     form: UseFormReturn<z.infer<typeof purchaseSchema>> | null
     setVendor: React.Dispatch<React.SetStateAction<VendorType | null>>
     vendor: VendorType | null
@@ -52,7 +63,18 @@ const initialValues: {
     setReceiptType: React.Dispatch<React.SetStateAction<ReceiptType>>,
     watchedWithholdingType: "noWithholding" | "hasWithholding"
 } = {
-    createPurchase: ({ }: { companyId: string, creatorId: string, purchaseInput: PurchaseInputType }) => { },
+    createPurchase: async ({ }: {
+        companyId: string,
+        fiscalYearId: string, creatorId: string, purchaseInput: PurchaseInputType
+    }) => {
+        return {
+            purchase: null,
+            purchaseAccountPeriodReport: null,
+            purchaseDailyReport: null,
+            purchaseFiscalYearReport: null,
+            purchaseWeeklyReport: null,
+        }
+    },
     form: null,
     setVendor: () => { },
     vendor: null,
@@ -129,7 +151,16 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
         },
     })
 
-    const createPurchase = async ({ companyId, creatorId, purchaseInput }: { companyId: string, creatorId: string, purchaseInput: PurchaseInputType }) => {
+    const createPurchase = async ({ companyId, fiscalYearId, creatorId, purchaseInput }: {
+        companyId: string,
+        fiscalYearId: string, creatorId: string, purchaseInput: PurchaseInputType
+    }): Promise<{
+        purchase: PurchaseType | null;
+        purchaseDailyReport: PurchaseReportType | null;
+        purchaseWeeklyReport: PurchaseReportType | null;
+        purchaseAccountPeriodReport: PurchaseReportType | null;
+        purchaseFiscalYearReport: PurchaseReportType | null;
+    }> => {
         try {
             if (!vendor) throw new Error("Vendor is required")
 
@@ -143,6 +174,7 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
             const newPurchase = await createPurchaseAction({
                 companyId,
                 creatorId,
+                fiscalYearId,
                 purchaseInput: {
                     ...purchaseInput,
                     receiptNumber,
@@ -169,49 +201,12 @@ const AddPurchasesProvider: React.FC<Props> = ({ children }) => {
 
 
     const updateChartOfAccountData = () => {
-        if (watchedProducts) {
-            let chartOfAccountData: { [id: string]: ChartOfAccountDataType } = {}
-            for (let data of watchedProducts) {
-                if (data.chartOfAccount) {
-                    let code = data.chartOfAccount.code;
-                    let quantity = (data.quantity) ?? 0
-                    let unitPrice = data.unitPrice ?? 0
-
-                    if (typeof (quantity) === "string") {
-                        quantity = 0
-                    }
-                    if (typeof (unitPrice) === "string") {
-                        unitPrice = 0
-                    }
-                    let amount = new Decimal(quantity).mul(new Decimal(unitPrice)) ?? new Decimal(0);
-
-                    if (vendor && vendor.taxType === "TOT") {
-                        if (data.type === "Good") {
-                            amount = amount.mul(1.02)
-                        } else {
-                            amount = amount.mul(1.10)
-                        }
-                    }
-                    if (amount && chartOfAccountData[code] && chartOfAccountData[code].amount) {
-                        amount = new Decimal(chartOfAccountData[code].amount).plus(amount);
-                    }
-
-                    if (quantity && chartOfAccountData[code] && chartOfAccountData[code].quantity) {
-                        quantity = new Decimal(chartOfAccountData[code].quantity).plus(quantity).toNumber();
-                    }
-
-
-                    chartOfAccountData[code] = {
-                        id: data.chartOfAccount.id,
-                        name: data.chartOfAccount.name,
-                        code: data.chartOfAccount.code,
-                        accountType: data.chartOfAccount.accountType,
-                        amount: amount.toNumber(),
-                        quantity,
-                        balance: data.chartOfAccount.balance,
-                    }
-                }
-            }
+        if (watchedProducts && vendor) {
+            let chartOfAccountData: { [id: string]: ChartOfAccountDataType } =
+                chartOfAccountSummation({
+                    vendor,
+                    purchaseProducts: watchedProducts,
+                });
             setChartOfAccount((prevState) => ({
                 ...prevState, // Keep other properties unchanged
                 productsChartAccount: chartOfAccountData, // Update productsChartAccount

@@ -14,13 +14,13 @@ export const UnregisteredPurchaseSummation = ({
   purchaseProducts: PurchaseProductInput[];
   databaseGenerator?: DatabaseGeneratorType;
 }) => {
-  let chartOfAccountTransactions: Prisma.Prisma__ChartOfAccountTransactionClient<{}>[] =
-    [];
   let createPurchaseProductData: Prisma.Prisma__PurchaseProductClient<{}>[] =
     [];
   let withholdingRate = new Decimal("0");
   let totalAmount = new Decimal(0);
   let withholdingAmount = new Decimal(0);
+  let goodSummaryAmount = new Decimal(0);
+  let serviceSummaryAmount = new Decimal(0);
 
   if (hasWithholding) {
     withholdingRate = new Decimal(WITHHOLDING_RATE.unregistered);
@@ -41,12 +41,14 @@ export const UnregisteredPurchaseSummation = ({
       totalAmount = totalAmount.plus(totalValue);
       withholdingAmount = withholdingAmount.plus(withholding);
 
+      if (product.type === "Good")
+        goodSummaryAmount = goodSummaryAmount.plus(totalValue);
+
+      if (product.type === "Service")
+        serviceSummaryAmount = serviceSummaryAmount.plus(totalValue);
+
       if (databaseGenerator) {
-        const {
-          inventoryUpdateData,
-          purchaseProductData,
-          chartOfAccountTransaction,
-        } = dbCodeGenerator({
+        const { inventoryUpdateData, purchaseProductData } = dbCodeGenerator({
           product,
           tax: new Decimal(0),
           grossAmount,
@@ -55,11 +57,6 @@ export const UnregisteredPurchaseSummation = ({
           withholding,
           ...databaseGenerator,
         });
-        if (chartOfAccountTransaction)
-          chartOfAccountTransactions = [
-            ...chartOfAccountTransactions,
-            chartOfAccountTransaction,
-          ];
 
         inventoryUpdate = [...inventoryUpdate, inventoryUpdateData];
         createPurchaseProductData = [
@@ -86,9 +83,10 @@ export const UnregisteredPurchaseSummation = ({
       grossAmount,
       totalQuantity,
       averagePrice,
+      goodSummaryAmount,
+      serviceSummaryAmount,
     },
     createPurchaseProductData,
-    chartOfAccountTransactions,
     inventoryUpdate,
   };
 };

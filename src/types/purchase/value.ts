@@ -2,7 +2,6 @@ import {
   Purchase,
   PurchaseProduct,
   VatDetail,
-  TotDetail,
   WithholdingDetail,
   ChartOfAccount,
   ChartOfAccountTransaction,
@@ -19,7 +18,6 @@ export type PurchaseType = Purchase & {
   purchaseProduct?: PurchaseProductType[];
   vendor?: VendorType;
   vatDetail?: VatDetailType;
-  totDetail?: TotDetailType;
   withholdingDetail?: WithholdingDetailType;
 };
 
@@ -28,11 +26,6 @@ export type PurchaseProductType = PurchaseProduct & {
 };
 
 export type VatDetailType = VatDetail & {
-  chartOfAccount?: ChartOfAccountType;
-  chartOfAccountTransaction?: ChartOfAccountTransactionType;
-};
-
-export type TotDetailType = TotDetail & {
   chartOfAccount?: ChartOfAccountType;
   chartOfAccountTransaction?: ChartOfAccountTransactionType;
 };

@@ -2,8 +2,6 @@ import { Prisma } from "@prisma/client";
 import Decimal from "decimal.js";
 import { getPrisma } from "@/lib/utils/database";
 import { PurchaseProductInput } from "@/types/purchase";
-import { v4 } from "uuid";
-import { accountTypeObject } from "../chartOfAccount/values";
 const prisma = getPrisma();
 
 export const dbCodeGenerator = ({
@@ -14,10 +12,6 @@ export const dbCodeGenerator = ({
   index,
   totalValue,
   withholding,
-  accountPeriodId,
-  companyId,
-  date,
-  creatorId,
 }: {
   product: PurchaseProductInput;
   purchaseId: string;
@@ -82,7 +76,6 @@ export const dbCodeGenerator = ({
     update: updateInventory,
   });
 
-  const chartOfAccountTransactionId = v4();
   let purchaseProductValue = {
     tax,
     grossAmount,
@@ -96,34 +89,8 @@ export const dbCodeGenerator = ({
     order: index + 1,
     withholding,
     purchaseId,
-    chartOfAccountTransactionId,
   };
-  let chartOfAccountTransaction: Prisma.Prisma__ChartOfAccountTransactionClient<{}> | null =
-    null;
-  if (chartOfAccount) {
-    chartOfAccountTransaction = prisma.chartOfAccountTransaction.create({
-      data: {
-        id: chartOfAccountTransactionId,
-        chartOfAccountId: chartOfAccount.id,
-        transactionType: "DEPOSIT",
-        status: "PENDING",
-        accountPeriodId: accountPeriodId,
-        companyId: companyId,
-        date: date,
-        createdById: creatorId,
-        credit:
-          accountTypeObject[chartOfAccount.accountType].normal_balance ===
-          "credit"
-            ? totalValue
-            : 0,
-        debit:
-          accountTypeObject[chartOfAccount.accountType].normal_balance ===
-          "debit"
-            ? totalValue
-            : 0,
-      },
-    });
-  }
+
   const purchaseProductData = prisma.purchaseProduct.upsert({
     where: {
       purchaseId_inventoryId: {
@@ -136,7 +103,6 @@ export const dbCodeGenerator = ({
   });
 
   return {
-    chartOfAccountTransaction,
     purchaseProductData,
     inventoryUpdateData,
   };

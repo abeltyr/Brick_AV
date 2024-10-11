@@ -3,6 +3,7 @@
 import { fetchAllPurchases } from "../purchase/fetchAllPurchases";
 import { stringify } from "csv-stringify/sync";
 import { DateRangeType } from "@/types/shared";
+import { dateSetter } from "@/lib/utils/calendar/date";
 
 type PurchaseLtoReport = {
   indexData: number;
@@ -27,8 +28,8 @@ export const PurchaseLtoCsvGenerator = async ({
   try {
     const purchases = await fetchAllPurchases({
       companyId,
-      startDate: dateRange.startDate,
-      endDate: dateRange.endDate,
+      startDate: dateSetter(dateRange.startDate),
+      endDate: dateSetter(dateRange.endDate),
       filter: {
         fetch: "vat",
       },
@@ -64,7 +65,7 @@ export const PurchaseLtoCsvGenerator = async ({
       withholding: purchase.withholdingAmount.toFixed(2),
       mrcNumber: purchase.mrcNumber ?? "",
       receiptNumber: purchase.receiptNumber ?? "",
-      date: purchase.date
+      date: new Date(purchase.date.toISOString().split("T")[0])
         .toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "2-digit",

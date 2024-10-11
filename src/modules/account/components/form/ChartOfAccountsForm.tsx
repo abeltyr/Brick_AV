@@ -25,7 +25,7 @@ import { AccountTypeData, accountTypeObject } from '@/lib/utils/chartOfAccount/v
 import { SelectInput } from '@/modules/common/components/input/select'
 import { PriceInput } from '@/modules/common/components/input/price'
 import LoadingSVG from '@/assets/icons/loading'
-import { Card, CardContent, CardHeader, CardTitle } from '@/modules/ui/card'
+import { CardTitle } from '@/modules/ui/card'
 import { useEffect, useState } from 'react'
 import Decimal from 'decimal.js'
 
@@ -38,57 +38,20 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
     const { toast } = useToast()
 
     const { session } = useAuth();
-    const { createUser } = useOnboarding();
+    const { createUser, chartOfAccountForm } = useOnboarding();
     const { setProfile } = useProfile();
 
 
-    const form = useForm<z.infer<typeof chartOfAccountsSchema>>({
-        resolver: zodResolver(chartOfAccountsSchema),
-        defaultValues: {
-            accounts: [
-                {
-                    accountType: "Cash",
-                    balance: {
-                        amount: 0
-                    },
-                    name: "",
-                    code: 1001,
-                }, {
-                    accountType: "Account_receivable",
-                    balance: {
-                        amount: 0
-                    },
-                    name: "Vat Receivable",
-                    code: 1011,
-                }, {
-                    accountType: "Equity_does_not_close",
-                    balance: {
-                        amount: 0
-                    },
-                    name: "",
-                    code: 3001,
-                }, {
-                    accountType: "Account_payable",
-                    balance: {
-                        amount: 0
-                    },
-                    name: "Withholding Payable",
-                    code: 4001,
-                }
-            ]
-        },
-    })
-
 
     const { fields, remove, update, insert, } = useFieldArray({
-        control: form.control,
+        control: chartOfAccountForm!.control,
         name: "accounts",
     });
 
 
 
     const watchedAccounts = useWatch({
-        control: form.control,
+        control: chartOfAccountForm!.control,
         name: "accounts",
     });
 
@@ -120,17 +83,6 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
         if (!isLoading) {
             setIsLoading(true)
             try {
-                if (!totalDebit.minus(totalCredit).equals(0)) {
-                    toast({
-                        title: "The",
-                        description: (
-                            <div className="mt-2 w-full rounded-md bg-slate-950 p-4 text-red-300 font-medium text-sm">
-                                An error occurred please try again. If the issue persists, please wait a moment before attempt again. If the issue still persists, please contact us here.
-                            </div>
-                        ),
-                    })
-                    return
-                }
                 if (session && session.user && session?.user.id) {
                     const profileData = await createUser({ userId: session.user.id, chartOfAccounts: values });
                     if (profileData)
@@ -157,7 +109,7 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
 
     return (
         <div className={cn("grid gap-6", className)} {...props}>
-            <Form {...form}>
+            <Form {...chartOfAccountForm!}>
                 <div className='flex flex-col w-full gap-5'>
                     <div>
                         <p className='text-lg text-[#09090B]'>
@@ -180,14 +132,14 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
                                     <TableRow key={field.id} >
                                         <TableCell className='py-4 px-1 w-[160px]'>
                                             <PriceInput
-                                                form={form}
+                                                form={chartOfAccountForm!}
                                                 name={`accounts.${index}.code`}
                                                 placeholder="Account Id"
                                             />
                                         </TableCell>
                                         <TableCell className='py-4 px-1 pr-2 w-[200px]'>
                                             <NormalInput
-                                                form={form}
+                                                form={chartOfAccountForm!}
                                                 name={`accounts.${index}.name`}
                                                 type='text'
                                                 placeholder="COA Name"
@@ -195,7 +147,7 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
                                         </TableCell>
                                         <TableCell className='py-4 px-1 w-[230px]'>
                                             <SelectInput
-                                                form={form}
+                                                form={chartOfAccountForm!}
                                                 name={`accounts.${index}.accountType`}
                                                 selectTitle={{
                                                     name: "Choose account type",
@@ -206,7 +158,7 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
                                         </TableCell>
                                         <TableCell className='py-4 px-1 min-w-[120px] '>
                                             <PriceInput
-                                                form={form}
+                                                form={chartOfAccountForm!}
                                                 name={`accounts.${index}.balance.amount`}
                                                 placeholder="100,000"
                                             />
@@ -248,8 +200,8 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
                         </Table>
 
                         <div>
-                            {form!.formState.errors.accounts &&
-                                <ErrorMessage message={form!.formState.errors.accounts.message ?? "Please setup all the chart of the account needed"} />
+                            {chartOfAccountForm!.formState.errors.accounts &&
+                                <ErrorMessage message={chartOfAccountForm!.formState.errors.accounts.message ?? "Please setup all the chart of the account needed"} />
                             }
                         </div>
                     </div>
@@ -275,9 +227,7 @@ export function OnboardingChartOfAccountForm({ className, ...props }: Onboarding
                             disabled={isLoading}
                             type="submit" variant='default'
                             onClick={() => {
-                                console.log(form.formState)
-                                form.handleSubmit(onSubmit)()
-                                // onSubmit({ accounts: [] })
+                                if (chartOfAccountForm) chartOfAccountForm.handleSubmit(onSubmit)()
                             }}
                         >
                             {isLoading && (

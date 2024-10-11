@@ -17,7 +17,6 @@ export const DetailCard = ({ companyId }: { companyId: string }) => {
 
     useEffect(() => {
         if (purchasesReport && purchasesReport[companyId] && purchasesReport[companyId][dateRange.name]) {
-            console.log("purchasesReport[companyId][dateRange.name]")
             setPurchasesReportData(purchasesReport[companyId][dateRange.name])
         }
 
@@ -93,11 +92,7 @@ export const DetailCard = ({ companyId }: { companyId: string }) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-semibold">
-                            {purchasesReportData && purchasesReportData.grossAmount ? new Decimal(purchasesReportData.grossAmount).toNumber().toLocaleString('en-US') : 0}
-                            {" "}
-                            <LanguageTranslator>
-                                Birr
-                            </LanguageTranslator>
+                            {purchasesReportData && purchasesReportData.grossAmount ? new Decimal(purchasesReportData.grossAmount).toNumber().toLocaleString('en-US', { style: 'currency', currency: 'ETB' }) : (0).toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}
                         </div>
                     </CardContent>
                 </Card>
@@ -115,11 +110,7 @@ export const DetailCard = ({ companyId }: { companyId: string }) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-semibold">
-                            {purchasesReportData && purchasesReportData.totalAmount ? new Decimal(purchasesReportData.totalAmount).toNumber().toLocaleString('en-US') : 0}
-                            {" "}
-                            <LanguageTranslator>
-                                Birr
-                            </LanguageTranslator>
+                            {purchasesReportData && purchasesReportData.totalAmount ? new Decimal(purchasesReportData.totalAmount).toNumber().toLocaleString('en-US', { style: 'currency', currency: 'ETB' }) : (0).toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}
                         </div>
                     </CardContent>
                 </Card>
@@ -135,32 +126,8 @@ export const DetailCard = ({ companyId }: { companyId: string }) => {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-semibold">
-                                {purchasesReportData && purchasesReportData.vatAmount ? new Decimal(purchasesReportData.vatAmount).toNumber().toLocaleString('en-US') : 0}
-                                {" "}
-                                <LanguageTranslator>
-                                    Birr
-                                </LanguageTranslator>
-                            </div>
-                        </CardContent>
-                    </Card>
-                }
-                {purchasesReportData && purchasesReportData.totAmount &&
-                    <Card x-chunk="dashboard-01-chunk-2" className='flex-1'>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-lg font-medium"><LanguageTranslator>
-                                Tot</LanguageTranslator>
-                                {" "}
-                                <LanguageTranslator>
-                                </LanguageTranslator></CardTitle>
-                            <CreditCard className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-semibold">
-                                {purchasesReportData && purchasesReportData.totAmount ? new Decimal(purchasesReportData.totAmount).toNumber().toLocaleString('en-US') : 0}
-                                {" "}
-                                <LanguageTranslator>
-                                    Birr
-                                </LanguageTranslator>
+                                {purchasesReportData && purchasesReportData.vatAmount ? new Decimal(purchasesReportData.vatAmount).toNumber().toLocaleString('en-US', { style: 'currency', currency: 'ETB' }) : (0).toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}
+
                             </div>
                         </CardContent>
                     </Card>
@@ -177,8 +144,7 @@ export const DetailCard = ({ companyId }: { companyId: string }) => {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-semibold">
-                                {purchasesReportData && purchasesReportData.withholdingAmount ? new Decimal(purchasesReportData.withholdingAmount).toNumber().toLocaleString('en-US') : 0}
-                                {" "}
+                                {purchasesReportData && purchasesReportData.withholdingAmount ? new Decimal(purchasesReportData.withholdingAmount).toNumber().toLocaleString('en-US', { style: 'currency', currency: 'ETB' }) : (0).toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}
                                 <LanguageTranslator>
                                     Birr
                                 </LanguageTranslator>

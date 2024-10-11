@@ -1,5 +1,6 @@
 "use server";
 
+import { dateSetter } from "@/lib/utils/calendar/date";
 import { getPrisma } from "@/lib/utils/database";
 import { PurchaseReportType } from "@/types/report";
 import { DateRangeType } from "@/types/shared";
@@ -22,13 +23,12 @@ export const fetchDailyPurchaseReportAction = async ({
       nonTaxableAmount: true,
       taxableAmount: true,
       withholdingAmount: true,
-      totAmount: true,
     },
     where: {
       companyId,
       date: {
-        gte: new Date(date.startDate),
-        lte: new Date(date.endDate),
+        gte: dateSetter(date.startDate),
+        lte: dateSetter(date.endDate),
       },
     },
   });
@@ -62,7 +62,6 @@ export const fetchMonthlyPurchaseReportAction = async ({
       nonTaxableAmount: true,
       taxableAmount: true,
       withholdingAmount: true,
-      totAmount: true,
     },
     where: {
       companyId,
@@ -93,7 +92,6 @@ export const fetchYearlyPurchaseReportAction = async ({
       nonTaxableAmount: true,
       taxableAmount: true,
       withholdingAmount: true,
-      totAmount: true,
     },
     where: {
       companyId,

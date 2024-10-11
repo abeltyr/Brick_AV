@@ -18,7 +18,11 @@ const initialValues: {
         companyId: string,
     }) => void;
     dateRange: DateRangeType,
-    setDateRange: (date: DateRangeType,) => void
+    setDateRange: (date: DateRangeType,) => void,
+    insertPurchase: ({ companyId, purchase }: {
+        companyId: string,
+        purchase: PurchaseType,
+    }) => void
 } = {
     loading: true,
     error: false,
@@ -30,7 +34,8 @@ const initialValues: {
         companyId: string,
     }) => { },
     dateRange: { ...defaultDateRange },
-    setDateRange: (date: DateRangeType,) => { }
+    setDateRange: (date: DateRangeType,) => { },
+    insertPurchase: () => { }
 };
 
 
@@ -75,6 +80,24 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                 console.log(e);
                 setLoading(false);
                 setError(true);
+            }
+        },
+        [purchases],
+    );
+
+
+    const insertPurchase = useCallback(
+        async ({ companyId, purchase }: {
+            companyId: string,
+            purchase: PurchaseType,
+        }) => {
+
+            const purchasesData = { ...purchases };
+
+            if (purchasesData[companyId]) {
+                purchasesData[companyId] = [purchase, ...purchasesData[companyId],];
+            } else {
+                purchasesData[companyId] = [purchase];
             }
         },
         [purchases],
@@ -130,7 +153,8 @@ const PurchasesProvider: React.FC<Props> = ({ children }) => {
                 getPurchase,
                 dateRange,
                 setDateRange,
-                isLoading
+                isLoading,
+                insertPurchase
             }}
         >
             {children}

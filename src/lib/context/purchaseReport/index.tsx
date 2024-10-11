@@ -134,6 +134,7 @@ const PurchaseReportProvider: React.FC<Props> = ({ children }) => {
                 setPurchasesReport(purchasesData);
                 setLoading(false);
 
+                console.log("newPurchaseReport", newPurchaseReport)
                 return newPurchaseReport;
             } catch (e) {
                 console.log("error", e);

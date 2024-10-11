@@ -17,6 +17,7 @@ import { useState } from 'react'
 import PurchaseGebiwochReportForm from '../components/add/purchaseDeclarationAdjustmentForm'
 import { Separator } from '@/modules/ui/separator'
 import PurchaseDetailForm from '../components/add/purchaseDetailForm'
+import { usePurchases } from '@/lib/context/purchase'
 
 
 export const AddPurchaseSection = () => {
@@ -25,11 +26,11 @@ export const AddPurchaseSection = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const { toast } = useToast()
 
-    const { currentCompany } = useCompany();
+    const { currentCompany, fiscalYear } = useCompany();
     const { profile } = useProfile();
     const { createPurchase, form, vendor, chartOfAccount, withholding, receiptType } = useAddPurchases();
 
-
+    const { insertPurchase } = usePurchases();
 
     const onSubmit = async (values: z.infer<typeof purchaseSchema>) => {
 
@@ -47,7 +48,6 @@ export const AddPurchaseSection = () => {
             vendor.taxType != "NONE" &&
             receiptType === "Machine" &&
             (!form!.getValues("mrcNumber") || form!.getValues("mrcNumber") === "")) {
-
             form?.setError("mrcNumber", {
                 message: "MRC Number Is Required"
             })
@@ -81,23 +81,30 @@ export const AddPurchaseSection = () => {
             }
         }
 
-        console.log("form?.formState.errors", form?.formState.errors)
-        if (error || (form?.formState.errors &&
-            form?.formState.errors.date &&
-            form?.formState.errors.date.message === "Out of account period range")) return
-
+        if (error ||
+            (form?.formState.errors &&
+                Object.keys(form?.formState.errors).length > 0)
+        )
+            return
 
         form?.clearErrors()
 
         if (!isLoading) {
             setIsLoading(true)
             try {
-                if (currentCompany && profile) {
-                    const purchase = await createPurchase({
+                if (currentCompany && profile && fiscalYear) {
+                    const purchaseData = await createPurchase({
                         companyId: currentCompany.companyId,
+                        fiscalYearId: fiscalYear?.id,
                         creatorId: profile.id,
                         purchaseInput: values
                     })
+                    if (purchaseData.purchase)
+                        insertPurchase({
+                            companyId: currentCompany.companyId,
+                            purchase: purchaseData.purchase
+                        })
+
                     toast({
                         title: "Purchase Created",
                         description: (
@@ -147,6 +154,7 @@ export const AddPurchaseSection = () => {
             }
             setIsLoading(false)
         }
+
     }
 
     if (!currentCompany) return <div></div>

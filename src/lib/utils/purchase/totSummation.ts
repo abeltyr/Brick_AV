@@ -12,8 +12,6 @@ export const totPurchaseSummation = ({
   purchaseProducts: PurchaseProductInput[];
   databaseGenerator?: DatabaseGeneratorType;
 }) => {
-  let chartOfAccountTransactions: Prisma.Prisma__ChartOfAccountTransactionClient<{}>[] =
-    [];
   let createPurchaseProductData: Prisma.Prisma__PurchaseProductClient<{}>[] =
     [];
 
@@ -47,11 +45,7 @@ export const totPurchaseSummation = ({
       }
 
       if (databaseGenerator) {
-        const {
-          inventoryUpdateData,
-          purchaseProductData,
-          chartOfAccountTransaction,
-        } = dbCodeGenerator({
+        const { inventoryUpdateData, purchaseProductData } = dbCodeGenerator({
           product,
           tax,
           grossAmount,
@@ -61,11 +55,6 @@ export const totPurchaseSummation = ({
           ...databaseGenerator,
         });
 
-        if (chartOfAccountTransaction)
-          chartOfAccountTransactions = [
-            ...chartOfAccountTransactions,
-            chartOfAccountTransaction,
-          ];
         inventoryUpdate = [...inventoryUpdate, inventoryUpdateData];
         createPurchaseProductData = [
           ...createPurchaseProductData,
@@ -103,7 +92,6 @@ export const totPurchaseSummation = ({
       goodTaxAmount,
     },
     createPurchaseProductData,
-    chartOfAccountTransactions,
     inventoryUpdate,
   };
 };
