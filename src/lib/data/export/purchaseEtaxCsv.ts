@@ -5,6 +5,7 @@ import Decimal from "decimal.js";
 import { purchaseTypeConvertor } from "@/lib/form/product/data";
 import { stringify } from "csv-stringify/sync";
 import { DateRangeType } from "@/types/shared";
+import { backDateSetter, dateSetter } from "@/lib/utils/calendar/date";
 
 type PurchaseEtaxReport = {
   productType: string;
@@ -34,8 +35,8 @@ export const PurchaseEtaxCsvGenerator = async ({
   try {
     const purchases = await fetchAllPurchases({
       companyId,
-      startDate: dateRange.startDate,
-      endDate: dateRange.endDate,
+      startDate: dateSetter(dateRange.startDate),
+      endDate: dateSetter(dateRange.endDate),
       filter: {
         fetch: "vat",
       },
@@ -93,7 +94,9 @@ This field is  mandatory.`,
       purchaseType: purchaseTypeConvertor(purchase.purchaseType),
       vendorTin: purchase.vendorTin ?? "",
       sellerName: !purchase.vendorTin ? purchase.vendorName ?? "" : "",
-      date: purchase.date.toLocaleDateString("en-GB"),
+      date: new Date(
+        purchase.date.toISOString().split("T")[0],
+      ).toLocaleDateString("en-GB"),
       MRCNumber: purchase.mrcNumber ?? "",
       VatReceiptNumber: purchase.receiptNumber ?? "",
       description: purchase.description,

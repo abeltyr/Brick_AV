@@ -3,6 +3,7 @@
 import { fetchAllPurchases } from "../purchase/fetchAllPurchases";
 import { stringify } from "csv-stringify/sync";
 import { DateRangeType } from "@/types/shared";
+import { dateSetter } from "@/lib/utils/calendar/date";
 
 type WithholdingEtaxCSVReport = {
   vendorTin: string;
@@ -23,8 +24,8 @@ export const WithholdingEtaxCSVGenerator = async ({
   try {
     const purchases = await fetchAllPurchases({
       companyId,
-      startDate: dateRange.startDate,
-      endDate: dateRange.endDate,
+      startDate: dateSetter(dateRange.startDate),
+      endDate: dateSetter(dateRange.endDate),
       filter: {
         fetch: "withholding",
       },
@@ -43,7 +44,9 @@ export const WithholdingEtaxCSVGenerator = async ({
       vendorTin: purchase.vendorTin ?? "",
       vendorName: purchase.vendorName ?? "",
       withholdingNumber: purchase.withholdingNumber ?? "",
-      date: purchase.date.toLocaleDateString("en-GB"),
+      date: new Date(
+        purchase.date.toISOString().split("T")[0],
+      ).toLocaleDateString("en-GB"),
       taxableAmount: purchase.taxableAmount.toFixed(2),
       taxWithheld: purchase.withholdingAmount.toFixed(2),
     }));

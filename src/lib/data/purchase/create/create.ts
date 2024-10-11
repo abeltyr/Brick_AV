@@ -10,7 +10,7 @@ import {
 } from "@/lib/utils/purchase";
 import { PurchaseInputType } from "@/types/purchase";
 import Decimal from "decimal.js";
-import { getWeekOrder } from "@/lib/utils/calendar/date";
+import { dateSetter, getWeekOrder } from "@/lib/utils/calendar/date";
 import { PurchaseReportType } from "@/types/report";
 import { vendorIncludeData } from "../../vendor/common/include";
 import { v4 } from "uuid";
@@ -43,8 +43,7 @@ export const createPurchaseAction = async ({
   purchaseAccountPeriodReport: PurchaseReportType | null;
   purchaseFiscalYearReport: PurchaseReportType | null;
 } | null> => {
-  const purchaseDate = purchaseInput.date;
-  purchaseDate.setHours(24, 0, 0, 0);
+  const purchaseDate = dateSetter(purchaseInput.date);
 
   // fetch the vendor and accounting period to validate and setup the needed data
   const { vendor, accountPeriod } = await createPurchaseValidation({
@@ -731,7 +730,7 @@ export const createPurchaseAction = async ({
           data: {
             chartOfAccountId: chartOfAccountDataDetail.id,
             transactionType: "PAYMENT",
-            status: "CONFIRMED",
+            status: "PENDING",
             accountPeriodId: accountPeriod.id,
             companyId: companyId,
             date: purchaseDate,

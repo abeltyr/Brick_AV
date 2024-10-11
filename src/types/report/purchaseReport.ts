@@ -8,5 +8,4 @@ export type PurchaseReportType = {
   nonTaxableAmount: Decimal | null;
   taxableAmount: Decimal | null;
   withholdingAmount: Decimal | null;
-  totAmount: Decimal | null;
 };

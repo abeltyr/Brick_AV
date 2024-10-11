@@ -152,3 +152,17 @@ export const getWeekOrder = ({
   // The week interval is 1-based, so we add 1 to the result
   return weeksSinceStart;
 };
+
+export const dateSetter = (date: Date) => {
+  const valueDate = date;
+  valueDate.setHours(24, 0, 0, 0);
+
+  return valueDate;
+};
+
+export const backDateSetter = (date: Date) => {
+  const valueDate = date;
+  valueDate.setHours(23, 59, 59, 999);
+
+  return valueDate;
+};

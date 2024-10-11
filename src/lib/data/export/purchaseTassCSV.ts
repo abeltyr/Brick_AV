@@ -3,6 +3,7 @@
 import { fetchAllPurchases } from "../purchase/fetchAllPurchases";
 import { stringify } from "csv-stringify/sync";
 import { DateRangeType } from "@/types/shared";
+import { dateSetter } from "@/lib/utils/calendar/date";
 
 type PurchaseEtaxReport = {
   vendorTin: string;
@@ -23,8 +24,8 @@ export const PurchaseTassCsvGenerator = async ({
   try {
     const purchases = await fetchAllPurchases({
       companyId,
-      startDate: dateRange.startDate,
-      endDate: dateRange.endDate,
+      startDate: dateSetter(dateRange.startDate),
+      endDate: dateSetter(dateRange.endDate),
       filter: {
         fetch: "vat",
       },
@@ -43,7 +44,9 @@ export const PurchaseTassCsvGenerator = async ({
       vendorTin: purchase.vendorTin ?? "",
       grossAmount: purchase.grossAmount.toFixed(2),
       receiptNumber: purchase.receiptNumber ?? "",
-      date: purchase.date.toLocaleDateString("en-GB"),
+      date: new Date(
+        purchase.date.toISOString().split("T")[0],
+      ).toLocaleDateString("en-GB"),
       calendar: "G",
       mrcNumber: purchase.mrcNumber ?? "",
     }));
