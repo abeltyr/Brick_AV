@@ -39,8 +39,6 @@ export const vatPurchaseSummation = ({
   let totalNonCapitalInputs: Decimal = new Decimal(0);
   let vatOnTotalInputs: Decimal = new Decimal(0);
 
-  let chartOfAccountTransactions: Prisma.Prisma__ChartOfAccountTransactionClient<{}>[] =
-    [];
   let createPurchaseProductData: Prisma.Prisma__PurchaseProductClient<{}>[] =
     [];
 
@@ -159,11 +157,7 @@ export const vatPurchaseSummation = ({
       }
 
       if (databaseGenerator) {
-        const {
-          inventoryUpdateData,
-          purchaseProductData,
-          chartOfAccountTransaction,
-        } = dbCodeGenerator({
+        const { inventoryUpdateData, purchaseProductData } = dbCodeGenerator({
           product,
           tax,
           grossAmount,
@@ -172,12 +166,6 @@ export const vatPurchaseSummation = ({
           withholding,
           ...databaseGenerator,
         });
-
-        if (chartOfAccountTransaction)
-          chartOfAccountTransactions = [
-            ...chartOfAccountTransactions,
-            chartOfAccountTransaction,
-          ];
         inventoryUpdate = [...inventoryUpdate, inventoryUpdateData];
         createPurchaseProductData = [
           ...createPurchaseProductData,
@@ -260,7 +248,6 @@ export const vatPurchaseSummation = ({
       averagePrice,
     },
     createPurchaseProductData,
-    chartOfAccountTransactions,
     inventoryUpdate,
   };
 };

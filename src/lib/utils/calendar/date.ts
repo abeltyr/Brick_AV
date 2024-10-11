@@ -129,24 +129,26 @@ export const getWeekOrder = ({
   startDate: Date;
   endDate: Date;
 }): number => {
-  // Validate input: Ensure startDate is before endDate
-  if (startDate.getTime() >= endDate.getTime()) {
-    throw new Error("Invalid input: startDate must be before endDate.");
+  // Ensure the start date is before the end date
+  if (startDate > endDate) {
+    [startDate, endDate] = [endDate, startDate];
   }
 
-  // Validate input: Ensure date is within the range
-  if (
-    date.getTime() < startDate.getTime() ||
-    date.getTime() > endDate.getTime()
-  ) {
-    throw new Error("Invalid input: date is outside the given account period.");
+  // Check if the current date is within the range
+  if (date < startDate || date > endDate) {
+    throw new Error("Current date is outside the specified range");
   }
 
-  // Calculate the quarter the date falls into
-  const totalMilliseconds = endDate.getTime() - startDate.getTime();
-  const millisecondsFromStart = date.getTime() - startDate.getTime();
-  const quarter = Math.ceil((millisecondsFromStart / totalMilliseconds) * 4);
+  // Calculate the total number of weeks between start and end dates
+  const totalWeeks = Math.ceil(
+    (endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000),
+  );
 
-  // Ensure the result is within the valid range (1-4)
-  return Math.min(Math.max(quarter, 1), 4);
+  // Calculate the number of weeks from the start date to the current date
+  const weeksSinceStart = Math.floor(
+    (date.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000),
+  );
+
+  // The week interval is 1-based, so we add 1 to the result
+  return weeksSinceStart;
 };

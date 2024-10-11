@@ -13,6 +13,8 @@ import { ProfileInputType, ProfileType } from '@/types/profile';
 import React, { useContext, useState } from "react";
 import { z } from 'zod';
 import { DateTime } from 'luxon';
+import { useForm, UseFormReturn } from 'react-hook-form';
+import { zodResolver } from "@hookform/resolvers/zod"
 
 
 function processAndSendDate(inputDate: Date) {
@@ -99,6 +101,7 @@ const initialValues: {
     createUser: ({ chartOfAccounts, userId }: { chartOfAccounts: z.infer<typeof chartOfAccountsSchema>, userId: string }) => Promise<ProfileType | null>
     fiscalYear: z.infer<typeof yearSchema> | undefined
     setFiscalYear: (fiscalYear: z.infer<typeof yearSchema>) => void,
+    chartOfAccountForm: UseFormReturn<z.infer<typeof chartOfAccountsSchema>> | undefined
 } = {
     onBoardingId: 0,
     setOnBoardingId: (index: number) => { },
@@ -117,7 +120,8 @@ const initialValues: {
     createUser: async ({ ownerAddressData, userId }: { ownerAddressData?: z.infer<typeof addressSchema>, userId: string }) => { return null },
     fetchBusiness: async (tin: string) => { return null },
     fiscalYear: undefined,
-    setFiscalYear: () => { }
+    setFiscalYear: () => { },
+    chartOfAccountForm: undefined
 };
 
 type Props = {
@@ -198,16 +202,6 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
                 kebele: address.kebele
             }
         }
-        console.log("fiscalYear", {
-            startDate: DateTime.fromJSDate(fiscalYear.startDate).toISO(),
-            endDate: fiscalYear.endDate.toDateString(),
-            periods: fiscalYear.periods.map((data) => {
-                return {
-                    start: data.start,
-                    end: data.end,
-                }
-            })
-        });
         try {
             const profileData = await onBoardingAction({
                 company: {
@@ -248,6 +242,44 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
     }
 
 
+    const chartOfAccountForm = useForm<z.infer<typeof chartOfAccountsSchema>>({
+        resolver: zodResolver(chartOfAccountsSchema),
+        defaultValues: {
+            accounts: [
+                {
+                    accountType: "Cash",
+                    balance: {
+                        amount: 0
+                    },
+                    name: "",
+                    code: 1001,
+                }, {
+                    accountType: "Account_receivable",
+                    balance: {
+                        amount: 0
+                    },
+                    name: "Vat Receivable",
+                    code: 1011,
+                }, {
+                    accountType: "Equity_does_not_close",
+                    balance: {
+                        amount: 0
+                    },
+                    name: "",
+                    code: 3001,
+                }, {
+                    accountType: "Account_payable",
+                    balance: {
+                        amount: 0
+                    },
+                    name: "Withholding Payable",
+                    code: 4001,
+                }
+            ]
+        },
+    })
+
+
     return (
         <OnboardingContext.Provider
             value={{
@@ -268,7 +300,8 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
                 createUser,
                 fetchBusiness,
                 fiscalYear,
-                setFiscalYear
+                setFiscalYear,
+                chartOfAccountForm
             }}
         >
             {children}
