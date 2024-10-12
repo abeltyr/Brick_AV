@@ -81,30 +81,13 @@ export const DetailCard = ({ companyId }: { companyId: string }) => {
     else {
         return (
             <div className="flex gap-4  lg:gap-8 flex-wrap">
-                <Card x-chunk="dashboard-01-chunk-0" className='flex-1 min-w-[100%] xsm:min-w-[50%] lg:min-w-fit'>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-lg font-medium">
-                            <LanguageTranslator>
-                                Total Purchase
-                            </LanguageTranslator>
-                        </CardTitle>
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-semibold">
-                            {purchasesReportData && purchasesReportData.grossAmount ? new Decimal(purchasesReportData.grossAmount).toNumber().toLocaleString('en-US', { style: 'currency', currency: 'ETB' }) : (0).toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}
-                        </div>
-                    </CardContent>
-                </Card>
+
                 <Card x-chunk="dashboard-01-chunk-1" className='flex-1 min-w-[100%] xsm:min-w-[50%] lg:min-w-fit'>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-lg font-medium">
                             <LanguageTranslator>
-                                Before</LanguageTranslator>
-                            {" "}
-                            <LanguageTranslator>
-                                Vat
-                            </LanguageTranslator>
+                                Subtotal</LanguageTranslator>
+
                         </CardTitle>
                         <Activity className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
@@ -152,6 +135,21 @@ export const DetailCard = ({ companyId }: { companyId: string }) => {
                         </CardContent>
                     </Card>
                 }
+                <Card x-chunk="dashboard-01-chunk-0" className='flex-1 min-w-[100%] xsm:min-w-[50%] lg:min-w-fit'>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-lg font-medium">
+                            <LanguageTranslator>
+                                Grant Total
+                            </LanguageTranslator>
+                        </CardTitle>
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-semibold">
+                            {purchasesReportData && purchasesReportData.grossAmount ? new Decimal(purchasesReportData.grossAmount).toNumber().toLocaleString('en-US', { style: 'currency', currency: 'ETB' }) : (0).toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         )
     }

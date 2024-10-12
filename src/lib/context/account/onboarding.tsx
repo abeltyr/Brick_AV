@@ -273,7 +273,7 @@ const OnboardingProvider: React.FC<Props> = ({ children }) => {
                         amount: 0
                     },
                     name: "Withholding Payable",
-                    code: 4001,
+                    code: 2001,
                 }
             ]
         },

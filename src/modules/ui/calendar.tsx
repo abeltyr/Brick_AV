@@ -120,7 +120,7 @@ function Calendar({
         <div className='p-0'>
           <DayPicker
             onDayClick={() => {
-              if (setOpened) setOpened(false)
+              // if (setOpened) setOpened(false)
             }}
             // selected={selectedDate}
 

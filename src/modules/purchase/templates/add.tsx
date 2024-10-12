@@ -176,9 +176,6 @@ export const AddPurchaseSection = () => {
                         form={form!}
                     />
                     <div className='flex gap-6' >
-                        <div className='flex-1 max-w-[402px]'>
-                            <AddPurchaseSideSection />
-                        </div>
                         <div className='flex-1 flex flex-col gap-8'>
                             <PurchaseDetailForm />
                             <div className='px-6'>
@@ -189,6 +186,9 @@ export const AddPurchaseSection = () => {
                                 <Separator className='my-6' />
                             </div>
                             <PurchaseGebiwochReportForm />
+                        </div>
+                        <div className='flex-1 max-w-[402px]'>
+                            <AddPurchaseSideSection />
                         </div>
 
                     </div>
